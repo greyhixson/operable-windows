@@ -8,7 +8,7 @@ Vuetify \
 Google Firebase 
 
 # IDE
-Visual Studio Code \ 
+Visual Studio Code \
 Vetur \
 Eslint + Prettier
 

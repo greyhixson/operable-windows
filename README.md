@@ -4,7 +4,7 @@ The project entails working with the Department of Sustainability to create an a
 
 ### Tech Stack
 Vue.js 2 \
-Vuetify \
+Vuetify 2 \
 Google Firebase 
 
 ### IDE

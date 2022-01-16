@@ -50,42 +50,45 @@ export default {
   methods: {
     searchFilter(item, queryText) {
       var cityState;
-      // Check if format is "city, state" or just "city state"
-      if (queryText.indexOf(', ') > -1) {
-        cityState = queryText.split(', ');
-      } else if (queryText.indexOf(' ') > -1) {
-        cityState = queryText.split(' ');
-      }
+      queryText = queryText.replace(',', ' ').trim().toLowerCase();
 
-      // Just the city or state ex. "Fayetteville" or "Arkansas" also handles single trailing whitespace case ex. "Fayetteville " or trailing comma case ex. "Fayetteville, "
-      if (cityState == null || cityState[1] == '') {
-        queryText = queryText.replace(',', '');
+      // Text has multiple terms ex. "Los Angeles California" or "Fayetteville, AR"
+      if(queryText.indexOf(' ')){
+        cityState = queryText.split(/\s+/);
+        cityState.forEach((term, index) => {
+          cityState[index] = term.replace(',', '');
+        });     
+        console.log(cityState)
+      }
+      // 1 term ex. "Fayetteville"
+      if(cityState == null || cityState.length == 1)
+      {
         return (
-          item.city.toLowerCase().indexOf(queryText.trim().toLowerCase()) > -1 ||
-          item.state.toLowerCase().indexOf(queryText.trim().toLowerCase()) > -1
+          item.city.toLowerCase().indexOf(queryText) > -1 ||
+          item.state.toLowerCase().indexOf(queryText) > -1
         );
       }
 
-      // Abbreviated state ex. "Fayetteville, AR"
+      // Abbreviated state ex. "AR"
       if (Object.prototype.hasOwnProperty.call(this.stateAbbrMap, cityState[cityState.length - 1].toUpperCase())) {
         let state = this.stateAbbrMap[cityState[cityState.length - 1].toUpperCase()];
-        cityState[cityState.length - 1] = state;
+        cityState[cityState.length - 1] = state.toLowerCase();
       }
 
       // 2 words for city and state ex. "Fayetteville Arkansas"
       if (cityState.length == 2) {
         return (
-          (item.city.toLowerCase().indexOf(cityState[0].toLowerCase()) > -1 &&
-            item.state.toLowerCase().indexOf(cityState[1].toLowerCase()) > -1) ||
-          item.city.toLowerCase().indexOf(cityState[0].toLowerCase() + ' ' + cityState[1].toLowerCase()) > -1
+          (item.city.toLowerCase().indexOf(cityState[0]) > -1 &&
+            item.state.toLowerCase().indexOf(cityState[1]) > -1) ||
+          item.city.toLowerCase().indexOf(cityState[0] + ' ' + cityState[1]) > -1
         );
         // > 2 words for city and state ex. "Los Angeles California" or "Fayetteville North Carolina"
       } else {
         return (
-          (item.city.toLowerCase().indexOf(cityState[0].toLowerCase() + ' ' + cityState[1].toLowerCase()) > -1 &&
-            item.state.toLowerCase().indexOf(cityState[2].toLowerCase()) > -1) ||
-          (item.city.toLowerCase().indexOf(cityState[0].toLowerCase()) > -1 &&
-            item.state.toLowerCase().indexOf(cityState[1].toLowerCase() + ' ' + cityState[2].toLowerCase()) > -1)
+          (item.city.toLowerCase().indexOf(cityState[0] + ' ' + cityState[1]) > -1 &&
+            item.state.toLowerCase().indexOf(cityState[2]) > -1) ||
+          (item.city.toLowerCase().indexOf(cityState[0]) > -1 &&
+            item.state.toLowerCase().indexOf(cityState[1] + ' ' + cityState[2]) > -1)
         );
       }
     },

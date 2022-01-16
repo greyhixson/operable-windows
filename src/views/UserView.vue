@@ -1,19 +1,29 @@
 <template>
   <div>
-    <location-input />
-    <window-info />
+    <user-location @submitLocation="getLocation"/>
+    <user-window v-if="submittedLocation" :location="submittedLocation"/>
   </div>
 </template>
 
 <script>
-import LocationInput from '../components/LocationInput';
-import WindowInfo from '../components/WindowInfo';
+import UserLocation from '../components/UserLocation';
+import UserWindow from '../components/UserWindow';
 
 export default {
   name: 'UserView',
   components: {
-    LocationInput,
-    WindowInfo,
+    UserLocation,
+    UserWindow,
   },
+  data() {
+    return {
+      submittedLocation: null
+    }
+  },
+  methods: {
+    getLocation(event) {
+      this.submittedLocation = event;
+    }
+  }
 };
 </script>

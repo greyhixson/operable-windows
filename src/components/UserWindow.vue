@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <p>Test</p>
+    <p>{{ location.city }}, {{ location.state }}</p>
   </v-container>
 </template>
     
@@ -10,7 +10,9 @@
 export default {
   name: 'WindowInfo',
   // *----------------------- P r o p s ----------------------------------------------------------
-  props: {},
+  props: {
+    location: Object,
+  },
   // *----------------------- D a t a -----------------------------------------------------------
   data() {
     return {};
@@ -27,7 +29,4 @@ export default {
 </script>
 
 <style scoped>
-#input {
-  padding-top: 200px;
-}
 </style>

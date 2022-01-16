@@ -4,7 +4,7 @@
       <v-card-text>
         <v-subheader class="pa-0"> Where do you live? </v-subheader>
         <v-autocomplete
-          v-model="location"
+          v-model="userLocation"
           :items="cities"
           prepend-icon="mdi-city"
           cache-items
@@ -43,10 +43,10 @@
 
 <script>
 import citiesJson from '../usaCities.json';
-import statesJson from '../states.json';
+import stateAbbrJson from '../stateAbbr.json';
 
 export default {
-  name: 'LocationInput',
+  name: 'UserLocation',
   methods: {
     searchFilter(item, queryText) {
       var cityState;
@@ -67,8 +67,8 @@ export default {
       }
 
       // Abbreviated state ex. "Fayetteville, AR"
-      if (Object.prototype.hasOwnProperty.call(this.states, cityState[cityState.length - 1].toUpperCase())) {
-        let state = this.states[cityState[cityState.length - 1].toUpperCase()];
+      if (Object.prototype.hasOwnProperty.call(this.stateAbbrMap, cityState[cityState.length - 1].toUpperCase())) {
+        let state = this.stateAbbrMap[cityState[cityState.length - 1].toUpperCase()];
         cityState[cityState.length - 1] = state;
       }
 
@@ -90,14 +90,19 @@ export default {
       }
     },
   },
-
   data() {
     return {
       cities: citiesJson,
-      states: statesJson,
+      stateAbbrMap: stateAbbrJson,
       search: null,
-      location: null,
+      userLocation: null,
     };
+  },
+  // When location is selected, an event is emmitted so the parent component UserView will receive the object
+  watch: {
+    userLocation() {
+      this.$emit('submitLocation', this.userLocation);
+    },
   },
 };
 </script>

@@ -58,7 +58,6 @@ export default {
         cityState.forEach((term, index) => {
           cityState[index] = term.replace(',', '');
         });     
-        console.log(cityState)
       }
       // 1 term ex. "Fayetteville"
       if(cityState == null || cityState.length == 1)

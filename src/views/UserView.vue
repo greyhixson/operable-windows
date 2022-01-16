@@ -1,15 +1,19 @@
 <template>
-  <location-input />
+  <div>
+    <location-input />
+    <window-info />
+  </div>
 </template>
 
 <script>
 import LocationInput from '../components/LocationInput';
+import WindowInfo from '../components/WindowInfo';
 
 export default {
-  name: 'Home',
-
+  name: 'UserView',
   components: {
     LocationInput,
+    WindowInfo,
   },
 };
 </script>

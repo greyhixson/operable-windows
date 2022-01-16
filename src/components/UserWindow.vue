@@ -8,7 +8,7 @@
 
 <script>
 export default {
-  name: 'WindowInfo',
+  name: 'UserWindow',
   // *----------------------- P r o p s ----------------------------------------------------------
   props: {
     location: Object,

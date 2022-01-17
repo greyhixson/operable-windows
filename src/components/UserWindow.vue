@@ -18,6 +18,7 @@ export default {
   },
   // *----------------------- D a t a -----------------------------------------------------------
   data() {
+    // TODO Hide APIKey
     return {
       APIkey: 'fb3f8c4acaba36f086776e594b64a68c',
       weather: Object,
@@ -25,14 +26,13 @@ export default {
       openWindow: null,
     };
   },
-  // *----------------------- C o m p u t e d ---------------------------------------------------
   computed: {},
-  // *----------------------- L i f e   c i r c l e ---------------------------------------------
   created() {
     this.getCurrentWeather();
   },
-  // *----------------------- M e t h o d s -----------------------------------------------------
   methods: {
+    // TODO: Error handling
+    // Retrieves the current weather from openweathermap
     getCurrentWeather() {
       fetch(`https://api.openweathermap.org/data/2.5/weather?q=${this.location.city}&appid=${this.APIkey}&units=imperial`)
         .then((response) => {
@@ -43,6 +43,7 @@ export default {
           this.getWindowThresholds()
         });
     },
+    // TODO: Error handling
     async getWindowThresholds() {
       this.windowThresholds = await getThresholds(this.location.city, this.location.state);
       if (
@@ -57,8 +58,6 @@ export default {
       }
     },
   },
-  // *----------------------- W a t c h ---------------------------------------------------------
-  watch: {},
 };
 </script>
 

@@ -14,6 +14,7 @@ const firebaseApp = initializeApp({
   
 const db = getFirestore(firebaseApp);
 
+// TODO: Error handling and hide firebase API
 export async function getThresholds(city, state) {
   const querySnapshot = await getDocs(collection(db, "window-thresholds"));
   var data;

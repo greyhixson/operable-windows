@@ -1,7 +1,12 @@
 <template>
   <v-container>
-    <p>{{ location.city }}, {{ location.state }}</p>
-    <p>{{ openWindow }}</p>
+    <v-card flat>
+      <v-card-text>
+        <div class="text-h5">
+          {{ openWindow }}
+        </div>
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
     
@@ -27,9 +32,6 @@ export default {
     };
   },
   computed: {},
-  created() {
-    this.getCurrentWeather();
-  },
   methods: {
     // TODO: Error handling
     // Retrieves the current weather from openweathermap
@@ -40,7 +42,7 @@ export default {
         })
         .then((data) => {
           this.weather = data;
-          this.getWindowThresholds()
+          this.getWindowThresholds();
         });
     },
     // TODO: Error handling
@@ -52,14 +54,15 @@ export default {
         this.windowThresholds.humidity_max > this.weather.humidity
       ) {
         this.openWindow = 'Open Window';
-      }
-      else {
+      } else {
         this.openWindow = 'Close Window';
       }
     },
   },
+  watch: {
+    location() {
+      this.getCurrentWeather();
+    },
+  },
 };
 </script>
-
-<style scoped>
-</style>

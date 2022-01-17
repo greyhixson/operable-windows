@@ -1,8 +1,10 @@
 <template>
-  <div>
-    <user-location @submitLocation="getLocation"/>
-    <user-window v-if="submittedLocation" :location="submittedLocation"/>
-  </div>
+  <v-container class="d-flex justify-center">
+    <v-col cols="auto">
+      <user-location @submitLocation="getLocation" />
+      <user-window :location="submittedLocation" />
+    </v-col>
+  </v-container>
 </template>
 
 <script>
@@ -17,13 +19,13 @@ export default {
   },
   data() {
     return {
-      submittedLocation: null
-    }
+      submittedLocation: null,
+    };
   },
   methods: {
     getLocation(event) {
       this.submittedLocation = event;
-    }
-  }
+    },
+  },
 };
 </script>

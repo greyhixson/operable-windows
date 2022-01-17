@@ -1,12 +1,12 @@
 <template>
-  <v-container id="input" class="d-flex justify-center">
-    <v-card flat width="500">
+  <v-container class="d-inline-flex">
+    <v-icon x-large disabled class="pt-4"> mdi-city </v-icon>
+    <v-card flat>
       <v-card-text>
-        <v-subheader class="pa-0"> Where do you live? </v-subheader>
+        <v-subheader class="text-h5"> Where do you live? </v-subheader>
         <v-autocomplete
           v-model="userLocation"
           :items="cities"
-          prepend-icon="mdi-city"
           cache-items
           clearable
           hide-no-data
@@ -14,14 +14,12 @@
           label="Search for your location"
           solo
           :filter="searchFilter"
+          autofocus
+          height="60"
         >
+        <!-- Fix width bug !-->
           <template v-slot:selection="{ item }">
             <span>{{ item.city }}, {{ item.state }}</span>
-          </template>
-          <template v-slot:no-data>
-            <v-list-item>
-              <v-list-item-title> Enter your location </v-list-item-title>
-            </v-list-item>
           </template>
           <template v-slot:item="{ item }">
             <v-list-item-content>
@@ -36,8 +34,18 @@
 </template>
 
 <style scoped>
-#input {
-  padding-top: 200px;
+.v-autocomplete {
+  font-size: 20px;
+}
+.v-autocomplete >>> .v-label {
+  font-size: 20px;
+}
+
+.v-select.fit {
+  width: min-content;
+}
+.v-select.fit  .v-select__selection--comma {
+    text-overflow: unset;
 }
 </style>
 
@@ -53,19 +61,15 @@ export default {
       queryText = queryText.replace(',', ' ').trim().toLowerCase();
 
       // Text has multiple terms ex. "Los Angeles California" or "Fayetteville, AR"
-      if(queryText.indexOf(' ')){
+      if (queryText.indexOf(' ')) {
         cityState = queryText.split(/\s+/);
         cityState.forEach((term, index) => {
           cityState[index] = term.replace(',', '');
-        });     
+        });
       }
       // 1 term ex. "Fayetteville"
-      if(cityState == null || cityState.length == 1)
-      {
-        return (
-          item.city.toLowerCase().indexOf(queryText) > -1 ||
-          item.state.toLowerCase().indexOf(queryText) > -1
-        );
+      if (cityState == null || cityState.length == 1) {
+        return item.city.toLowerCase().indexOf(queryText) > -1 || item.state.toLowerCase().indexOf(queryText) > -1;
       }
 
       // Abbreviated state ex. "AR"
@@ -77,8 +81,7 @@ export default {
       // 2 words for city and state ex. "Fayetteville Arkansas"
       if (cityState.length == 2) {
         return (
-          (item.city.toLowerCase().indexOf(cityState[0]) > -1 &&
-            item.state.toLowerCase().indexOf(cityState[1]) > -1) ||
+          (item.city.toLowerCase().indexOf(cityState[0]) > -1 && item.state.toLowerCase().indexOf(cityState[1]) > -1) ||
           item.city.toLowerCase().indexOf(cityState[0] + ' ' + cityState[1]) > -1
         );
         // > 2 words for city and state ex. "Los Angeles California" or "Fayetteville North Carolina"
@@ -86,8 +89,7 @@ export default {
         return (
           (item.city.toLowerCase().indexOf(cityState[0] + ' ' + cityState[1]) > -1 &&
             item.state.toLowerCase().indexOf(cityState[2]) > -1) ||
-          (item.city.toLowerCase().indexOf(cityState[0]) > -1 &&
-            item.state.toLowerCase().indexOf(cityState[1] + ' ' + cityState[2]) > -1)
+          (item.city.toLowerCase().indexOf(cityState[0]) > -1 && item.state.toLowerCase().indexOf(cityState[1] + ' ' + cityState[2]) > -1)
         );
       }
     },

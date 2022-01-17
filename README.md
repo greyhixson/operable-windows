@@ -1,5 +1,5 @@
 # operable-windows
-Project for my Honors Thesis at the University of Arkansas.
+Project for my honors thesis at the University of Arkansas.
 The project entails working with the Department of Sustainability to create an application for a teacher to input their location and get back information if it is acceptable for them to open their window or not given many different thresholds. 
 
 ### Tech Stack

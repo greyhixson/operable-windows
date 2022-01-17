@@ -17,7 +17,7 @@
           autofocus
           height="60"
         >
-        <!-- Fix width bug !-->
+          <!-- Fix width bug !-->
           <template v-slot:selection="{ item }">
             <span>{{ item.city }}, {{ item.state }}</span>
           </template>
@@ -39,13 +39,6 @@
 }
 .v-autocomplete >>> .v-label {
   font-size: 20px;
-}
-
-.v-select.fit {
-  width: min-content;
-}
-.v-select.fit  .v-select__selection--comma {
-    text-overflow: unset;
 }
 </style>
 

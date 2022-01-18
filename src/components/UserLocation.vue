@@ -35,6 +35,7 @@
 <style scoped>
 .v-autocomplete {
   font-size: 20px;
+  min-width: 300px;
 }
 
 .v-autocomplete >>> .v-label {
@@ -45,7 +46,6 @@
 
 <style>
 /* Vuetify bug fix */
-
 .v-select__selections input { 
   width: 0 !important; 
   min-width: 0 !important;

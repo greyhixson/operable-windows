@@ -17,7 +17,6 @@
           autofocus
           height="60"
         >
-          <!-- Fix width bug !-->
           <template v-slot:selection="{ item }">
             <span>{{ item.city }}, {{ item.state }}</span>
           </template>
@@ -37,9 +36,21 @@
 .v-autocomplete {
   font-size: 20px;
 }
+
 .v-autocomplete >>> .v-label {
   font-size: 20px;
 }
+
+</style>
+
+<style>
+/* Vuetify bug fix */
+
+.v-select__selections input { 
+  width: 0 !important; 
+  min-width: 0 !important;
+}
+
 </style>
 
 <script>

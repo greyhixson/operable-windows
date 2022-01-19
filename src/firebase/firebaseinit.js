@@ -15,6 +15,7 @@ const firebaseApp = initializeApp({
 const db = getFirestore(firebaseApp);
 
 // TODO: Error handling and hide firebase API
+// Gets the window thresholds from firebase given some parameters
 export async function getThresholds(city, state) {
   try {
     const thresholds = collection(db, "window-thresholds")

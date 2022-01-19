@@ -42,6 +42,7 @@ export default {
           this.getWindowThresholds(weather);
         });
     },
+    // Gets the thresholds stored in firebase and makes a decision based on the retrieved parameters
     async getWindowThresholds(weather) {
       try {
         let windowThresholds = await getThresholds(this.location.city, this.location.state);

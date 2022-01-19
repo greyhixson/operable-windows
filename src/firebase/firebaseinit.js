@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { 
-  getFirestore, collection, getDocs
+  getFirestore, collection, where, query, getDocs
 } from "firebase/firestore"
 
 const firebaseApp = initializeApp({
@@ -16,14 +16,22 @@ const db = getFirestore(firebaseApp);
 
 // TODO: Error handling and hide firebase API
 export async function getThresholds(city, state) {
-  const querySnapshot = await getDocs(collection(db, "window-thresholds"));
-  var data;
-  querySnapshot.forEach((doc) => {
-    if(doc.data().city == city && doc.data().state == state){
-      data = doc.data();
+  try {
+    const thresholds = collection(db, "window-thresholds")
+    const q = query(thresholds, where("city", "==", city), where("state", "==", state))
+    const querySnapshot = await getDocs(q)
+    if(!querySnapshot.empty) {
+      const threshold = querySnapshot.docs[0].data()
+      return threshold
     }
-  });
-  return data;
+    else {
+      return 'No information was found for that location'
+    }
+  }
+  catch {
+    return 'An error has occured, please try again later'
+  }
+
 }
 
 

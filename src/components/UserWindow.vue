@@ -21,13 +21,12 @@ export default {
   props: {
     location: Object,
   },
-  // *----------------------- D a t a -----------------------------------------------------------
+  // *----------------------- D a t a ---------------------d--------------------------------------
   data() {
     // TODO Hide APIKey
     return {
       APIkey: 'fb3f8c4acaba36f086776e594b64a68c',
       weather: Object,
-      windowThresholds: Object,
       openWindow: null,
     };
   },
@@ -40,28 +39,37 @@ export default {
         .then((response) => {
           return response.json();
         })
-        .then((data) => {
-          this.weather = data;
-          this.getWindowThresholds();
+        .then((weather) => {
+          this.getWindowThresholds(weather);
         });
     },
     // TODO: Error handling
-    async getWindowThresholds() {
-      this.windowThresholds = await getThresholds(this.location.city, this.location.state);
-      if (
-        this.windowThresholds.max_temp > this.weather.main.temp &&
-        this.windowThresholds.min_temp < this.weather.main.temp &&
-        this.windowThresholds.humidity_max > this.weather.humidity
-      ) {
-        this.openWindow = 'Open Window';
-      } else {
-        this.openWindow = 'Close Window';
+    async getWindowThresholds(weather) {
+      try {
+        let windowThresholds = await getThresholds(this.location.city, this.location.state);
+        if (typeof windowThresholds === 'string' || windowThresholds instanceof String) {
+          this.openWindow = windowThresholds;
+        } else {
+          if (
+            windowThresholds.max_temp > weather.main.temp &&
+            windowThresholds.min_temp < weather.main.temp &&
+            windowThresholds.humidity_max > weather.humidity
+          ) {
+            this.openWindow = 'Open Window';
+          } else {
+            this.openWindow = 'Close Window';
+          }
+        }
+      } catch (e) {
+        this.openWindow = 'Location not supported';
       }
     },
   },
   watch: {
     location() {
-      this.getCurrentWeather();
+      if(location != null){
+        this.getCurrentWeather();
+      }
     },
   },
 };

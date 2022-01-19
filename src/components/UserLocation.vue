@@ -1,9 +1,9 @@
 <template>
-  <v-container class="d-inline-flex">
+  <v-container class="d-flex mb-n12">
     <v-icon x-large disabled class="pt-4"> mdi-city </v-icon>
     <v-card flat>
       <v-card-text>
-        <v-subheader class="text-h5"> Where do you live? </v-subheader>
+        <v-subheader class="text-h5"> Where is the location of your window? </v-subheader>
         <v-autocomplete
           v-model="userLocation"
           :items="cities"

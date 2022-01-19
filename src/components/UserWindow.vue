@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="d-flex justify-center">
     <v-card flat>
       <v-card-text>
         <div class="text-h5">

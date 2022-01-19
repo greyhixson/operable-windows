@@ -27,7 +27,7 @@ export default {
     return {
       APIkey: 'fb3f8c4acaba36f086776e594b64a68c',
       weather: Object,
-      openWindow: null,
+      openWindow: 'Awaiting Location',
     };
   },
   computed: {},
@@ -43,7 +43,6 @@ export default {
           this.getWindowThresholds(weather);
         });
     },
-    // TODO: Error handling
     async getWindowThresholds(weather) {
       try {
         let windowThresholds = await getThresholds(this.location.city, this.location.state);
@@ -61,7 +60,7 @@ export default {
           }
         }
       } catch (e) {
-        this.openWindow = 'Location not supported';
+        this.openWindow = 'An error has occured, please try again later';
       }
     },
   },
@@ -69,6 +68,9 @@ export default {
     location() {
       if(location != null){
         this.getCurrentWeather();
+      }
+      else{
+        this.openWindow = 'Awaiting Location'
       }
     },
   },

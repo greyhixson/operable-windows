@@ -26,7 +26,6 @@ export default {
     // TODO Hide APIKey
     return {
       APIkey: 'fb3f8c4acaba36f086776e594b64a68c',
-      weather: Object,
       openWindow: 'Awaiting Location',
     };
   },
@@ -66,7 +65,7 @@ export default {
   },
   watch: {
     location() {
-      if(location != null){
+      if(this.location != null){
         this.getCurrentWeather();
       }
       else{

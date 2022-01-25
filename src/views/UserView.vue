@@ -1,5 +1,8 @@
 <template>
-  <v-container class="d-flex justify-center" style="padding-bottom: 300px;">
+  <v-container
+    class="d-flex justify-center"
+    style="padding-bottom: 300px;"
+  >
     <v-col cols="auto">
       <user-location @submitLocation="getLocation" />
       <user-window :location="submittedLocation" />

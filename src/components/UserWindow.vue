@@ -19,7 +19,10 @@ export default {
   name: 'UserWindow',
   // *----------------------- P r o p s ----------------------------------------------------------
   props: {
-    location: Object,
+    location: {
+      type: Object,
+      required: true
+    },
   },
   // *----------------------- D a t a ---------------------d--------------------------------------
   data() {
@@ -30,6 +33,15 @@ export default {
     };
   },
   computed: {},
+  watch: {
+    location() {
+      if (this.location != null) {
+        this.getCurrentWeather();
+      } else {
+        this.openWindow = 'Awaiting Location';
+      }
+    },
+  },
   methods: {
     // TODO: Error handling
     // Retrieves the current weather from openweathermap
@@ -61,16 +73,6 @@ export default {
         }
       } catch (e) {
         this.openWindow = 'An error has occured, please try again later';
-      }
-    },
-  },
-  watch: {
-    location() {
-      if(this.location != null){
-        this.getCurrentWeather();
-      }
-      else{
-        this.openWindow = 'Awaiting Location'
       }
     },
   },

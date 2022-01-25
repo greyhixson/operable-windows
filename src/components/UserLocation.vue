@@ -1,9 +1,17 @@
 <template>
   <v-container class="d-flex mb-n12">
-    <v-icon x-large disabled class="pt-4"> mdi-city </v-icon>
+    <v-icon
+      x-large
+      disabled
+      class="pt-4"
+    >
+      mdi-city
+    </v-icon>
     <v-card flat>
       <v-card-text>
-        <v-subheader class="text-h5"> Where is the location of your window? </v-subheader>
+        <v-subheader class="text-h5">
+          Where is the location of your window?
+        </v-subheader>
         <v-autocomplete
           v-model="userLocation"
           :items="cities"
@@ -22,8 +30,8 @@
           </template>
           <template v-slot:item="{ item }">
             <v-list-item-content>
-              <v-list-item-title v-text="item.city"></v-list-item-title>
-              <v-list-item-subtitle v-text="item.state"></v-list-item-subtitle>
+              <v-list-item-title v-text="item.city" />
+              <v-list-item-subtitle v-text="item.state" />
             </v-list-item-content>
           </template>
         </v-autocomplete>
@@ -41,16 +49,14 @@
 .v-autocomplete >>> .v-label {
   font-size: 20px;
 }
-
 </style>
 
 <style>
 /* Vuetify bug fix */
-.v-select__selections input { 
-  width: 0 !important; 
+.v-select__selections input {
+  width: 0 !important;
   min-width: 0 !important;
 }
-
 </style>
 
 <script>
@@ -59,6 +65,20 @@ import stateAbbrJson from '../stateAbbr.json';
 
 export default {
   name: 'UserLocation',
+  data() {
+    return {
+      cities: citiesJson,
+      stateAbbrMap: stateAbbrJson,
+      search: null,
+      userLocation: null,
+    };
+  },
+  // When location is selected, an event is emmitted so the parent component UserView will receive the object
+  watch: {
+    userLocation() {
+      this.$emit('submitLocation', this.userLocation);
+    },
+  },
   methods: {
     searchFilter(item, queryText) {
       var cityState;
@@ -96,20 +116,6 @@ export default {
           (item.city.toLowerCase().indexOf(cityState[0]) > -1 && item.state.toLowerCase().indexOf(cityState[1] + ' ' + cityState[2]) > -1)
         );
       }
-    },
-  },
-  data() {
-    return {
-      cities: citiesJson,
-      stateAbbrMap: stateAbbrJson,
-      search: null,
-      userLocation: null,
-    };
-  },
-  // When location is selected, an event is emmitted so the parent component UserView will receive the object
-  watch: {
-    userLocation() {
-      this.$emit('submitLocation', this.userLocation);
     },
   },
 };

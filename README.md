@@ -10,7 +10,7 @@ Google Firebase
 ### IDE
 Visual Studio Code \
 Vetur \
-Eslint 
+Eslint + Airbnb Code Style
 
 ## Project setup
 ```

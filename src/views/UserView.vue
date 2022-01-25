@@ -11,8 +11,8 @@
 </template>
 
 <script>
-import UserLocation from '../components/UserLocation';
-import UserWindow from '../components/UserWindow';
+import UserLocation from '../components/UserLocation.vue';
+import UserWindow from '../components/UserWindow.vue';
 
 export default {
   name: 'UserView',

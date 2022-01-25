@@ -9,19 +9,16 @@
     </v-card>
   </v-container>
 </template>
-    
-
 
 <script>
-import { getThresholds } from '../firebase/firebaseinit.js';
+import getThresholds from '../firebase/firebaseinit';
 
 export default {
   name: 'UserWindow',
   // *----------------------- P r o p s ----------------------------------------------------------
   props: {
     location: {
-      type: Object,
-      required: true
+      required: true,
     },
   },
   // *----------------------- D a t a ---------------------d--------------------------------------
@@ -47,9 +44,7 @@ export default {
     // Retrieves the current weather from openweathermap
     getCurrentWeather() {
       fetch(`https://api.openweathermap.org/data/2.5/weather?q=${this.location.city}&appid=${this.APIkey}&units=imperial`)
-        .then((response) => {
-          return response.json();
-        })
+        .then((response) => response.json())
         .then((weather) => {
           this.getWindowThresholds(weather);
         });
@@ -57,19 +52,17 @@ export default {
     // Gets the thresholds stored in firebase and makes a decision based on the retrieved parameters
     async getWindowThresholds(weather) {
       try {
-        let windowThresholds = await getThresholds(this.location.city, this.location.state);
+        const windowThresholds = await getThresholds(this.location.city, this.location.state);
         if (typeof windowThresholds === 'string' || windowThresholds instanceof String) {
           this.openWindow = windowThresholds;
+        } else if (
+          windowThresholds.max_temp > weather.main.temp
+            && windowThresholds.min_temp < weather.main.temp
+            && windowThresholds.humidity_max > weather.humidity
+        ) {
+          this.openWindow = 'Open Window';
         } else {
-          if (
-            windowThresholds.max_temp > weather.main.temp &&
-            windowThresholds.min_temp < weather.main.temp &&
-            windowThresholds.humidity_max > weather.humidity
-          ) {
-            this.openWindow = 'Open Window';
-          } else {
-            this.openWindow = 'Close Window';
-          }
+          this.openWindow = 'Close Window';
         }
       } catch (e) {
         this.openWindow = 'An error has occured, please try again later';

@@ -24,12 +24,10 @@ export async function getThresholds(city, state) {
     if(!querySnapshot.empty) {
       const threshold = querySnapshot.docs[0].data()
       return threshold
-    }
-    else {
+    } else {
       return 'No information was found for that location'
     }
-  }
-  catch {
+  } catch {
     return 'An error has occured, please try again later'
   }
 }

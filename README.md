@@ -10,7 +10,7 @@ Google Firebase
 ### IDE
 Visual Studio Code \
 Vetur \
-Eslint + Prettier
+Eslint 
 
 ## Project setup
 ```

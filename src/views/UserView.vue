@@ -4,8 +4,12 @@
     style="padding-bottom: 300px;"
   >
     <v-col cols="auto">
-      <user-location @submitLocation="getLocation" />
-      <user-window :location="submittedLocation" />
+      <user-location
+        @submitLocation="getLocation"
+      />
+      <user-window
+        :location="submittedLocation"
+      />
     </v-col>
   </v-container>
 </template>
@@ -22,7 +26,7 @@ export default {
   },
   data() {
     return {
-      submittedLocation: null,
+      submittedLocation: {},
     };
   },
   methods: {

@@ -69,7 +69,7 @@ export default {
       cities: citiesJson,
       stateAbbrMap: stateAbbrJson,
       search: null,
-      userLocation: null,
+      userLocation: Object,
     };
   },
   // Emit event to the parent component UserView on location select

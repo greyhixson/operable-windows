@@ -15,13 +15,12 @@ import getThresholds from '../firebase/firebaseinit';
 
 export default {
   name: 'UserWindow',
-  // *----------------------- P r o p s ----------------------------------------------------------
   props: {
     location: {
+      type: Object,
       required: true,
     },
   },
-  // *----------------------- D a t a ---------------------d--------------------------------------
   data() {
     // TODO Hide APIKey
     return {

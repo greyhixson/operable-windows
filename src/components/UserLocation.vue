@@ -59,6 +59,7 @@
 </style>
 
 <script>
+
 import citiesJson from '../usaCities.json';
 import stateAbbrJson from '../stateAbbr.json';
 
@@ -80,20 +81,16 @@ export default {
   },
   methods: {
     searchFilter(item, queryText) {
-      let cityState;
       const strippedText = queryText.replace(',', ' ').trim().toLowerCase();
 
-      // Text has multiple terms ex. "Los Angeles California" or "Fayetteville, AR"
-      if (strippedText.indexOf(' ')) {
-        cityState = strippedText.split(/\s+/);
-        cityState.forEach((term, index) => {
-          cityState[index] = term.replace(',', '');
-        });
-      }
+      const cityState = strippedText.split(/\s+/);
+      cityState.forEach((term, index) => {
+        cityState[index] = term.replace(',', '');
+      });
       // 1 term ex. "Fayetteville"
-      if (cityState == null || cityState.length === 1) {
-        return item.city.toLowerCase().indexOf(queryText) > -1
-        || item.state.toLowerCase().indexOf(queryText) > -1;
+      if (cityState.length === 1) {
+        return item.city.toLowerCase().indexOf(cityState[0]) > -1
+        || item.state.toLowerCase().indexOf(cityState[0]) > -1;
       }
 
       // Abbreviated state ex. "AR"

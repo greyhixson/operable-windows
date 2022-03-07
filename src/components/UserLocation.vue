@@ -67,7 +67,6 @@ import stateAbbrJson from '../stateAbbr.json';
 
 export default {
   name: 'UserLocation',
-  // TODO Hide APIKey
   data() {
     return {
       cities: citiesJson,
@@ -80,7 +79,6 @@ export default {
       awaitingSearch: true,
     };
   },
-  // Emit event to the parent component UserView on location select
   watch: {
     location() {
       this.getWindowThresholds();
@@ -138,8 +136,6 @@ export default {
             || (item.city.toLowerCase().indexOf(cityState[0]) > -1 && item.state.toLowerCase().indexOf(`${cityState[1]} ${cityState[2]}`) > -1)
       );
     },
-    // TODO: Error handling
-    // Retrieves the current weather from openweathermap
     getCurrentWeather() {
       fetch(`https://api.openweathermap.org/data/2.5/weather?q=${this.location.city},${this.location.state},US&appid=${this.APIkey}&units=imperial`)
         .then((response) => response.json())
@@ -148,7 +144,6 @@ export default {
           console.log(this.weather);
         });
     },
-    // Gets the thresholds stored in firebase and makes a decision based on the retrieved parameters
     async getWindowThresholds() {
       try {
         this.windowThresholds = await getThresholds(this.location.city, this.location.state);

@@ -1,7 +1,13 @@
 <template>
   <v-app>
-    <v-main class="align-center">
-      <router-view />
+    <v-main>
+      <v-container
+        fill-height
+        fluid
+        style="padding-bottom: 300px;"
+      >
+        <router-view />
+      </v-container>
     </v-main>
   </v-app>
 </template>

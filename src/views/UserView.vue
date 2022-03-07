@@ -1,17 +1,17 @@
 <template>
-  <v-container
-    class="d-flex justify-center"
-    style="padding-bottom: 300px;"
+  <v-contianer
+    class="mx-auto"
   >
-    <v-col cols="auto">
-      <user-location
-        @submitLocation="getLocation"
-      />
-      <user-window
-        :location="submittedLocation"
-      />
-    </v-col>
-  </v-container>
+    <user-location
+      @submitWeather="getWeather"
+      @submitThresholds="getThresholds"
+    />
+    <user-window
+      v-if="submittedThresholds && submittedWeather"
+      :weather="submittedWeather"
+      :window-thresholds="submittedThresholds"
+    />
+  </v-contianer>
 </template>
 
 <script>
@@ -26,12 +26,16 @@ export default {
   },
   data() {
     return {
-      submittedLocation: {},
+      submittedWeather: '',
+      submittedThresholds: '',
     };
   },
   methods: {
-    getLocation(event) {
-      this.submittedLocation = event;
+    getWeather(event) {
+      this.submittedWeather = event;
+    },
+    getThresholds(event) {
+      this.submittedThresholds = event;
     },
   },
 };

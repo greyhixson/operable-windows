@@ -1,5 +1,5 @@
 <template>
-  <v-container class="d-flex mb-n12">
+  <v-container class="d-flex">
     <v-icon
       x-large
       disabled
@@ -13,14 +13,15 @@
           Where is the location of your window?
         </v-subheader>
         <v-autocomplete
-          v-model="userLocation"
+          v-model="location"
           :items="cities"
           cache-items
           clearable
-          hide-no-data
           hide-selected
+          hide-no-data
           label="Search for your location"
           solo
+          :search-input.sync="search"
           :filter="searchFilter"
           height="60"
         >
@@ -59,28 +60,50 @@
 </style>
 
 <script>
+import getThresholds from '../firebase/firebaseinit';
 
 import citiesJson from '../usaCities.json';
 import stateAbbrJson from '../stateAbbr.json';
 
 export default {
   name: 'UserLocation',
+  // TODO Hide APIKey
   data() {
     return {
       cities: citiesJson,
       stateAbbrMap: stateAbbrJson,
       search: null,
-      userLocation: Object,
+      location: Object,
+      windowThresholds: Object,
+      weather: Object,
+      APIkey: 'fb3f8c4acaba36f086776e594b64a68c',
+      awaitingSearch: true,
     };
   },
   // Emit event to the parent component UserView on location select
   watch: {
-    userLocation() {
-      this.$emit('submitLocation', this.userLocation);
+    location() {
+      this.getWindowThresholds();
+      this.getCurrentWeather();
+    },
+    search() {
+      this.awaitingSearch = true;
+      this.timerId = setTimeout(() => {
+        this.awaitingSearch = false;
+      }, 100);
+    },
+    windowThresholds() {
+      this.$emit('submitThresholds', this.windowThresholds);
+    },
+    weather() {
+      this.$emit('submitWeather', this.weather);
     },
   },
   methods: {
     searchFilter(item, queryText) {
+      if (this.awaitingSearch) {
+        return '';
+      }
       const strippedText = queryText.replace(',', ' ').trim().toLowerCase();
 
       const cityState = strippedText.split(/\s+/);
@@ -90,7 +113,7 @@ export default {
       // 1 term ex. "Fayetteville"
       if (cityState.length === 1) {
         return item.city.toLowerCase().indexOf(cityState[0]) > -1
-        || item.state.toLowerCase().indexOf(cityState[0]) > -1;
+          || item.state.toLowerCase().indexOf(cityState[0]) > -1;
       }
 
       // Abbreviated state ex. "AR"
@@ -104,16 +127,35 @@ export default {
       if (cityState.length === 2) {
         return (
           (item.city.toLowerCase().indexOf(cityState[0]) > -1
-          && item.state.toLowerCase().indexOf(cityState[1]) > -1)
-          || item.city.toLowerCase().indexOf(`${cityState[0]} ${cityState[1]}`) > -1
+            && item.state.toLowerCase().indexOf(cityState[1]) > -1)
+            || item.city.toLowerCase().indexOf(`${cityState[0]} ${cityState[1]}`) > -1
         );
-      // > 2 words for city and state ex. "Los Angeles California" or "Fayetteville North Carolina"
+        // > 2 words for city and state ex "Los Angeles California" or "Fayetteville North Carolina"
       }
       return (
         (item.city.toLowerCase().indexOf(`${cityState[0]} ${cityState[1]}`) > -1
-            && item.state.toLowerCase().indexOf(cityState[2]) > -1)
-          || (item.city.toLowerCase().indexOf(cityState[0]) > -1 && item.state.toLowerCase().indexOf(`${cityState[1]} ${cityState[2]}`) > -1)
+              && item.state.toLowerCase().indexOf(cityState[2]) > -1)
+            || (item.city.toLowerCase().indexOf(cityState[0]) > -1 && item.state.toLowerCase().indexOf(`${cityState[1]} ${cityState[2]}`) > -1)
       );
+    },
+    // TODO: Error handling
+    // Retrieves the current weather from openweathermap
+    getCurrentWeather() {
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${this.location.city},${this.location.state},US&appid=${this.APIkey}&units=imperial`)
+        .then((response) => response.json())
+        .then((weather) => {
+          this.weather = weather;
+          console.log(this.weather);
+        });
+    },
+    // Gets the thresholds stored in firebase and makes a decision based on the retrieved parameters
+    async getWindowThresholds() {
+      try {
+        this.windowThresholds = await getThresholds(this.location.city, this.location.state);
+        console.log(this.windowThresholds);
+      } catch (e) {
+        console.log('An error has occured, please try again later');
+      }
     },
   },
 };

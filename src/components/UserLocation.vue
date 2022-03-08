@@ -1,5 +1,7 @@
 <template>
-  <v-container class="d-flex">
+  <v-container
+    class="d-flex justify-center"
+  >
     <v-icon
       x-large
       disabled

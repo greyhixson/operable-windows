@@ -2,7 +2,6 @@
   <v-app>
     <v-main>
       <v-container
-        class="d-flex justify-center"
         style="padding-bottom: 300px;"
         fluid
         fill-height

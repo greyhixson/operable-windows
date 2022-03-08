@@ -3,11 +3,13 @@
     <user-location
       @submitWeather="getWeather"
       @submitThresholds="getThresholds"
+      @submitAirPollution="getAirPollution"
     />
     <user-window
-      v-if="submittedThresholds && submittedWeather"
+      v-if="submittedThresholds && submittedWeather && submittedAirPollution"
       :weather="submittedWeather"
       :window-thresholds="submittedThresholds"
+      :air-pollution="submittedAirPollution"
     />
   </v-container>
 </template>
@@ -26,6 +28,7 @@ export default {
     return {
       submittedWeather: '',
       submittedThresholds: '',
+      submittedAirPollution: '',
     };
   },
   methods: {
@@ -34,6 +37,9 @@ export default {
     },
     getThresholds(event) {
       this.submittedThresholds = event;
+    },
+    getAirPollution(event) {
+      this.submittedAirPollution = event;
     },
   },
 };

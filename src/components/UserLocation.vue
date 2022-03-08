@@ -2,18 +2,8 @@
   <v-container
     class="d-flex justify-center"
   >
-    <v-icon
-      x-large
-      disabled
-      class="pt-4"
-    >
-      mdi-city
-    </v-icon>
     <v-card flat>
       <v-card-text>
-        <v-subheader class="text-h5">
-          Where is the location of your window?
-        </v-subheader>
         <v-autocomplete
           v-model="location"
           :items="cities"
@@ -45,7 +35,7 @@
 <style scoped>
 .v-autocomplete {
   font-size: 20px;
-  min-width: 300px;
+  min-width: 400px;
 }
 
 .v-autocomplete >>> .v-label {
@@ -63,7 +53,6 @@
 
 <script>
 import getThresholds from '../firebase/firebaseinit';
-
 import citiesJson from '../usaCities.json';
 import stateAbbrJson from '../stateAbbr.json';
 
@@ -77,6 +66,9 @@ export default {
       location: Object,
       windowThresholds: Object,
       weather: Object,
+      airPollution: Object,
+      latitude: '',
+      longitude: '',
       APIkey: 'fb3f8c4acaba36f086776e594b64a68c',
       awaitingSearch: true,
     };
@@ -84,7 +76,7 @@ export default {
   watch: {
     location() {
       this.getWindowThresholds();
-      this.getCurrentWeather();
+      this.getCurrentWeatherAndAirPollution();
     },
     search() {
       this.awaitingSearch = true;
@@ -97,6 +89,9 @@ export default {
     },
     weather() {
       this.$emit('submitWeather', this.weather);
+    },
+    airPollution() {
+      this.$emit('submitAirPollution', this.airPollution);
     },
   },
   methods: {
@@ -138,17 +133,28 @@ export default {
             || (item.city.toLowerCase().indexOf(cityState[0]) > -1 && item.state.toLowerCase().indexOf(`${cityState[1]} ${cityState[2]}`) > -1)
       );
     },
-    getCurrentWeather() {
+    getCurrentWeatherAndAirPollution() {
       fetch(`https://api.openweathermap.org/data/2.5/weather?q=${this.location.city},${this.location.state},US&appid=${this.APIkey}&units=imperial`)
         .then((response) => response.json())
         .then((weather) => {
           this.weather = weather;
+          this.longitude = weather.coord.lon;
+          this.latitude = weather.coord.lat;
+          console.log('Weather: ');
           console.log(this.weather);
+          fetch(`http://api.openweathermap.org/data/2.5/air_pollution?lat=${this.latitude}&lon=${this.longitude}&appid=${this.APIkey}`)
+            .then((response) => response.json())
+            .then((airPollution) => {
+              this.airPollution = airPollution;
+              console.log('Air Pollution: ');
+              console.log(this.airPollution);
+            });
         });
     },
     async getWindowThresholds() {
       try {
         this.windowThresholds = await getThresholds(this.location.city, this.location.state);
+        console.log('Window Thresholds: ');
         console.log(this.windowThresholds);
       } catch (e) {
         console.log('An error has occured, please try again later');

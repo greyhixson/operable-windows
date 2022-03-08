@@ -22,7 +22,7 @@
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-h6">
-          Temperature
+          Temperature: {{ weather.main.temp }}F
         </v-list-item-title>
         <v-list-item-subtitle>
           Acceptable temperature range: {{ windowThresholds.min_temp }}F
@@ -44,7 +44,7 @@
         <v-list-item-title
           class="text-h6"
         >
-          Humidity
+          Humidity: {{ weather.main.humidity }}
         </v-list-item-title>
         <v-list-item-subtitle>
           Acceptable max humidity: {{ windowThresholds.humidity_max }}
@@ -65,10 +65,10 @@
         <v-list-item-title
           class="text-h6"
         >
-          Air Quality Index
+          Air Quality Index: {{ airPollution.list[0].main.aqi }}
         </v-list-item-title>
         <v-list-item-subtitle>
-          Acceptable max pollution: {{ windowThresholds.aqi_max }}
+          Acceptable pollution index: {{ windowThresholds.aqi_max }}
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>

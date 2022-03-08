@@ -1,7 +1,5 @@
 <template>
-  <v-contianer
-    class="mx-auto"
-  >
+  <v-container>
     <user-location
       @submitWeather="getWeather"
       @submitThresholds="getThresholds"
@@ -11,7 +9,7 @@
       :weather="submittedWeather"
       :window-thresholds="submittedThresholds"
     />
-  </v-contianer>
+  </v-container>
 </template>
 
 <script>

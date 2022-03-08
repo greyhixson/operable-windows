@@ -2,9 +2,10 @@
   <v-app>
     <v-main>
       <v-container
-        fill-height
-        fluid
+        class="d-flex justify-center"
         style="padding-bottom: 300px;"
+        fluid
+        fill-height
       >
         <router-view />
       </v-container>

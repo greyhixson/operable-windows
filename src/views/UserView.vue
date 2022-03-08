@@ -4,9 +4,10 @@
       @submitWeather="getWeather"
       @submitThresholds="getThresholds"
       @submitAirPollution="getAirPollution"
+      @closeCard="closeCard"
     />
     <user-window
-      v-if="submittedThresholds && submittedWeather && submittedAirPollution"
+      v-if="submittedThresholds && submittedWeather && submittedAirPollution && !cardClosed"
       :weather="submittedWeather"
       :window-thresholds="submittedThresholds"
       :air-pollution="submittedAirPollution"
@@ -29,6 +30,7 @@ export default {
       submittedWeather: '',
       submittedThresholds: '',
       submittedAirPollution: '',
+      cardClosed: false,
     };
   },
   methods: {
@@ -40,6 +42,9 @@ export default {
     },
     getAirPollution(event) {
       this.submittedAirPollution = event;
+    },
+    closeCard(event) {
+      this.cardClosed = event;
     },
   },
 };

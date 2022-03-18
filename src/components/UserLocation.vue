@@ -68,9 +68,9 @@
 
 <script>
 /**
- * @param location        The user's location represented as an object with a city and state member.
- * @param location.city   The user's city represented as a string.
- * @param location.state  The user's state represented as a string.
+ * @typedef {Object} location The user's location
+ * @property city   - The user's city represented as a string.
+ * @property state  - The user's state represented as a string.
  */
 
 import getThresholds from '../firebase/firebaseinit';
@@ -147,11 +147,11 @@ export default {
       );
     },
     getCurrentWeatherAndAirPollution() {
-      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${this.location.city},${this.location.state},US&appid=${this.APIkey}&units=imperial`)
+      const { city, state } = this.location;
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},US&appid=${this.APIkey}&units=imperial`)
         .then((response) => response.json())
         .then((weather) => {
-          const longitude = weather.coord.lon;
-          const latitude = weather.coord.lat;
+          const { coord: { lon: longitude, lat: latitude } } = weather;
           console.log('Weather: ');
           console.log(weather);
           this.$emit('submitWeather', weather);
@@ -165,8 +165,9 @@ export default {
         });
     },
     async getWindowThresholds() {
+      const { city, state } = this.location;
       try {
-        const windowThresholds = await getThresholds(this.location.city, this.location.state);
+        const windowThresholds = await getThresholds(city, state);
         if (typeof windowThresholds !== 'object') {
           this.unsupportedLocation = true;
           this.$emit('closeCard', true);

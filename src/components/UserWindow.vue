@@ -97,25 +97,25 @@
 <script>
 /**
  * Weather Object from the OpenWeather Current Weather Data API
- * @param {Object} weather
- * @param weather.main                  Primary weather conditions
- * @param weather.main.temp             Temperature (In celsius)
- * @param weather.main.humidity         Humidity
+ * @typedef {Object} weather
+ * @property main     - Primary weather conditions
+ * @property temp     - Temperature (In celsius)
+ * @property humidity - Humidity
  */
 /**
  * Air Pollution object from the OpenWeather Air Pollution API
- * @param airPollution
- * @param airPollution.list             Contains the date time, main, and components
- * @param airPollution.list.main        Contains the AQI
- * @param airPollution.list.main.aqi    AQI
+ * @typedef {Object} airPollution
+ * @property list - Contains the date time, main, and components
+ * @property main - Contains the AQI
+ * @property aqi  - AQI
  */
 /**
  * Window Thresholds object from my firebase firestore
- * @param windowThresholds
- * @param windowThresholds.min_temp     Min temp (C°) it needs to be for the window to be open
- * @param windowThresholds.max_temp     Max temp (C°) it can be for the window to be open
- * @param windowThresholds.humidity_max Max humidity it can be for the window to be open
- * @param windowThresholds.aqi_max      Max air pollution it can be for the window to be open
+ * @typedef {Object} windowThresholds
+ * @property min_temp     - Min temp (C°) it needs to be for the window to be open
+ * @property max_temp     - Max temp (C°) it can be for the window to be open
+ * @property humidity_max - Max humidity it can be for the window to be open
+ * @property aqi_max      - Max air pollution it can be for the window to be open
  */
 
 export default {

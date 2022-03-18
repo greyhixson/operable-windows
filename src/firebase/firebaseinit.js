@@ -14,7 +14,6 @@ const firebaseApp = initializeApp({
 
 const db = getFirestore(firebaseApp);
 
-// TODO: Error handling and hide firebase API
 // Gets the window thresholds from firebase given some parameters
 export default async function getThresholds(city, state) {
   try {
@@ -22,11 +21,10 @@ export default async function getThresholds(city, state) {
     const q = query(thresholds, where('city', '==', city), where('state', '==', state));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      const threshold = querySnapshot.docs[0].data();
-      return threshold;
+      return querySnapshot.docs[0].data();
     }
     return 'No information was found for that location';
   } catch {
-    return 'An error has occured, please try again later';
+    return 'An error has occurred, please try again later';
   }
 }

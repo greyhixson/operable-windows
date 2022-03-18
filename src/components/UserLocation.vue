@@ -18,6 +18,7 @@
           <v-card-text>
             <v-autocomplete
               v-model="location"
+              class="userLocation"
               :items="cities"
               cache-items
               clearable
@@ -47,12 +48,12 @@
 </template>
 
 <style scoped>
-.v-autocomplete {
+.userLocation{
   font-size: 20px;
   min-width: 400px;
 }
 
-.v-autocomplete >>> .v-label {
+.userLocation >>> label {
   font-size: 20px;
 }
 </style>
@@ -66,6 +67,12 @@
 </style>
 
 <script>
+/**
+ * @param location        The user's location represented as an object with a city and state member.
+ * @param location.city   The user's city represented as a string.
+ * @param location.state  The user's state represented as a string.
+ */
+
 import getThresholds from '../firebase/firebaseinit';
 import citiesJson from '../usaCities.json';
 import stateAbbrJson from '../stateAbbr.json';
@@ -148,7 +155,7 @@ export default {
           console.log('Weather: ');
           console.log(weather);
           this.$emit('submitWeather', weather);
-          fetch(`http://api.openweathermap.org/data/2.5/air_pollution?lat=${latitude}&lon=${longitude}&appid=${this.APIkey}`)
+          fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${latitude}&lon=${longitude}&appid=${this.APIkey}`)
             .then((response) => response.json())
             .then((airPollution) => {
               console.log('Air Pollution: ');
@@ -171,7 +178,7 @@ export default {
         console.log(windowThresholds);
         this.$emit('submitThresholds', windowThresholds);
       } catch (e) {
-        console.log('An error has occured, please try again later');
+        console.log('An error has occurred, please try again later');
       }
     },
   },

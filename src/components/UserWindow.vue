@@ -95,6 +95,28 @@
 </template>
 
 <script>
+/**
+ * Weather Object from the OpenWeather Current Weather Data API
+ * @param {Object} weather
+ * @param weather.main                  Primary weather conditions
+ * @param weather.main.temp             Temperature (In celsius)
+ * @param weather.main.humidity         Humidity
+ */
+/**
+ * Air Pollution object from the OpenWeather Air Pollution API
+ * @param airPollution
+ * @param airPollution.list             Contains the date time, main, and components
+ * @param airPollution.list.main        Contains the AQI
+ * @param airPollution.list.main.aqi    AQI
+ */
+/**
+ * Window Thresholds object from my firebase firestore
+ * @param windowThresholds
+ * @param windowThresholds.min_temp     Min temp (C°) it needs to be for the window to be open
+ * @param windowThresholds.max_temp     Max temp (C°) it can be for the window to be open
+ * @param windowThresholds.humidity_max Max humidity it can be for the window to be open
+ * @param windowThresholds.aqi_max      Max air pollution it can be for the window to be open
+ */
 
 export default {
   name: 'UserWindow',
@@ -129,26 +151,14 @@ export default {
   },
   methods: {
     checkTemp() {
-      if ((this.weather.main.temp > this.windowThresholds.min_temp)
-      && (this.weather.main.temp < this.windowThresholds.max_temp)) {
-        this.okTemp = true;
-      } else {
-        this.okTemp = false;
-      }
+      this.okTemp = (this.weather.main.temp > this.windowThresholds.min_temp)
+          && (this.weather.main.temp < this.windowThresholds.max_temp);
     },
     checkHumidity() {
-      if (this.weather.main.humidity < this.windowThresholds.humidity_max) {
-        this.okHumidity = true;
-      } else {
-        this.okHumidity = false;
-      }
+      this.okHumidity = this.weather.main.humidity < this.windowThresholds.humidity_max;
     },
     checkAirPollution() {
-      if (this.airPollution.list[0].main.aqi < this.windowThresholds.aqi_max) {
-        this.okAirPollution = true;
-      } else {
-        this.okAirPollution = false;
-      }
+      this.okAirPollution = this.airPollution.list[0].main.aqi < this.windowThresholds.aqi_max;
     },
     decideWindow() {
       if (this.okAirPollution && this.okTemp && this.okHumidity) {

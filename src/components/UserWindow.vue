@@ -151,14 +151,19 @@ export default {
   },
   methods: {
     checkTemp() {
-      this.okTemp = (this.weather.main.temp > this.windowThresholds.min_temp)
-          && (this.weather.main.temp < this.windowThresholds.max_temp);
+      const { main: { temp } } = this.weather;
+      const { min_temp: minTemp, max_temp: maxTemp } = this.windowThresholds;
+      this.okTemp = (temp > minTemp) && (temp < maxTemp);
     },
     checkHumidity() {
-      this.okHumidity = this.weather.main.humidity < this.windowThresholds.humidity_max;
+      const { main: { humidity } } = this.weather;
+      const { humidity_max: humidityMax } = this.windowThresholds;
+      this.okHumidity = humidity < humidityMax;
     },
     checkAirPollution() {
-      this.okAirPollution = this.airPollution.list[0].main.aqi < this.windowThresholds.aqi_max;
+      const { list: [{ main: { aqi } }] } = this.airPollution;
+      const { aqi_max: aqiMax } = this.windowThresholds;
+      this.okAirPollution = aqi < aqiMax;
     },
     decideWindow() {
       if (this.okAirPollution && this.okTemp && this.okHumidity) {

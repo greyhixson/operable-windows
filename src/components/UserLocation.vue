@@ -48,7 +48,7 @@
 </template>
 
 <style scoped>
-.userLocation{
+.userLocation {
   font-size: 20px;
   min-width: 400px;
 }
@@ -151,11 +151,11 @@ export default {
       fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},US&appid=${this.APIkey}&units=imperial`)
         .then((response) => response.json())
         .then((weather) => {
-          const { coord: { lon: longitude, lat: latitude } } = weather;
+          const { coord: { lat, lon } } = weather;
           console.log('Weather: ');
           console.log(weather);
           this.$emit('submitWeather', weather);
-          fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${latitude}&lon=${longitude}&appid=${this.APIkey}`)
+          fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${this.APIkey}`)
             .then((response) => response.json())
             .then((airPollution) => {
               console.log('Air Pollution: ');

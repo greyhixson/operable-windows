@@ -1,49 +1,42 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col
-        cols="3"
-        class="mx-auto"
-      >
-        <v-alert
-          v-if="unsupportedLocation"
-          type="error"
-          fixed
+    <v-alert
+      v-if="unsupportedLocation"
+      type="error"
+      fixed
+    >
+      {{ location.city }}, {{ location.state }} is unsupported
+    </v-alert>
+    <v-card
+      flat
+    >
+      <v-card-text>
+        <v-autocomplete
+          v-model="location"
+          class="userLocation"
+          :items="cities"
+          cache-items
+          clearable
+          hide-selected
+          hide-no-data
+          label="Search for your location"
+          solo
+          :search-input.sync="search"
+          :filter="searchFilter"
+          height="60"
         >
-          {{ location.city }}, {{ location.state }} is unsupported
-        </v-alert>
-        <v-card
-          flat
-        >
-          <v-card-text>
-            <v-autocomplete
-              v-model="location"
-              class="userLocation"
-              :items="cities"
-              cache-items
-              clearable
-              hide-selected
-              hide-no-data
-              label="Search for your location"
-              solo
-              :search-input.sync="search"
-              :filter="searchFilter"
-              height="60"
-            >
-              <template v-slot:selection="{ item }">
-                <span>{{ item.city }}, {{ item.state }}</span>
-              </template>
-              <template v-slot:item="{ item }">
-                <v-list-item-content>
-                  <v-list-item-title v-text="item.city" />
-                  <v-list-item-subtitle v-text="item.state" />
-                </v-list-item-content>
-              </template>
-            </v-autocomplete>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+          <template v-slot:selection="{ item }">
+            <span>{{ item.city }}, {{ item.state }}</span>
+          </template>
+          <template v-slot:item="{ item }">
+            <v-list-item-content>
+              <v-list-item-title v-text="item.city" />
+              <v-list-item-subtitle v-text="item.state" />
+            </v-list-item-content>
+          </template>
+        </v-autocomplete>
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
 

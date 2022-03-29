@@ -2,20 +2,29 @@
   <v-app>
     <v-main>
       <v-container
-        style="padding-bottom: 300px;"
-        fluid
         fill-height
+        fluid
       >
-        <router-view />
+        <v-row
+          align="center"
+          justify="center"
+        >
+          <v-col cols="3">
+            <router-view />
+            <login-button />
+          </v-col>
+        </v-row>
       </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
+import LoginButton from '@/components/LoginButton.vue';
+
 export default {
   name: 'App',
-
+  components: { LoginButton },
   data: () => ({
     //
   }),

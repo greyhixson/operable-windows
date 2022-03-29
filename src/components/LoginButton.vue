@@ -1,6 +1,12 @@
 <template>
-  <v-container>
-    <v-btn>
+  <v-container
+    class="text-center"
+  >
+    <v-btn
+      class="mx-auto"
+      width="200"
+      height="50"
+    >
       Sign Up
     </v-btn>
   </v-container>

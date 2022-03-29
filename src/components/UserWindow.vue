@@ -1,7 +1,7 @@
 <template>
   <v-card
-    class="mx-auto"
     max-width="400"
+    class="mx-auto"
   >
     <v-list-item>
       <v-list-item-content>
@@ -88,7 +88,7 @@
 
     <v-card-actions>
       <v-btn text>
-        Sign up for notifications
+        Enable notifications
       </v-btn>
     </v-card-actions>
   </v-card>

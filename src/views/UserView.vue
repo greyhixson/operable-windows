@@ -1,5 +1,5 @@
 <template>
-  <v-container class="mx-auto">
+  <v-container>
     <user-location
       @submitWeather="getWeather"
       @submitThresholds="getThresholds"

@@ -9,7 +9,9 @@
           align="center"
           justify="center"
         >
-          <v-col cols="3">
+          <v-col
+            cols="auto"
+          >
             <router-view />
             <login-button />
           </v-col>

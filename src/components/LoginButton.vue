@@ -6,6 +6,7 @@
       class="mx-auto"
       width="200"
       height="50"
+      to="/Login"
     >
       Sign Up
     </v-btn>

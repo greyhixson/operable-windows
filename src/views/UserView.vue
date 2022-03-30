@@ -1,17 +1,25 @@
 <template>
-  <v-container>
-    <user-location
-      @submitWeather="getWeather"
-      @submitThresholds="getThresholds"
-      @submitAirPollution="getAirPollution"
-      @closeCard="closeCard"
-    />
+  <v-container class="text-center">
     <user-window
       v-if="submittedThresholds && submittedWeather && submittedAirPollution && !cardClosed"
       :weather="submittedWeather"
       :window-thresholds="submittedThresholds"
       :air-pollution="submittedAirPollution"
     />
+    <user-location
+      @submitWeather="getWeather"
+      @submitThresholds="getThresholds"
+      @submitAirPollution="getAirPollution"
+      @closeCard="closeCard"
+    />
+    <v-btn
+      class="mx-auto"
+      width="200"
+      height="50"
+      to="/signin"
+    >
+      Sign In
+    </v-btn>
   </v-container>
 </template>
 

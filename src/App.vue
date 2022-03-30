@@ -2,18 +2,16 @@
   <v-app>
     <v-main>
       <v-container
+        id="appView"
         fill-height
-        fluid
       >
         <v-row
-          align="center"
           justify="center"
         >
           <v-col
             cols="auto"
           >
             <router-view />
-            <login-button />
           </v-col>
         </v-row>
       </v-container>
@@ -21,12 +19,16 @@
   </v-app>
 </template>
 
+<style scoped>
+#appView {
+  padding-bottom: 240px;
+}
+</style>
+
 <script>
-import LoginButton from '@/components/LoginButton.vue';
 
 export default {
   name: 'App',
-  components: { LoginButton },
   data: () => ({
     //
   }),

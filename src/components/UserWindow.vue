@@ -5,11 +5,13 @@
   >
     <v-list-item>
       <v-list-item-content>
-        <v-list-item-title class="text-h5">
+        <v-list-item-title class="text-h4 black--text">
           {{ windowThresholds.city }}, {{ windowThresholds.state }}
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
+
+    <v-divider />
 
     <v-list-item two-line>
       <v-list-item-avatar>
@@ -73,11 +75,13 @@
       </v-list-item-content>
     </v-list-item>
 
-    <v-list-item two-line>
+    <v-list-item
+      two-line
+      :style="openWindow ? 'background-color:#68ad53;': 'background-color:#c42741;'"
+    >
       <v-list-item-content>
         <v-list-item-title
-          class="text-h4 font-weight-bold"
-          :style="openWindow ? 'color:#68ad53;' : 'color:#c42741;'"
+          class="text-h5 white--text"
         >
           {{ windowMessage }}
         </v-list-item-title>
@@ -168,10 +172,10 @@ export default {
     decideWindow() {
       if (this.okAirPollution && this.okTemp && this.okHumidity) {
         this.openWindow = true;
-        this.windowMessage = 'Ok to open';
+        this.windowMessage = 'Openable';
       } else {
         this.openWindow = false;
-        this.windowMessage = 'Keep closed';
+        this.windowMessage = 'Keep Closed';
       }
     },
   },

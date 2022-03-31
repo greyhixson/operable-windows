@@ -6,16 +6,14 @@ const userStore = {
   user: null,
   errorCode: null,
   errorMessage: null,
+  justCreated: false,
 
   createAccount(email, password) {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed in
         this.user = userCredential;
-        // ...
+        this.justCreated = true;
         sendEmailVerification(auth.currentUser).then(() => {
-          // Email verification sent!
-          // ...
         });
       })
       .catch((error) => {

@@ -33,14 +33,24 @@
         label="Please confirm your password"
         :rules="comparePasswordsRule"
       />
-      <v-btn
-        class="mx-auto"
-        width="200"
-        height="50"
-        @click="createAccount"
-      >
-        Create an Account
-      </v-btn>
+      <v-row>
+        <v-btn
+          class="mx-auto"
+          width="180"
+          height="50"
+          @click="createAccount"
+        >
+          Create an Account
+        </v-btn>
+        <v-btn
+          class="mx-auto pl-4"
+          width="180"
+          height="50"
+          to="/"
+        >
+          Home
+        </v-btn>
+      </v-row>
     </v-form>
   </v-container>
 </template>
@@ -53,7 +63,7 @@ export default {
   data() {
     return {
       valid: true,
-      email: 'greyhixson@gmail.com',
+      email: '@gmail.com',
       password: 'asdasdasd',
       confirmPassword: 'asdasdasd',
       comparePasswordsRule: [
@@ -76,9 +86,12 @@ export default {
         this.alert = errorCode;
       }
     },
-    'userStore.user': function watchUser(userCred) {
-      if (userCred) {
+    'userStore.justCreated': function watchAccountCreation(justCreated) {
+      console.log('test');
+      if (justCreated) {
+        userStore.justCreated = false;
         this.alertType = 'success';
+        this.alert = 'An account verification email has been sent.';
       }
     },
   },

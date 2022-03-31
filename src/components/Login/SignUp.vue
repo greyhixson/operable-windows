@@ -2,6 +2,13 @@
   <v-container
     style="width: 400px;"
   >
+    <v-alert
+      v-if="alert"
+      :type="alertType"
+      dismissible
+    >
+      {{ alert }}
+    </v-alert>
     <v-form
       v-model="valid"
       @submit.prevent="onSignup"
@@ -17,13 +24,14 @@
         type="password"
         placeholder="Password"
         label="Please enter your password"
+        :rules="passwordRule"
       />
       <v-text-field
         v-model="confirmPassword"
         type="password"
         placeholder="Confirm Password"
         label="Please confirm your password"
-        :rules="comparePasswords"
+        :rules="comparePasswordsRule"
       />
       <v-btn
         class="mx-auto"
@@ -45,13 +53,29 @@ export default {
   data() {
     return {
       valid: true,
-      email: '',
-      password: '',
-      confirmPassword: '',
-      comparePasswords: [
+      email: 'greyhixson@gmail.com',
+      password: 'asdasdasd',
+      confirmPassword: 'asdasdasd',
+      comparePasswordsRule: [
         (v) => v === this.password || 'Passwords do not match',
       ],
+      passwordRule: [
+        (v) => v.length > 6 || 'Password must be atleast 6 characters long',
+      ],
+      alertType: '',
+      alert: '',
+      userStore,
     };
+  },
+  watch: {
+    'userStore.errorCode': function watchErrors(newValue) {
+      this.alertType = 'error';
+      if (newValue === 'auth/email-already-in-use') {
+        this.alert = 'An account with this email already exists';
+      } else {
+        this.alert = newValue;
+      }
+    },
   },
   methods: {
     createAccount() {
@@ -59,7 +83,6 @@ export default {
         userStore.createAccount(this.email, this.password);
       }
     },
-
   },
 };
 </script>

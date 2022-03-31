@@ -1,4 +1,10 @@
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from 'firebase/auth';
 
 const auth = getAuth();
 
@@ -23,6 +29,27 @@ const userStore = {
       });
   },
 
+  signIn(email, password) {
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        this.user = userCredential;
+        // ...
+      })
+      .catch((error) => {
+        this.errorCode = error.code;
+        this.errorMessage = error.message;
+      });
+  },
+
+  signOut() {
+    signOut(auth).then(() => {
+      // Sign-out successful.
+    }).catch((error) => {
+      this.errorCode = error.code;
+      this.errorMessage = error.message;
+    });
+  },
 };
 
 export default userStore;

@@ -68,12 +68,17 @@ export default {
     };
   },
   watch: {
-    'userStore.errorCode': function watchErrors(newValue) {
+    'userStore.errorCode': function watchErrors(errorCode) {
       this.alertType = 'error';
-      if (newValue === 'auth/email-already-in-use') {
+      if (errorCode === 'auth/email-already-in-use') {
         this.alert = 'An account with this email already exists';
       } else {
-        this.alert = newValue;
+        this.alert = errorCode;
+      }
+    },
+    'userStore.user': function watchUser(userCred) {
+      if (userCred) {
+        this.alertType = 'success';
       }
     },
   },

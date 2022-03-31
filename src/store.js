@@ -1,4 +1,4 @@
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 
 const auth = getAuth();
 
@@ -13,6 +13,10 @@ const userStore = {
         // Signed in
         this.user = userCredential;
         // ...
+        sendEmailVerification(auth.currentUser).then(() => {
+          // Email verification sent!
+          // ...
+        });
       })
       .catch((error) => {
         this.errorCode = error.code;

@@ -19,6 +19,7 @@
         type="email"
         placeholder="Email"
         label="Please enter your email"
+        :rules="emailRules"
         required
       />
       <v-text-field
@@ -26,7 +27,7 @@
         type="password"
         placeholder="Password"
         label="Please enter your password"
-        :rules="passwordRule"
+        :rules="passwordRules"
         required
       />
       <v-text-field
@@ -34,7 +35,7 @@
         type="password"
         placeholder="Confirm Password"
         label="Please confirm your password"
-        :rules="comparePasswordsRule"
+        :rules="comparePasswordsRules"
         required
       />
       <v-row class="pt-4">
@@ -68,13 +69,18 @@ export default {
     return {
       valid: true,
       email: '',
-      password: '',
-      confirmPassword: '',
-      comparePasswordsRule: [
-        (v) => v === this.password || 'Passwords do not match',
+      emailRules: [
+        (v) => !!v || 'Email is required',
       ],
-      passwordRule: [
+      password: '',
+      passwordRules: [
         (v) => v.length >= 6 || 'Password must be atleast 6 characters long',
+        (v) => !!v || 'Password is required',
+      ],
+      confirmPassword: '',
+      comparePasswordsRules: [
+        (v) => v === this.password || 'Passwords do not match',
+        (v) => !!v || 'Confirm password is required',
       ],
       alertType: '',
       alert: '',
@@ -96,6 +102,7 @@ export default {
         userStore.justCreated = false;
         this.alertType = 'success';
         this.alert = 'An account verification email has been sent.';
+        this.$refs.form.reset();
       }
     },
     'userStore.user': function watchUser(userCred) {
@@ -108,9 +115,12 @@ export default {
   },
   methods: {
     accountBtn() {
-      if (this.valid && !userStore.user) {
-        userStore.createAccount(this.email, this.password);
-        this.$refs.form.reset();
+      userStore.errorCode = null;
+      if (!userStore.user) {
+        this.$refs.form.validate();
+        if (this.valid) {
+          userStore.createAccount(this.email, this.password);
+        }
       } else if (userStore.user) {
         userStore.signOut();
       }

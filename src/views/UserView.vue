@@ -53,6 +53,22 @@ export default {
       userStore,
     };
   },
+  watch: {
+    'userStore.user': function watchUser(userCred) {
+      if (userCred) {
+        this.accountBtnText = 'Sign Out';
+      } else if (!userCred) {
+        this.accountBtnText = 'Sign In';
+      }
+    },
+  },
+  created() {
+    if (userStore.user) {
+      this.accountBtnText = 'Sign Out';
+    } else if (!userStore.user) {
+      this.accountBtnText = 'Sign In';
+    }
+  },
   methods: {
     getWeather(event) {
       this.submittedWeather = event;
@@ -71,17 +87,7 @@ export default {
         this.$router.push('/signin');
       } else if (userStore.user) {
         userStore.signOut();
-        this.$router.push('/signin');
       }
-    },
-    watch: {
-      'userStore.user': function watchUser(userCred) {
-        if (userCred) {
-          this.accountBtnText = 'Sign Out';
-        } else if (!userCred) {
-          this.accountBtnText = 'Sign In';
-        }
-      },
     },
   },
 };

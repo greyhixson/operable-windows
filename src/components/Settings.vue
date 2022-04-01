@@ -11,57 +11,80 @@
       <v-text-field
         label="Phone Number"
       />
-      <v-text-field
-        label="Email"
-      />
     </v-form>
+    <h2> Organization Settings </h2>
 
-    <h2> Notification Settings </h2>
+    <v-btn class="mb-2">
+      Add an Organization
+    </v-btn>
+
+    <h2 class>
+      Notification Settings
+    </h2>
     <v-checkbox
       v-model="textNotifications"
       label="Text Notifications"
     />
     <v-checkbox
-      v-model="phoneNotifications"
-      label="Phone Notifications"
+      v-model="emailNotifications"
+      label="Email Notifications"
     />
-    <v-dialog
-      width="500"
-    >
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          color="red lighten-2"
-          dark
-          v-bind="attrs"
-          v-on="on"
-        >
-          Delete my account
+    <h2> Account Settings </h2>
+    <v-row>
+      <v-col>
+        <v-btn>
+          Reset Password
         </v-btn>
-      </template>
-      <v-card>
-        <v-card-title class="text-h5 grey lighten-2">
-          Delete my account
-        </v-card-title>
+      </v-col>
+    </v-row>
+    <v-row dense>
+      <v-col>
+        <v-btn>
+          Change Email
+        </v-btn>
+      </v-col>
+    </v-row>
+    <v-row dense>
+      <v-col>
+        <v-dialog
+          width="500"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              color="red lighten-2"
+              dark
+              v-bind="attrs"
+              v-on="on"
+            >
+              Delete my account
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title class="text-h5 grey lighten-2">
+              Delete my account
+            </v-card-title>
 
-        <v-card-text class="pt-4">
-          This operation can't be undone and will delete your account
-          and all information associated with it.
-        </v-card-text>
+            <v-card-text class="pt-4">
+              This operation can't be undone and will delete your account
+              and all information associated with it.
+            </v-card-text>
 
-        <v-divider />
+            <v-divider />
 
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            color="primary"
-            text
-            @click="deleteAccountDialog = false"
-          >
-            Delete my account
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                color="primary"
+                text
+                @click="deleteAccountDialog = false"
+              >
+                Delete my account
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-col>
+    </v-row>
     <v-spacer style="padding-bottom: 80px;" />
     <v-dialog max-width="400px">
       <template
@@ -109,7 +132,7 @@ export default {
   data() {
     return {
       textNotifications: false,
-      phoneNotifications: false,
+      emailNotifications: false,
       deleteAccountDialog: false,
       dialog: false,
     };

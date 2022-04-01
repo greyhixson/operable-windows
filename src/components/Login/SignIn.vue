@@ -49,10 +49,13 @@
         </v-btn>
       </v-row>
       <h3 class="mx-auto pt-8">
-        Need an account? <a
-          href="#/signup"
+        Need an account?
+        <router-link
+          :to="{ path: '/signup' }"
           class="text-decoration-underline"
-        > Sign up now </a>
+        >
+          Sign up now
+        </router-link>
       </h3>
     </v-form>
   </v-container>

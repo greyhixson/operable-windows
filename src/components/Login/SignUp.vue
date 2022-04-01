@@ -10,6 +10,7 @@
       {{ alert }}
     </v-alert>
     <v-form
+      ref="form"
       v-model="valid"
       @submit.prevent="onSignup"
     >
@@ -18,6 +19,7 @@
         type="email"
         placeholder="Email"
         label="Please enter your email"
+        required
       />
       <v-text-field
         v-model="password"
@@ -25,6 +27,7 @@
         placeholder="Password"
         label="Please enter your password"
         :rules="passwordRule"
+        required
       />
       <v-text-field
         v-model="confirmPassword"
@@ -32,15 +35,16 @@
         placeholder="Confirm Password"
         label="Please confirm your password"
         :rules="comparePasswordsRule"
+        required
       />
-      <v-row>
+      <v-row class="pt-4">
         <v-btn
           class="mx-auto"
           width="180"
           height="50"
-          @click="createAccount"
+          @click="accountBtn"
         >
-          Create an Account
+          {{ accountBtnText }}
         </v-btn>
         <v-btn
           class="mx-auto pl-4"
@@ -74,6 +78,7 @@ export default {
       ],
       alertType: '',
       alert: '',
+      accountBtnText: 'Create an Account',
       userStore,
     };
   },
@@ -87,18 +92,30 @@ export default {
       }
     },
     'userStore.justCreated': function watchAccountCreation(justCreated) {
-      console.log('test');
       if (justCreated) {
         userStore.justCreated = false;
         this.alertType = 'success';
         this.alert = 'An account verification email has been sent.';
       }
     },
+    'userStore.user': function watchUser(userCred) {
+      if (userCred) {
+        this.accountBtnText = 'Sign Out';
+      } else if (!userCred) {
+        this.accountBtnText = 'Create an Account';
+      }
+    },
   },
   methods: {
-    createAccount() {
-      if (this.valid) {
+    accountBtn() {
+      if (this.valid && !userStore.user) {
         userStore.createAccount(this.email, this.password);
+        this.email = '';
+        this.password = '';
+        this.confirmPassword = '';
+        this.$refs.form.resetValidation();
+      } else if (userStore.user) {
+        userStore.signOut();
       }
     },
   },

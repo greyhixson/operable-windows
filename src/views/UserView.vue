@@ -16,14 +16,15 @@
       class="mx-auto"
       width="200"
       height="50"
-      to="/signin"
+      @click="accountBtn"
     >
-      Sign In
+      {{ accountBtnText }}
     </v-btn>
   </v-container>
 </template>
 
 <script>
+import userStore from '@/store';
 import UserLocation from '../components/UserLocation.vue';
 import UserWindow from '../components/UserWindow.vue';
 
@@ -39,6 +40,8 @@ export default {
       submittedThresholds: '',
       submittedAirPollution: '',
       cardClosed: false,
+      accountBtnText: 'Sign Out',
+      userStore,
     };
   },
   methods: {
@@ -53,6 +56,15 @@ export default {
     },
     closeCard(event) {
       this.cardClosed = event;
+    },
+    accountBtn() {
+      if (!userStore.user) {
+        this.accountBtnText = 'Sign In';
+        this.$router.push('/signin');
+      } else if (userStore.user) {
+        this.accountBtnText = 'Sign Out';
+        userStore.signOut();
+      }
     },
   },
 };

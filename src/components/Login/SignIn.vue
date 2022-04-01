@@ -17,7 +17,7 @@
     <v-btn
       class="mx-auto"
       width="200"
-      height="40"
+      height="50"
       to="/"
     >
       Sign In
@@ -32,12 +32,8 @@
 </template>
 
 <script>
-import accountButtonStore from '@/store';
 
 export default {
   name: 'SignIn',
-  created() {
-    accountButtonStore.text = 'Sign In';
-  },
 };
 </script>

@@ -14,7 +14,10 @@
     </v-form>
     <h2> Organization Settings </h2>
 
-    <v-btn class="mb-2">
+    <v-btn
+      class="mb-2"
+      to="/addorganization"
+    >
       Add an Organization
     </v-btn>
 

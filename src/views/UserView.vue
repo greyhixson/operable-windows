@@ -26,7 +26,7 @@
         width="180"
         height="50"
       >
-        Account Settings
+        Settings
       </v-btn>
     </v-row>
   </v-container>

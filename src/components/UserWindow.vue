@@ -70,7 +70,7 @@
           Air Quality Index: {{ airPollution.list[0].main.aqi }}
         </v-list-item-title>
         <v-list-item-subtitle>
-          Acceptable pollution index: {{ windowThresholds.aqi_max }}
+          Acceptable AQI: {{ windowThresholds.aqi_max }}
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>

@@ -16,7 +16,7 @@
       clearable
       hide-selected
       hide-no-data
-      label="Search for your location"
+      label="Search for your organizaton"
       solo
       :search-input.sync="search"
       :filter="searchFilter"

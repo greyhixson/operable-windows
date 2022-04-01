@@ -7,7 +7,7 @@
       justify="center"
     >
       <v-col
-        cols="auto"
+        cols="3"
       >
         <h2> Personal Details</h2>
         <v-form>
@@ -24,7 +24,7 @@
       </v-col>
 
       <v-col
-        cols="auto"
+        cols="3"
       >
         <h2 class="pb-2">
           Organization Settings
@@ -79,7 +79,7 @@
       justify="center"
       class="mb-8"
     >
-      <v-col cols="auto">
+      <v-col cols="3">
         <h2 class="pb-2">
           Account Settings
         </h2>
@@ -141,7 +141,7 @@
           </v-col>
         </v-row>
       </v-col>
-      <v-col cols="auto">
+      <v-col cols="3">
         <h2 class>
           Notification Settings
         </h2>

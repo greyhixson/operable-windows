@@ -8,8 +8,6 @@
     >
       <v-col
         cols="auto"
-        style="width: 250px;"
-        class="ml-8"
       >
         <h2> Personal Details</h2>
         <v-form>
@@ -24,37 +22,63 @@
           />
         </v-form>
       </v-col>
+
       <v-col
         cols="auto"
       >
         <h2 class="pb-2">
           Organization Settings
         </h2>
-        <v-btn
-          class="mb-2"
-          to="/addorganization"
+        <v-dialog
+          v-model="dialog"
+          persistent
+          max-width="500px"
         >
-          Add an Organization
-        </v-btn>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              class="mb-2"
+              v-bind="attrs"
+              v-on="on"
+              @click="checkRegistered"
+            >
+              {{ orgBtnText }}
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">What is the name of your organization? </span>
+            </v-card-title>
+            <v-card-text>
+              <v-text-field
+                v-model="orgName"
+                label="Organization Name"
+              />
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="dialog = false"
+              >
+                Cancel
+              </v-btn>
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="dialog = false; orgRegistered = true;"
+              >
+                Register
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-col>
     </v-row>
     <v-row
       justify="center"
       class="mb-8"
     >
-      <v-col cols="auto">
-        <h2 class>
-          Notification Settings
-        </h2>
-        <v-checkbox
-          v-model="textNotifications"
-          label="Text Notifications"
-        />
-        <v-checkbox
-          v-model="emailNotifications"
-          label="Email Notifications"
-        />
-      </v-col>
       <v-col cols="auto">
         <h2 class="pb-2">
           Account Settings
@@ -107,7 +131,7 @@
                   <v-btn
                     color="primary"
                     text
-                    @click="deleteAccountDialog = false"
+                    @click="dialog = false"
                   >
                     Delete my account
                   </v-btn>
@@ -116,6 +140,19 @@
             </v-dialog>
           </v-col>
         </v-row>
+      </v-col>
+      <v-col cols="auto">
+        <h2 class>
+          Notification Settings
+        </h2>
+        <v-checkbox
+          v-model="textNotifications"
+          label="Text Notifications"
+        />
+        <v-checkbox
+          v-model="emailNotifications"
+          label="Email Notifications"
+        />
       </v-col>
     </v-row>
     <v-row
@@ -154,7 +191,6 @@
             </v-btn>
             <v-btn
               to="/"
-
               @click="dialog = false"
             >
               No
@@ -173,9 +209,27 @@ export default {
     return {
       textNotifications: false,
       emailNotifications: false,
-      deleteAccountDialog: false,
       dialog: false,
+      orgName: '',
+      orgBtnText: 'Register an Organization',
+      orgRegistered: false,
     };
+  },
+  watch: {
+    orgRegistered() {
+      if (this.orgRegistered) {
+        this.orgBtnText = 'Manage Organization';
+      } else {
+        this.orgBtnText = 'Register an Organization';
+      }
+    },
+  },
+  methods: {
+    checkRegistered() {
+      if (this.orgRegistered) {
+        this.$router.push('/manageorg');
+      }
+    },
   },
 };
 </script>

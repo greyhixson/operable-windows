@@ -4,7 +4,7 @@ import UserView from '../views/UserView.vue';
 import SignUp from '../components/Login/SignUp.vue';
 import SignIn from '../components/Login/SignIn.vue';
 import Settings from '../components/Settings.vue';
-import AddOrganization from '../components/AddOrganization.vue';
+import ManageOrg from '../components/ManageOrg.vue';
 
 Vue.use(VueRouter);
 
@@ -30,9 +30,9 @@ const routes = [
     component: Settings,
   },
   {
-    path: '/addorganization',
-    name: 'AddOrganization',
-    component: AddOrganization,
+    path: '/manageorg',
+    name: 'ManageOrg',
+    component: ManageOrg,
   },
 ];
 

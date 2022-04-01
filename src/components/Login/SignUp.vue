@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import userStore from '@/store';
+import { userStore } from '@/firebase/FirebaseStore';
 
 export default {
   name: 'SignUp',

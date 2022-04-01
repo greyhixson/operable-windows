@@ -61,7 +61,7 @@
  * @property state  - The user's state represented as a string.
  */
 
-import getThresholds from '../firebase/firebaseinit';
+import { getThresholds } from '@/firebase/FirebaseStore';
 import citiesJson from '../usaCities.json';
 import stateAbbrJson from '../stateAbbr.json';
 

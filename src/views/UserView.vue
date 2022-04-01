@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import userStore from '@/store';
+import { userStore } from '@/firebase/FirebaseStore';
 import UserLocation from '../components/UserLocation.vue';
 import UserWindow from '../components/UserWindow.vue';
 

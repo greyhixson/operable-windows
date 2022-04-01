@@ -110,7 +110,7 @@ export default {
     accountBtn() {
       if (this.valid && !userStore.user) {
         userStore.createAccount(this.email, this.password);
-        this.$refs.form.resetValidation();
+        this.$refs.form.reset();
       } else if (userStore.user) {
         userStore.signOut();
       }

@@ -71,6 +71,7 @@ export default {
         this.$router.push('/signin');
       } else if (userStore.user) {
         userStore.signOut();
+        this.$router.push('/signin');
       }
     },
     watch: {

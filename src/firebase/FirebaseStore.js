@@ -76,7 +76,7 @@ const userStore = {
   signOut() {
     const auth = getAuth();
     signOut(auth).then(() => {
-      // Sign-out successful.
+      this.user = null;
     }).catch((error) => {
       this.errorCode = error.code;
       this.errorMessage = error.message;

@@ -76,11 +76,15 @@ export default {
   },
   watch: {
     'userStore.user': function watchUser(userCred) {
+      console.log('test');
       if (userCred) {
         this.accountBtnText = 'Sign Out';
         this.alert = 'You are now signed in';
+        this.alertType = 'success';
       } else if (!userCred) {
         this.accountBtnText = 'Sign In';
+        this.alert = '';
+        this.alertType = '';
       }
     },
   },

@@ -1,37 +1,47 @@
 <template>
   <v-container>
-    <v-form style="width: 300px;">
-      <v-text-field
-        label="Organization Name"
-      />
-      <v-text-field
-        label="City"
-      />
-      <v-text-field
-        label="State"
-      />
-      <v-text-field
-        label="Space"
-      />
-      <v-text-field
-        label="Maximum Humidity (%)"
-      />
-      <v-text-field
-        label="Minimum Temperature (F°)"
-      />
-      <v-text-field
-        label="Maximum Temperature (F°)"
-      />
-      <v-text-field
-        label="Maximum Air Pollution"
-      />
-      <h5> To view more information on how air pollution is calculated visit <a href="https://openweathermap.org/api/air-pollution"> OpenWeather Map </a></h5>
-    </v-form>
+    <v-data-table
+      :headers="headers"
+      :items="thresholds"
+      :items-per-page="5"
+      class="elevation-1"
+    />
+    <h5> To view more information on how air pollution is calculated visit <a href="https://openweathermap.org/api/air-pollution"> OpenWeather Map </a></h5>
   </v-container>
 </template>
 
 <script>
+import { getOrgCol, getAllOrgSpaces } from '@/firebase/FirebaseStore';
+
 export default {
   name: 'ManageOrg',
+  data() {
+    return {
+      headers: [
+        { text: 'Space', value: 'space' },
+        { text: 'Maximum Humidity (%)', value: 'max_humidity' },
+        { text: 'Minimum Temperature (F°)', value: 'min_temp' },
+        { text: 'Maximum Temperature (F°)', value: 'max_humidity' },
+        { text: 'Maximum Air Pollution', value: 'max_aqi' },
+      ],
+      thresholds: [],
+      location: Object,
+      orgName: 'University of Arkansas',
+      org: Object,
+    };
+  },
+  created() {
+    this.getOrg();
+  },
+  methods: {
+    async getOrg() {
+      try {
+        this.org = await getOrgCol(this.orgName);
+        this.thresholds = await getAllOrgSpaces(this.orgName);
+      } catch {
+        console.log('An error has occurred');
+      }
+    },
+  },
 };
 </script>

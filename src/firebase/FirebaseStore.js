@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import {
-  getFirestore, collection, where, query, getDocs,
+  // eslint-disable-next-line no-unused-vars
+  getFirestore, collection, getDocs, doc, getDoc,
 } from 'firebase/firestore';
 
 import {
@@ -22,19 +23,38 @@ const firebaseApp = initializeApp({
 
 const db = getFirestore(firebaseApp);
 
-// Gets the window thresholds from firebase given some parameters
-async function getThresholds(city, state) {
-  try {
-    const thresholds = collection(db, 'window-thresholds');
-    const q = query(thresholds, where('city', '==', city), where('state', '==', state));
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      return querySnapshot.docs[0].data();
-    }
-    return 'No information was found for that location';
-  } catch {
-    return 'An error has occurred, please try again later';
+// Gets an organization's city and state
+async function getOrgCol(org) {
+  const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
+  const docRef = doc(db, 'organizations', strippedOrg);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return docSnap.data();
   }
+  return null;
+}
+
+// Gets the window thresholds for a specific space
+async function getOrgSpace(org, space) {
+  const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
+  const strippedSpace = space.toLowerCase().replace(/\s+/g, '');
+  const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return docSnap.data();
+  }
+  return null;
+}
+
+// Gets the window thresholds for all spaces
+async function getAllOrgSpaces(org) {
+  const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
+  const querySnapshot = await getDocs(collection(db, `organizations/${strippedOrg}/spaces`));
+  const spaces = [];
+  querySnapshot.forEach((document) => {
+    spaces.push(document.data());
+  });
+  return spaces;
 }
 
 const userStore = {
@@ -84,4 +104,6 @@ const userStore = {
   },
 };
 
-export { getThresholds, userStore };
+export {
+  getOrgCol, getOrgSpace, getAllOrgSpaces, userStore,
+};

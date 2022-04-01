@@ -25,6 +25,7 @@
         class="mx-auto"
         width="180"
         height="50"
+        to="/settings"
       >
         Settings
       </v-btn>

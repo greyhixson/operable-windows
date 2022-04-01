@@ -63,7 +63,9 @@
       </v-card>
     </v-dialog>
     <v-spacer style="padding-bottom: 80px;" />
-    <v-dialog max-width="400px">
+    <v-dialog
+      max-width="400px"
+    >
       <template
         v-slot:activator="{ on, attrs }"
       >
@@ -83,7 +85,9 @@
         <v-card-title class="text-h5">
           Save your Settings?
         </v-card-title>
-        <v-card-actions>
+        <v-card-actions
+          class="pb-4"
+        >
           <v-btn
             to="/"
             @click="dialog = false"

@@ -38,7 +38,7 @@
         :rules="comparePasswordsRules"
         required
       />
-      <v-row class="pt-4">
+      <v-row class="pt-6">
         <v-btn
           class="mx-auto"
           width="180"

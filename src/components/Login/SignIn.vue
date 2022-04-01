@@ -20,6 +20,7 @@
         type="email"
         placeholder="Email"
         label="Please enter your email"
+        :rules="emailRules"
         required
       />
       <v-text-field
@@ -28,9 +29,10 @@
         type="password"
         placeholder="Password"
         label="Please enter your password"
+        :rules="passwordRules"
         required
       />
-      <v-row class="pt-4">
+      <v-row class="pt-6">
         <v-btn
           class="mx-auto"
           width="180"
@@ -69,7 +71,13 @@ export default {
   data() {
     return {
       email: '',
+      emailRules: [
+        (v) => !!v || 'Email is required',
+      ],
       password: '',
+      passwordRules: [
+        (v) => !!v || 'Password is required',
+      ],
       accountBtnText: 'Sign In',
       valid: false,
       alert: '',
@@ -92,8 +100,12 @@ export default {
   },
   methods: {
     accountBtn() {
+      userStore.errorCode = null;
       if (!userStore.user) {
-        userStore.signIn(this.email, this.password);
+        this.$refs.form.validate();
+        if (this.valid) {
+          userStore.signIn(this.email, this.password);
+        }
       } else if (userStore.user) {
         userStore.signOut();
       }

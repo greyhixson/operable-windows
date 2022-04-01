@@ -3,7 +3,7 @@
     style="width: 400px;"
   >
     <v-alert
-      v-if="alert"
+      v-if="alert && alertType"
       :type="alertType"
       dismissible
     >
@@ -12,7 +12,7 @@
     <v-form
       ref="form"
       v-model="valid"
-      @submit.prevent="onSignup"
+      @submit.prevent="accountBtn"
     >
       <v-text-field
         v-model="email"
@@ -67,14 +67,14 @@ export default {
   data() {
     return {
       valid: true,
-      email: '@gmail.com',
-      password: 'asdasdasd',
-      confirmPassword: 'asdasdasd',
+      email: '',
+      password: '',
+      confirmPassword: '',
       comparePasswordsRule: [
         (v) => v === this.password || 'Passwords do not match',
       ],
       passwordRule: [
-        (v) => v.length > 6 || 'Password must be atleast 6 characters long',
+        (v) => v.length >= 6 || 'Password must be atleast 6 characters long',
       ],
       alertType: '',
       alert: '',
@@ -110,9 +110,6 @@ export default {
     accountBtn() {
       if (this.valid && !userStore.user) {
         userStore.createAccount(this.email, this.password);
-        this.email = '';
-        this.password = '';
-        this.confirmPassword = '';
         this.$refs.form.resetValidation();
       } else if (userStore.user) {
         userStore.signOut();

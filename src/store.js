@@ -5,8 +5,10 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
 } from 'firebase/auth';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 
-const auth = getAuth();
+// Check if app has been initialized
+getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 const userStore = {
   user: null,

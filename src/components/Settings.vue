@@ -55,9 +55,47 @@
           <v-btn
             color="primary"
             text
-            @click="dialog = false"
+            @click="deleteAccountDialog = false"
           >
             Delete my account
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-spacer style="padding-bottom: 80px;" />
+    <v-dialog max-width="400px">
+      <template
+        v-slot:activator="{ on, attrs }"
+      >
+        <v-btn
+          dark
+          v-bind="attrs"
+          width="300px"
+          height="60px"
+          v-on="on"
+        >
+          Exit
+        </v-btn>
+      </template>
+      <v-card
+        class="mx-auto"
+      >
+        <v-card-title class="text-h5">
+          Save your Settings?
+        </v-card-title>
+        <v-card-actions>
+          <v-btn
+            to="/"
+            @click="dialog = false"
+          >
+            Yes
+          </v-btn>
+          <v-btn
+            to="/"
+
+            @click="dialog = false"
+          >
+            No
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -72,6 +110,8 @@ export default {
     return {
       textNotifications: false,
       phoneNotifications: false,
+      deleteAccountDialog: false,
+      dialog: false,
     };
   },
 };

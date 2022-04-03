@@ -52,58 +52,68 @@
 
                 <v-card-text>
                   <v-container>
-                    <v-row>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.space"
-                          label="Space"
-                        />
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.max_humidity"
-                          label="Maximum Humidity (%)"
-                        />
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.min_temp"
-                          label="Minimum Temperature (F°)"
-                        />
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.max_temp"
-                          label="Maximum Temperature (F°)"
-                        />
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.max_aqi"
-                          label="Maximum Air Pollution"
-                        />
-                      </v-col>
-                    </v-row>
+                    <v-form
+                      ref="form"
+                      v-model="valid"
+                    >
+                      <v-row>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="4"
+                        >
+                          <v-text-field
+                            v-model="editedItem.space"
+                            label="Space"
+                            :rules="spaceRule"
+                          />
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="4"
+                        >
+                          <v-text-field
+                            v-model="editedItem.max_humidity"
+                            label="Maximum Humidity (%)"
+                            :rules="maxHumidityRules"
+                          />
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="4"
+                        >
+                          <v-text-field
+                            v-model="editedItem.min_temp"
+                            label="Minimum Temperature (F°)"
+                            :rules="tempRules"
+                          />
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="4"
+                        >
+                          <v-text-field
+                            v-model="editedItem.max_temp"
+                            label="Maximum Temperature (F°)"
+                            :rules="tempRules"
+                          />
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="4"
+                        >
+                          <v-text-field
+                            v-model="editedItem.max_aqi"
+                            label="Maximum Air Pollution"
+                            :rules="aqiRules"
+                          />
+                        </v-col>
+                      </v-row>
+                    </v-form>
                   </v-container>
                 </v-card-text>
 
@@ -187,7 +197,7 @@
 
 <script>
 import {
-  getOrg, getAllSpaces, updateSpace, newSpace,
+  getOrg, getAllSpaces,
 } from '@/firebase/FirebaseStore';
 
 export default {
@@ -200,7 +210,7 @@ export default {
         { text: 'Space', value: 'space' },
         { text: 'Maximum Humidity (%)', value: 'max_humidity' },
         { text: 'Minimum Temperature (F°)', value: 'min_temp' },
-        { text: 'Maximum Temperature (F°)', value: 'max_humidity' },
+        { text: 'Maximum Temperature (F°)', value: 'max_temp' },
         { text: 'Maximum Air Pollution', value: 'max_aqi' },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
@@ -225,6 +235,26 @@ export default {
         max_temp: null,
         max_aqi: null,
       },
+      maxHumidityRules: [
+        (v) => !!v || 'Max humidity is required',
+        (v) => (v >= 0 && v <= 100) || 'Value must be in a range 0 to 100',
+        (v) => v.length <= 3 || 'Only 3 characters in length are allowed',
+      ],
+      tempRules: [
+        (v) => !!v || 'Temperature is required',
+        (v) => (v >= -50 && v <= 150) || 'Value must be in a range -50 to 150',
+        (v) => v.length <= 3 || 'Only 3 characters in length are allowed',
+      ],
+      aqiRules: [
+        (v) => !!v || 'AQI is required',
+        (v) => (v > 0 && v <= 5) || 'Value must be 1 - 5',
+        (v) => v.length === 1 || 'Only 1 character is allowed',
+      ],
+      spaceRule: [
+        (v) => !!v || 'The name of the space is required',
+        (v) => v.length <= 30 || 'Only 30 characters in length are allowed',
+      ],
+      valid: false,
     };
   },
   computed: {
@@ -292,14 +322,20 @@ export default {
     },
 
     save() {
-      if (this.editedIndex > -1) {
-        Object.assign(this.thresholds[this.editedIndex], this.editedItem);
-        updateSpace(this.orgName, this.editedItem);
-      } else {
-        this.thresholds.push(this.editedItem);
-        newSpace(this.orgName, this.editedItem);
+      this.$refs.form.validate();
+      console.log(this.valid);
+      /*
+      if (this.valid) {
+        if (this.editedIndex > -1) {
+          Object.assign(this.thresholds[this.editedIndex], this.editedItem);
+          updateSpace(this.orgName, this.editedItem);
+        } else {
+          this.thresholds.push(this.editedItem);
+          newSpace(this.orgName, this.editedItem);
+        }
+        this.close();
       }
-      this.close();
+       */
     },
   },
 };

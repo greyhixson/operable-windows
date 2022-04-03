@@ -20,7 +20,6 @@
         placeholder="Email"
         label="Please enter your email"
         :rules="emailRules"
-        required
       />
       <v-text-field
         v-model="password"
@@ -28,7 +27,6 @@
         placeholder="Password"
         label="Please enter your password"
         :rules="passwordRules"
-        required
       />
       <v-text-field
         v-model="confirmPassword"
@@ -36,7 +34,6 @@
         placeholder="Confirm Password"
         label="Please confirm your password"
         :rules="comparePasswordsRules"
-        required
       />
       <v-row class="pt-6">
         <v-btn

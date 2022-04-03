@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import {
   // eslint-disable-next-line no-unused-vars
-  getFirestore, collection, getDocs, doc, getDoc,
+  getFirestore, collection, getDocs, doc, getDoc, runTransaction,
 } from 'firebase/firestore';
 
 import {
@@ -23,8 +23,8 @@ const firebaseApp = initializeApp({
 
 const db = getFirestore(firebaseApp);
 
-// Gets an organization's city and state
-async function getOrgCol(org) {
+// Gets an organization's city, state, and name
+async function getOrg(org) {
   const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
   const docRef = doc(db, 'organizations', strippedOrg);
   const docSnap = await getDoc(docRef);
@@ -35,7 +35,7 @@ async function getOrgCol(org) {
 }
 
 // Gets the window thresholds for a specific space
-async function getOrgSpace(org, space) {
+async function getSpace(org, space) {
   const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
   const strippedSpace = space.toLowerCase().replace(/\s+/g, '');
   const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
@@ -47,7 +47,7 @@ async function getOrgSpace(org, space) {
 }
 
 // Gets the window thresholds for all spaces
-async function getAllOrgSpaces(org) {
+async function getAllSpaces(org) {
   const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
   const querySnapshot = await getDocs(collection(db, `organizations/${strippedOrg}/spaces`));
   const spaces = [];
@@ -55,6 +55,30 @@ async function getAllOrgSpaces(org) {
     spaces.push(document.data());
   });
   return spaces;
+}
+
+async function updateSpace(org, spaceObj) {
+  const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
+  const strippedSpace = spaceObj.space.toLowerCase().replace(/\s+/g, '');
+  const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
+
+  try {
+    await runTransaction(db, async (transaction) => {
+      const spaceDoc = await transaction.get(docRef);
+      if (!spaceDoc.exists()) {
+        throw new Error('Document does not exist!');
+      }
+      Object.entries(spaceObj).forEach(([key, value]) => {
+        if (value) {
+          spaceDoc.data()[key] = spaceObj[key];
+        }
+      });
+      transaction.update(docRef, spaceDoc);
+    });
+    console.log('Transaction successfully committed!');
+  } catch (e) {
+    console.log('Transaction failed: ', e);
+  }
 }
 
 const userStore = {
@@ -105,5 +129,5 @@ const userStore = {
 };
 
 export {
-  getOrgCol, getOrgSpace, getAllOrgSpaces, userStore,
+  getOrg, getSpace, updateSpace, getAllSpaces, userStore,
 };

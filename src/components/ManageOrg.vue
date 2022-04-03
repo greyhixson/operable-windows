@@ -1,17 +1,31 @@
 <template>
   <v-container>
-    <v-data-table
-      :headers="headers"
-      :items="thresholds"
-      :items-per-page="5"
-      class="elevation-1"
-    />
-    <h5> To view more information on how air pollution is calculated visit <a href="https://openweathermap.org/api/air-pollution"> OpenWeather Map </a></h5>
+    <v-card>
+      <v-card-title>
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Search"
+          single-line
+          hide-details
+        />
+      </v-card-title>
+      <v-data-table
+        :search="search"
+        :headers="headers"
+        :items="thresholds"
+        :items-per-page="5"
+        class="elevation-1"
+        :loading="loading"
+        loading-text="Loading... Please wait"
+      />
+    </v-card>
+    <h5> To view more information on how air pollution is calculated, visit <a href="https://openweathermap.org/api/air-pollution"> OpenWeather Map </a></h5>
   </v-container>
 </template>
 
 <script>
-import { getOrgCol, getAllOrgSpaces } from '@/firebase/FirebaseStore';
+import { getOrg, getAllSpaces } from '@/firebase/FirebaseStore';
 
 export default {
   name: 'ManageOrg',
@@ -28,6 +42,8 @@ export default {
       location: Object,
       orgName: 'University of Arkansas',
       org: Object,
+      search: '',
+      loading: false,
     };
   },
   created() {
@@ -35,12 +51,14 @@ export default {
   },
   methods: {
     async getOrg() {
+      this.loading = true;
       try {
-        this.org = await getOrgCol(this.orgName);
-        this.thresholds = await getAllOrgSpaces(this.orgName);
+        this.org = await getOrg(this.orgName);
+        this.thresholds = await getAllSpaces(this.orgName);
       } catch {
         console.log('An error has occurred');
       }
+      this.loading = false;
     },
   },
 };

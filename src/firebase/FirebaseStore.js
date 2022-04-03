@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import {
   // eslint-disable-next-line no-unused-vars
-  getFirestore, collection, getDocs, doc, getDoc, runTransaction,
+  getFirestore, collection, getDocs, doc, getDoc, runTransaction, setDoc,
 } from 'firebase/firestore';
 
 import {
@@ -68,17 +68,19 @@ async function updateSpace(org, spaceObj) {
       if (!spaceDoc.exists()) {
         throw new Error('Document does not exist!');
       }
-      Object.entries(spaceObj).forEach(([key, value]) => {
-        if (value) {
-          spaceDoc.data()[key] = spaceObj[key];
-        }
-      });
-      transaction.update(docRef, spaceDoc);
+      const updatedSpace = Object.assign(spaceDoc.data(), spaceObj);
+      transaction.update(docRef, updatedSpace);
     });
-    console.log('Transaction successfully committed!');
   } catch (e) {
     console.log('Transaction failed: ', e);
   }
+}
+
+async function newSpace(org, spaceObj) {
+  const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
+  const strippedSpace = spaceObj.space.toLowerCase().replace(/\s+/g, '');
+  const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
+  await setDoc(docRef, spaceObj, { merge: true });
 }
 
 const userStore = {
@@ -129,5 +131,5 @@ const userStore = {
 };
 
 export {
-  getOrg, getSpace, updateSpace, getAllSpaces, userStore,
+  getOrg, getSpace, updateSpace, getAllSpaces, userStore, newSpace,
 };

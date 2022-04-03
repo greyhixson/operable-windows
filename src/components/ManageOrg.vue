@@ -197,7 +197,7 @@
 
 <script>
 import {
-  getOrg, getAllSpaces,
+  getOrg, getAllSpaces, updateSpace, newSpace, deleteSpace,
 } from '@/firebase/FirebaseStore';
 
 export default {
@@ -302,6 +302,7 @@ export default {
 
     deleteItemConfirm() {
       this.thresholds.splice(this.editedIndex, 1);
+      deleteSpace(this.orgName, this.editedItem);
       this.closeDelete();
     },
 
@@ -324,7 +325,6 @@ export default {
     save() {
       this.$refs.form.validate();
       console.log(this.valid);
-      /*
       if (this.valid) {
         if (this.editedIndex > -1) {
           Object.assign(this.thresholds[this.editedIndex], this.editedItem);
@@ -335,7 +335,6 @@ export default {
         }
         this.close();
       }
-       */
     },
   },
 };

@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import {
   // eslint-disable-next-line no-unused-vars
-  getFirestore, collection, getDocs, doc, getDoc, runTransaction, setDoc,
+  getFirestore, collection, doc, getDoc, getDocs, setDoc, deleteDoc, runTransaction,
 } from 'firebase/firestore';
 
 import {
@@ -83,6 +83,12 @@ async function newSpace(org, spaceObj) {
   await setDoc(docRef, spaceObj, { merge: true });
 }
 
+async function deleteSpace(org, spaceObj) {
+  const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
+  const strippedSpace = spaceObj.space.toLowerCase().replace(/\s+/g, '');
+  await deleteDoc(doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace));
+}
+
 const userStore = {
   user: null,
   errorCode: null,
@@ -131,5 +137,5 @@ const userStore = {
 };
 
 export {
-  getOrg, getSpace, updateSpace, getAllSpaces, userStore, newSpace,
+  getOrg, getSpace, getAllSpaces, updateSpace, newSpace, deleteSpace, userStore,
 };

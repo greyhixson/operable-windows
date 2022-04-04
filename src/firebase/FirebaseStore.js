@@ -133,7 +133,6 @@ const userStore = {
         this.errorMessage = error.message;
       });
   },
-
   signOut() {
     const auth = getAuth();
     signOut(auth).then(() => {

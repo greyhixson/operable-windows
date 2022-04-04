@@ -181,14 +181,6 @@
             mdi-delete
           </v-icon>
         </template>
-        <template v-slot:no-data>
-          <v-btn
-            color="primary"
-            @click="initialize"
-          >
-            Reset
-          </v-btn>
-        </template>
       </v-data-table>
     </v-card>
     <h5> To view more information on how air pollution is calculated, visit <a href="https://openweathermap.org/api/air-pollution"> OpenWeather Map </a></h5>

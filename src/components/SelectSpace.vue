@@ -104,7 +104,6 @@ export default {
   },
   async created() {
     this.orgs = await getAllOrgs();
-    console.log(this.orgs);
   },
   methods: {
     getCurrentWeatherAndAirPollution() {

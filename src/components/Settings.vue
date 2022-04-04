@@ -12,12 +12,15 @@
         <h2> Personal Details</h2>
         <v-form>
           <v-text-field
+            v-model="firstName"
             label="First name"
           />
           <v-text-field
+            v-model="lastName"
             label="Last name"
           />
           <v-text-field
+            v-model="phoneNumber"
             label="Phone Number"
           />
         </v-form>
@@ -184,8 +187,7 @@
             class="pb-4"
           >
             <v-btn
-              to="/"
-              @click="dialog = false"
+              @click="updateProfile"
             >
               Yes
             </v-btn>
@@ -203,6 +205,8 @@
 </template>
 
 <script>
+import { userStore } from '@/firebase/FirebaseStore';
+
 export default {
   name: 'Settings',
   data() {
@@ -210,6 +214,9 @@ export default {
       textNotifications: false,
       emailNotifications: false,
       dialog: false,
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
       orgName: '',
       orgBtnText: 'Register an Organization',
       orgRegistered: false,
@@ -229,6 +236,13 @@ export default {
       if (this.orgRegistered) {
         this.$router.push('/manageorg');
       }
+    },
+    updateProfile() {
+      console.log('test');
+      console.log(userStore.user.uid);
+      // get user doc with the uid
+      // package up an update profile object and update the fields in the document
+      this.$router.push('/');
     },
   },
 };

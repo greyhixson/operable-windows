@@ -1,18 +1,22 @@
 <template>
   <v-container class="text-center">
-    <display-space
-      v-if="submittedThresholds && submittedWeather && submittedAirPollution && !cardClosed"
-      :weather="submittedWeather"
-      :space-thresholds="submittedThresholds"
-      :air-pollution="submittedAirPollution"
-    />
     <select-space
       @submitWeather="getWeather"
       @submitThresholds="getThresholds"
       @submitAirPollution="getAirPollution"
       @closeCard="closeCard"
     />
-    <v-row dense>
+    <display-space
+      v-if="submittedThresholds && submittedWeather && submittedAirPollution && !cardClosed"
+      :weather="submittedWeather"
+      :space-thresholds="submittedThresholds"
+      :air-pollution="submittedAirPollution"
+    />
+
+    <v-row
+      dense
+      class="pt-6"
+    >
       <v-btn
         class="mx-auto"
         width="180"

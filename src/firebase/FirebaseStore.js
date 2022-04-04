@@ -24,8 +24,8 @@ const firebaseApp = initializeApp({
 const db = getFirestore(firebaseApp);
 
 // Gets an organization's city, state, and name
-async function getOrg(org) {
-  const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
+async function getOrg(orgName) {
+  const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
   const docRef = doc(db, 'organizations', strippedOrg);
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
@@ -34,9 +34,18 @@ async function getOrg(org) {
   return null;
 }
 
+async function getAllOrgs() {
+  const querySnapshot = await getDocs(collection(db, 'organizations'));
+  const orgs = [];
+  querySnapshot.forEach((document) => {
+    orgs.push(document.data());
+  });
+  return orgs;
+}
+
 // Gets the window thresholds for a specific space
-async function getSpace(org, space) {
-  const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
+async function getSpace(orgName, space) {
+  const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
   const strippedSpace = space.toLowerCase().replace(/\s+/g, '');
   const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
   const docSnap = await getDoc(docRef);
@@ -47,8 +56,8 @@ async function getSpace(org, space) {
 }
 
 // Gets the window thresholds for all spaces
-async function getAllSpaces(org) {
-  const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
+async function getAllSpaces(orgName) {
+  const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
   const querySnapshot = await getDocs(collection(db, `organizations/${strippedOrg}/spaces`));
   const spaces = [];
   querySnapshot.forEach((document) => {
@@ -57,8 +66,8 @@ async function getAllSpaces(org) {
   return spaces;
 }
 
-async function updateSpace(org, spaceObj) {
-  const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
+async function updateSpace(orgName, spaceObj) {
+  const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
   const strippedSpace = spaceObj.space.toLowerCase().replace(/\s+/g, '');
   const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
 
@@ -76,15 +85,15 @@ async function updateSpace(org, spaceObj) {
   }
 }
 
-async function newSpace(org, spaceObj) {
-  const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
+async function newSpace(orgName, spaceObj) {
+  const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
   const strippedSpace = spaceObj.space.toLowerCase().replace(/\s+/g, '');
   const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
   await setDoc(docRef, spaceObj, { merge: true });
 }
 
-async function deleteSpace(org, spaceObj) {
-  const strippedOrg = org.toLowerCase().replace(/\s+/g, '');
+async function deleteSpace(orgName, spaceObj) {
+  const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
   const strippedSpace = spaceObj.space.toLowerCase().replace(/\s+/g, '');
   await deleteDoc(doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace));
 }
@@ -137,5 +146,5 @@ const userStore = {
 };
 
 export {
-  getOrg, getSpace, getAllSpaces, updateSpace, newSpace, deleteSpace, userStore,
+  getAllOrgs, getOrg, getSpace, getAllSpaces, updateSpace, newSpace, deleteSpace, userStore,
 };

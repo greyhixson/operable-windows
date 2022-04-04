@@ -1,12 +1,12 @@
 <template>
   <v-container class="text-center">
-    <user-window
+    <display-space
       v-if="submittedThresholds && submittedWeather && submittedAirPollution && !cardClosed"
       :weather="submittedWeather"
-      :window-thresholds="submittedThresholds"
+      :space-thresholds="submittedThresholds"
       :air-pollution="submittedAirPollution"
     />
-    <user-location
+    <select-space
       @submitWeather="getWeather"
       @submitThresholds="getThresholds"
       @submitAirPollution="getAirPollution"
@@ -35,14 +35,14 @@
 
 <script>
 import { userStore } from '@/firebase/FirebaseStore';
-import UserLocation from '../components/UserLocation.vue';
-import UserWindow from '../components/UserWindow.vue';
+import SelectSpace from '../components/SelectSpace.vue';
+import DisplaySpace from '../components/DisplaySpace.vue';
 
 export default {
   name: 'UserView',
   components: {
-    UserLocation,
-    UserWindow,
+    SelectSpace,
+    DisplaySpace,
   },
   data() {
     return {

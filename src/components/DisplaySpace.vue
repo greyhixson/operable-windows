@@ -6,7 +6,7 @@
     <v-list-item>
       <v-list-item-content>
         <v-list-item-title class="text-h4 black--text">
-          {{ windowThresholds.city }}, {{ windowThresholds.state }}
+          {{ spaceThresholds.space }}
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
@@ -24,11 +24,11 @@
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-h6">
-          Temperature: {{ weather.main.temp }}F
+          Temperature: {{ weather.main.temp.toFixed(0) }}F
         </v-list-item-title>
         <v-list-item-subtitle>
-          Acceptable temperature range: {{ windowThresholds.min_temp }}F
-          - {{ windowThresholds.max_temp }}F
+          Acceptable temperature range: {{ spaceThresholds.min_temp }}F
+          - {{ spaceThresholds.max_temp }}F
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
@@ -49,7 +49,7 @@
           Humidity: {{ weather.main.humidity }}
         </v-list-item-title>
         <v-list-item-subtitle>
-          Acceptable max humidity: {{ windowThresholds.humidity_max }}
+          Acceptable max humidity: {{ spaceThresholds.max_humidity }}
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
@@ -70,7 +70,7 @@
           Air Quality Index: {{ airPollution.list[0].main.aqi }}
         </v-list-item-title>
         <v-list-item-subtitle>
-          Acceptable AQI: {{ windowThresholds.aqi_max }}
+          Acceptable AQI: {{ spaceThresholds.max_aqi }}
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
@@ -115,17 +115,18 @@
  */
 /**
  * Window Thresholds object from my firebase firestore
- * @typedef {Object} windowThresholds
+ * @typedef {Object} spaceThresholds
  * @property min_temp     - Min temp (C°) it needs to be for the window to be open
  * @property max_temp     - Max temp (C°) it can be for the window to be open
- * @property humidity_max - Max humidity it can be for the window to be open
- * @property aqi_max      - Max air pollution it can be for the window to be open
+ * @property max_humidity - Max humidity it can be for the window to be open
+ * @property max_aqi      - Max air pollution it can be for the window to be open
+ * @property space        - The location the user is in
  */
 
 export default {
-  name: 'UserWindow',
+  name: 'DisplaySpace',
   props: {
-    windowThresholds: {
+    spaceThresholds: {
       type: Object,
       required: true,
     },
@@ -156,17 +157,17 @@ export default {
   methods: {
     checkTemp() {
       const { main: { temp } } = this.weather;
-      const { min_temp: minTemp, max_temp: maxTemp } = this.windowThresholds;
+      const { min_temp: minTemp, max_temp: maxTemp } = this.spaceThresholds;
       this.okTemp = (temp > minTemp) && (temp < maxTemp);
     },
     checkHumidity() {
       const { main: { humidity } } = this.weather;
-      const { humidity_max: humidityMax } = this.windowThresholds;
+      const { max_humidity: humidityMax } = this.spaceThresholds;
       this.okHumidity = humidity < humidityMax;
     },
     checkAirPollution() {
       const { list: [{ main: { aqi } }] } = this.airPollution;
-      const { aqi_max: aqiMax } = this.windowThresholds;
+      const { max_aqi: aqiMax } = this.spaceThresholds;
       this.okAirPollution = aqi < aqiMax;
     },
     decideWindow() {

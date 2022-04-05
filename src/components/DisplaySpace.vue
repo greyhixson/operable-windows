@@ -152,6 +152,10 @@ export default {
       type: Object,
       required: true,
     },
+    orgName: {
+      type: String,
+      required: true,
+    },
     weather: {
       type: Object,
       required: true,

@@ -3,6 +3,7 @@
     <select-space
       @submitWeather="getWeather"
       @submitThresholds="getThresholds"
+      @submitOrgName="getOrgName"
       @submitAirPollution="getAirPollution"
       @closeCard="closeCard"
     />
@@ -10,6 +11,7 @@
       v-if="submittedThresholds && submittedWeather && submittedAirPollution && !cardClosed"
       :weather="submittedWeather"
       :space-thresholds="submittedThresholds"
+      :org-name="submittedOrgName"
       :air-pollution="submittedAirPollution"
     />
 
@@ -53,6 +55,7 @@ export default {
       submittedWeather: '',
       submittedThresholds: '',
       submittedAirPollution: '',
+      submittedOrgName: '',
       cardClosed: false,
       accountBtnText: 'Sign In',
       userStore,
@@ -80,6 +83,9 @@ export default {
     },
     getThresholds(event) {
       this.submittedThresholds = event;
+    },
+    getOrgName(event) {
+      this.submittedOrgName = event;
     },
     getAirPollution(event) {
       this.submittedAirPollution = event;

@@ -98,6 +98,10 @@ export default {
         this.alertType = '';
       }
     },
+    'userStore.errorCode': function watchError() {
+      this.alertType = 'error';
+      this.alert = 'Incorrect password or email';
+    },
   },
   methods: {
     accountBtn() {

@@ -267,8 +267,8 @@ export default {
     },
   },
   created() {
-    if (userStore.userCredential) {
-      this.orgName = userStore.settings.userCredential;
+    if (userStore.settings) {
+      this.orgName = userStore.settings.organization_name;
       this.getOrg();
     }
   },
@@ -314,7 +314,6 @@ export default {
     },
     save() {
       this.$refs.form.validate();
-      console.log(this.valid);
       if (this.valid) {
         if (this.editedIndex > -1) {
           Object.assign(this.thresholds[this.editedIndex], this.editedItem);

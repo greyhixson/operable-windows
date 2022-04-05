@@ -26,87 +26,53 @@
           cols="3"
         >
           <h2> Personal Details</h2>
-          <v-form>
-            <v-text-field
-              v-model="settings.first_name"
-              label="First name"
-            />
-            <v-text-field
-              v-model="settings.last_name"
-              label="Last name"
-            />
-            <v-text-field
-              v-model="settings.phone_number"
-              label="Phone Number"
-            />
-          </v-form>
+          <v-text-field
+            v-model="settings.first_name"
+            label="First name"
+          />
+          <v-text-field
+            v-model="settings.last_name"
+            label="Last name"
+          />
+          <v-text-field
+            v-model="settings.phone_number"
+            label="Phone Number"
+          />
         </v-col>
-
         <v-col
           cols="3"
         >
-          <h2 class="pb-2">
+          <h2>
             Organization Settings
           </h2>
-          <v-dialog
-            v-model="dialog"
-            persistent
-            max-width="500px"
-            :disabled="!alertError"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                class="mb-2"
-                v-bind="attrs"
-                :disabled="alertError"
-                v-on="on"
-                @click="checkRegistered"
-              >
-                {{ orgBtnText }}
-              </v-btn>
-            </template>
-            <v-card>
-              <v-card-title>
-                <span class="text-h5">What is the name of your organization? </span>
-              </v-card-title>
-              <v-card-text>
-                <v-text-field
-                  v-model="settings.orgName"
-                  label="Organization Name"
-                />
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer />
-                <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="dialog = false"
-                >
-                  Cancel
-                </v-btn>
-                <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="dialog = false;"
-                >
-                  Register
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+          <v-text-field
+            v-model="settings.favorite_organization"
+            readonly
+            label="Favorite Organization"
+          />
+
+          <v-text-field
+            v-model="settings.favorite_space"
+            readonly
+            label="Favorite Space"
+          />
         </v-col>
       </v-row>
       <v-row
         justify="center"
-        class="mb-8"
+        class="mb-8 mx-auto"
       >
         <v-col cols="3">
           <h2 class="pb-2">
             Account Settings
           </h2>
-          <v-row>
+          <v-row
+            no-gutters
+            class="pb-2"
+          >
             <v-col>
               <v-btn
+                width="220px"
                 @click="resetPassword"
               >
                 Reset Password
@@ -114,7 +80,72 @@
             </v-col>
           </v-row>
           <v-row
-            dense
+            no-gutters
+          >
+            <v-dialog
+              v-model="dialog"
+              persistent
+              max-width="500px"
+              :disabled="!alertError"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  class="mb-2"
+                  v-bind="attrs"
+                  :disabled="alertError"
+                  width="220px"
+                  v-on="on"
+                  @click="checkRegistered"
+                >
+                  {{ orgBtnText }}
+                </v-btn>
+              </template>
+              <v-card>
+                <v-card-title>
+                  <span class="text-h5">What is the name of your organization? </span>
+                </v-card-title>
+                <v-card-text>
+                  <v-text-field
+                    v-model="settings.orgName"
+                    label="Organization Name"
+                  />
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer />
+                  <v-btn
+                    color="blue darken-1"
+                    text
+                    @click="dialog = false"
+                  >
+                    Cancel
+                  </v-btn>
+                  <v-btn
+                    color="blue darken-1"
+                    text
+                    @click="dialog = false;"
+                  >
+                    Register
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </v-row>
+          <v-row
+            no-gutters
+            class="pb-2"
+          >
+            <v-col>
+              <v-btn
+                width="220px"
+                @click="clearFavorites"
+              >
+                Clear Favorites
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-row
+            no-gutters
+            class="pb-2"
           >
             <v-col>
               <v-dialog
@@ -125,6 +156,7 @@
                     color="red lighten-2"
                     dark
                     v-bind="attrs"
+                    width="220px"
                     v-on="on"
                   >
                     Delete my account
@@ -228,15 +260,17 @@ export default {
     return {
       dialog: false,
       orgName: '',
-      orgBtnText: 'Register an Organization',
+      orgBtnText: 'Register Organization',
       loadSaveSettings: false,
       settings: {
         first_name: '',
         last_name: '',
         phone_number: '',
+        favorite_organization: '',
         text_notifications: false,
         email_notifications: false,
         organization_name: '',
+        favorite_space: '',
       },
       alertMessage: '',
       alert: false,
@@ -249,7 +283,7 @@ export default {
       if (this.settings.organization_name) {
         this.orgBtnText = 'Manage Organization';
       } else {
-        this.orgBtnText = 'Register an Organization';
+        this.orgBtnText = 'Register Organization';
       }
     },
     'userStore.settings': function watchSettingsChange(settings) {
@@ -290,6 +324,10 @@ export default {
       this.alert = true;
       this.alertError = false;
       userStore.sendPasswordResetEmail();
+    },
+    clearFavorites() {
+      this.settings.favorite_organization = '';
+      this.settings.favorite_space = '';
     },
   },
 };

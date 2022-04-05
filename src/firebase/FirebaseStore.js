@@ -108,6 +108,8 @@ const userStore = {
     first_name: '',
     last_name: '',
     phone_number: '',
+    favorite_organization: '',
+    favorite_space: '',
     text_notifications: false,
     email_notifications: false,
     organization_name: false,

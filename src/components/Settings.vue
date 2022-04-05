@@ -7,7 +7,7 @@
       <v-col cols="6">
         <v-alert
           v-if="alertMessage"
-          type="error"
+          :type="alertType"
           class="text-center"
           dismissible
         >
@@ -52,13 +52,13 @@
             v-model="dialog"
             persistent
             max-width="500px"
-            :disabled="!alert"
+            :disabled="!alertError"
           >
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 class="mb-2"
                 v-bind="attrs"
-                :disabled="alert"
+                :disabled="alertError"
                 v-on="on"
                 @click="checkRegistered"
               >
@@ -106,15 +106,10 @@
           </h2>
           <v-row>
             <v-col>
-              <v-btn>
+              <v-btn
+                @click="resetPassword"
+              >
                 Reset Password
-              </v-btn>
-            </v-col>
-          </v-row>
-          <v-row dense>
-            <v-col>
-              <v-btn>
-                Change Email
               </v-btn>
             </v-col>
           </v-row>
@@ -245,6 +240,8 @@ export default {
       },
       alertMessage: '',
       alert: false,
+      alertType: '',
+      alertError: false,
     };
   },
   watch: {
@@ -254,6 +251,9 @@ export default {
       } else {
         this.orgBtnText = 'Register an Organization';
       }
+    },
+    'userStore.settings': function watchSettingsChange(settings) {
+      this.settings = settings;
     },
   },
   async created() {
@@ -270,8 +270,10 @@ export default {
       if (this.settings.organization_name && userStore.userCredential) {
         this.$router.push('/manageorg');
       } else if (!userStore.userCredential) {
+        this.alertType = 'error';
         this.alertMessage = 'Please create an account to register an organization.';
         this.alert = true;
+        this.alertError = true;
       }
     },
     async updateProfile() {
@@ -281,6 +283,13 @@ export default {
       }
       this.loadSaveSettings = false;
       await this.$router.push('/');
+    },
+    resetPassword() {
+      this.alertMessage = 'Check your inbox for an email to reset your password';
+      this.alertType = 'info';
+      this.alert = true;
+      this.alertError = false;
+      userStore.sendPasswordResetEmail();
     },
   },
 };

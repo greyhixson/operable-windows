@@ -10,6 +10,7 @@ import {
   signOut,
   createUserWithEmailAndPassword,
   sendEmailVerification,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 
 const firebaseApp = initializeApp({
@@ -102,7 +103,7 @@ const userStore = {
   userCredential: null,
   errorCode: null,
   errorMessage: null,
-  justCreated: null,
+  settingsLoaded: null,
   settings: {
     first_name: '',
     last_name: '',
@@ -117,7 +118,7 @@ const userStore = {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         this.userCredential = userCredential;
-        this.justCreated = true;
+        this.settingsLoaded = false;
         sendEmailVerification(auth.currentUser).then(() => {
         });
       })
@@ -137,7 +138,6 @@ const userStore = {
         this.errorCode = error.code;
         this.errorMessage = error.message;
       });
-    this.settings = await this.getSettings();
   },
   signOut() {
     const auth = getAuth();
@@ -147,6 +147,20 @@ const userStore = {
       this.errorCode = error.code;
       this.errorMessage = error.message;
     });
+  },
+
+  sendPasswordResetEmail() {
+    const auth = getAuth();
+    sendPasswordResetEmail(auth, this.user.userCredential.email)
+      .then(() => {
+        // Password reset email sent!
+        // ..
+      })
+      .catch((error) => {
+        this.errorCode = error.code;
+        this.errorMessage = error.message;
+        // ..
+      });
   },
   async getSettings() {
     if (this.userCredential.user.uid) {

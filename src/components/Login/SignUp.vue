@@ -94,9 +94,8 @@ export default {
         this.alert = errorCode;
       }
     },
-    'userStore.justCreated': function watchAccountCreation(justCreated) {
-      if (justCreated) {
-        userStore.justCreated = false;
+    'userStore.settingsLoaded': function watchAccountCreation(settingsLoaded) {
+      if (!settingsLoaded) {
         this.alertType = 'success';
         this.alert = 'An account verification email has been sent.';
         this.$refs.form.reset();

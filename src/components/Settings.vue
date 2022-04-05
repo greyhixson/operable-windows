@@ -222,7 +222,7 @@ export default {
         phone_number: '',
         text_notifications: false,
         email_notifications: false,
-        organization_name: false,
+        organization_name: '',
       },
     };
   },
@@ -235,8 +235,12 @@ export default {
       }
     },
   },
-  created() {
+  async created() {
     if (userStore.userCredential) {
+      if (!userStore.settingsLoaded) {
+        await userStore.getSettings();
+        this.settings = userStore.settings;
+      }
       this.settings = userStore.settings;
     }
   },

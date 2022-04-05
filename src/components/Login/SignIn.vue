@@ -88,6 +88,7 @@ export default {
   watch: {
     'userStore.userCredential': function watchUser(userCred) {
       if (userCred) {
+        console.log(userCred);
         this.accountBtnText = 'Sign Out';
         this.alert = 'You are now signed in';
         this.alertType = 'success';

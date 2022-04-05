@@ -102,7 +102,7 @@ export default {
         this.$refs.form.reset();
       }
     },
-    'userStore.user': function watchUser(userCred) {
+    'userStore.userCredential': function watchUser(userCred) {
       if (userCred) {
         this.accountBtnText = 'Sign Out';
       } else if (!userCred) {
@@ -113,12 +113,12 @@ export default {
   methods: {
     accountBtn() {
       userStore.errorCode = null;
-      if (!userStore.user) {
+      if (!userStore.userCredential) {
         this.$refs.form.validate();
         if (this.valid) {
           userStore.createAccount(this.email, this.password);
         }
-      } else if (userStore.user) {
+      } else if (userStore.userCredential) {
         userStore.signOut();
       }
     },

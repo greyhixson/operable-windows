@@ -189,7 +189,7 @@
 
 <script>
 import {
-  getOrg, getAllSpaces, updateSpace, newSpace, deleteSpace,
+  getOrg, getAllSpaces, updateSpace, newSpace, deleteSpace, userStore,
 } from '@/firebase/FirebaseStore';
 
 export default {
@@ -208,7 +208,7 @@ export default {
       ],
       thresholds: [],
       location: Object,
-      orgName: 'University of Arkansas',
+      orgName: '',
       org: Object,
       search: '',
       editedIndex: -1,
@@ -267,7 +267,10 @@ export default {
     },
   },
   created() {
-    this.getOrg();
+    if (userStore.userCredential) {
+      this.orgName = userStore.settings.userCredential;
+      this.getOrg();
+    }
   },
   methods: {
     async getOrg() {
@@ -285,19 +288,16 @@ export default {
       this.editedItem = { ...item };
       this.dialog = true;
     },
-
     deleteItem(item) {
       this.editedIndex = this.thresholds.indexOf(item);
       this.editedItem = { ...item };
       this.dialogDelete = true;
     },
-
     deleteItemConfirm() {
       this.thresholds.splice(this.editedIndex, 1);
       deleteSpace(this.orgName, this.editedItem);
       this.closeDelete();
     },
-
     close() {
       this.dialog = false;
       this.$nextTick(() => {
@@ -305,7 +305,6 @@ export default {
         this.editedIndex = -1;
       });
     },
-
     closeDelete() {
       this.dialogDelete = false;
       this.$nextTick(() => {
@@ -313,7 +312,6 @@ export default {
         this.editedIndex = -1;
       });
     },
-
     save() {
       this.$refs.form.validate();
       console.log(this.valid);

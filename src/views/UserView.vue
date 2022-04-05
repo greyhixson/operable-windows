@@ -59,7 +59,7 @@ export default {
     };
   },
   watch: {
-    'userStore.user': function watchUser(userCred) {
+    'userStore.userCredential': function watchUser(userCred) {
       if (userCred) {
         this.accountBtnText = 'Sign Out';
       } else if (!userCred) {
@@ -68,9 +68,9 @@ export default {
     },
   },
   created() {
-    if (userStore.user) {
+    if (userStore.userCredential) {
       this.accountBtnText = 'Sign Out';
-    } else if (!userStore.user) {
+    } else if (!userStore.userCredential) {
       this.accountBtnText = 'Sign In';
     }
   },
@@ -88,9 +88,9 @@ export default {
       this.cardClosed = event;
     },
     accountBtn() {
-      if (!userStore.user) {
+      if (!userStore.userCredential) {
         this.$router.push('/signin');
-      } else if (userStore.user) {
+      } else if (userStore.userCredential) {
         userStore.signOut();
       }
     },

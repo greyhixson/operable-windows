@@ -99,16 +99,24 @@ async function deleteSpace(orgName, spaceObj) {
 }
 
 const userStore = {
-  user: null,
+  userCredential: null,
   errorCode: null,
   errorMessage: null,
-  justCreated: false,
+  justCreated: null,
+  settings: {
+    first_name: '',
+    last_name: '',
+    phone_number: '',
+    text_notifications: false,
+    email_notifications: false,
+    organization_name: false,
+  },
 
   createAccount(email, password) {
     const auth = getAuth();
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        this.user = userCredential;
+        this.userCredential = userCredential;
         this.justCreated = true;
         sendEmailVerification(auth.currentUser).then(() => {
         });
@@ -116,31 +124,58 @@ const userStore = {
       .catch((error) => {
         this.errorCode = error.code;
         this.errorMessage = error.message;
-        // ..
       });
   },
 
-  signIn(email, password) {
+  async signIn(email, password) {
     const auth = getAuth();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed in
-        this.user = userCredential;
-        // ...
+        this.userCredential = userCredential;
       })
       .catch((error) => {
         this.errorCode = error.code;
         this.errorMessage = error.message;
       });
+    this.settings = await this.getSettings();
   },
   signOut() {
     const auth = getAuth();
     signOut(auth).then(() => {
-      this.user = null;
+      this.userCredential = null;
     }).catch((error) => {
       this.errorCode = error.code;
       this.errorMessage = error.message;
     });
+  },
+  async getSettings() {
+    if (this.userCredential.user.uid) {
+      const docRef = doc(db, 'users', this.userCredential.user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return docSnap.data();
+      }
+    }
+    return null;
+  },
+
+  async updateSettings(settingsObj) {
+    if (this.userCredential.user.uid) {
+      const docRef = doc(db, 'users', this.userCredential.user.uid);
+      try {
+        await runTransaction(db, async (transaction) => {
+          const settingsDoc = await transaction.get(docRef);
+          if (!settingsDoc.exists()) {
+            throw new Error('Document does not exist!');
+          }
+          const updatedSpace = Object.assign(settingsDoc.data(), settingsObj);
+          transaction.update(docRef, updatedSpace);
+        });
+      } catch (e) {
+        console.log('Transaction failed: ', e);
+      }
+    }
+    return null;
   },
 };
 

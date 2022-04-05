@@ -12,15 +12,15 @@
         <h2> Personal Details</h2>
         <v-form>
           <v-text-field
-            v-model="firstName"
+            v-model="settings.first_name"
             label="First name"
           />
           <v-text-field
-            v-model="lastName"
+            v-model="settings.last_name"
             label="Last name"
           />
           <v-text-field
-            v-model="phoneNumber"
+            v-model="settings.phone_number"
             label="Phone Number"
           />
         </v-form>
@@ -53,7 +53,7 @@
             </v-card-title>
             <v-card-text>
               <v-text-field
-                v-model="orgName"
+                v-model="settings.orgName"
                 label="Organization Name"
               />
             </v-card-text>
@@ -149,11 +149,11 @@
           Notification Settings
         </h2>
         <v-checkbox
-          v-model="textNotifications"
+          v-model="settings.text_notifications"
           label="Text Notifications"
         />
         <v-checkbox
-          v-model="emailNotifications"
+          v-model="settings.email_notifications"
           label="Email Notifications"
         />
       </v-col>
@@ -187,6 +187,7 @@
             class="pb-4"
           >
             <v-btn
+              :loading="loadSaveSettings"
               @click="updateProfile"
             >
               Yes
@@ -211,38 +212,47 @@ export default {
   name: 'Settings',
   data() {
     return {
-      textNotifications: false,
-      emailNotifications: false,
       dialog: false,
-      firstName: '',
-      lastName: '',
-      phoneNumber: '',
       orgName: '',
       orgBtnText: 'Register an Organization',
-      orgRegistered: false,
+      loadSaveSettings: false,
+      settings: {
+        first_name: '',
+        last_name: '',
+        phone_number: '',
+        text_notifications: false,
+        email_notifications: false,
+        organization_name: false,
+      },
     };
   },
   watch: {
-    orgRegistered() {
-      if (this.orgRegistered) {
+    settings() {
+      if (this.settings.organization_name) {
         this.orgBtnText = 'Manage Organization';
       } else {
         this.orgBtnText = 'Register an Organization';
       }
     },
   },
+  created() {
+    if (userStore.userCredential) {
+      this.settings = userStore.settings;
+    }
+  },
   methods: {
     checkRegistered() {
-      if (this.orgRegistered) {
+      if (this.settings.organization_name) {
         this.$router.push('/manageorg');
       }
     },
-    updateProfile() {
-      console.log('test');
-      console.log(userStore.user.uid);
-      // get user doc with the uid
-      // package up an update profile object and update the fields in the document
-      this.$router.push('/');
+    async updateProfile() {
+      this.loadSaveSettings = true;
+      if (userStore.userCredential) {
+        await userStore.updateSettings(this.settings);
+      }
+      this.loadSaveSettings = false;
+      await this.$router.push('/');
     },
   },
 };

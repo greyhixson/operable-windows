@@ -86,7 +86,7 @@ export default {
     };
   },
   watch: {
-    'userStore.user': function watchUser(userCred) {
+    'userStore.userCredential': function watchUser(userCred) {
       if (userCred) {
         this.accountBtnText = 'Sign Out';
         this.alert = 'You are now signed in';
@@ -101,12 +101,12 @@ export default {
   methods: {
     accountBtn() {
       userStore.errorCode = null;
-      if (!userStore.user) {
+      if (!userStore.userCredential) {
         this.$refs.form.validate();
         if (this.valid) {
           userStore.signIn(this.email, this.password);
         }
-      } else if (userStore.user) {
+      } else if (userStore.userCredential) {
         userStore.signOut();
       }
     },

@@ -151,7 +151,7 @@ const userStore = {
 
   sendPasswordResetEmail() {
     const auth = getAuth();
-    sendPasswordResetEmail(auth, this.user.userCredential.email)
+    sendPasswordResetEmail(auth, this.userCredential.user.email)
       .then(() => {
         // Password reset email sent!
         // ..
@@ -167,10 +167,9 @@ const userStore = {
       const docRef = doc(db, 'users', this.userCredential.user.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        return docSnap.data();
+        this.settings = docSnap.data();
       }
     }
-    return null;
   },
 
   async updateSettings(settingsObj) {

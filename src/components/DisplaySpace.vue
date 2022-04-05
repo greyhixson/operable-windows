@@ -1,101 +1,121 @@
 <template>
-  <v-card
-    max-width="400"
-    class="mx-auto"
-  >
-    <v-list-item>
-      <v-list-item-content>
-        <v-list-item-title class="text-h4 black--text">
-          {{ spaceThresholds.space }}
-        </v-list-item-title>
-      </v-list-item-content>
-    </v-list-item>
-
-    <v-divider />
-
-    <v-list-item two-line>
-      <v-list-item-avatar>
-        <v-icon
-          :class="okTemp ? 'green': 'red'"
-          dark
-        >
-          {{ okTemp ? 'mdi-check' : 'mdi-close' }}
-        </v-icon>
-      </v-list-item-avatar>
-      <v-list-item-content>
-        <v-list-item-title class="text-h6">
-          Temperature: {{ weather.main.temp.toFixed(0) }}F
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          Acceptable temperature range: {{ spaceThresholds.min_temp }}F
-          - {{ spaceThresholds.max_temp }}F
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-
-    <v-list-item two-line>
-      <v-list-item-avatar>
-        <v-icon
-          :class="okHumidity ? 'green': 'red'"
-          dark
-        >
-          {{ okHumidity ? 'mdi-check' : 'mdi-close' }}
-        </v-icon>
-      </v-list-item-avatar>
-      <v-list-item-content>
-        <v-list-item-title
-          class="text-h6"
-        >
-          Humidity: {{ weather.main.humidity }}
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          Acceptable max humidity: {{ spaceThresholds.max_humidity }}
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-
-    <v-list-item two-line>
-      <v-list-item-avatar>
-        <v-icon
-          :class="okAirPollution ? 'green': 'red'"
-          dark
-        >
-          {{ okAirPollution ? 'mdi-check' : 'mdi-close' }}
-        </v-icon>
-      </v-list-item-avatar>
-      <v-list-item-content>
-        <v-list-item-title
-          class="text-h6"
-        >
-          Air Quality Index: {{ airPollution.list[0].main.aqi }}
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          Acceptable AQI: {{ spaceThresholds.max_aqi }}
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-
-    <v-list-item
-      two-line
-      :style="openWindow ? 'background-color:#68ad53;': 'background-color:#c42741;'"
+  <v-container>
+    <v-card
+      max-width="400"
+      class="mx-auto"
     >
-      <v-list-item-content>
-        <v-list-item-title
-          class="text-h5 white--text"
+      <v-list-item>
+        <v-list-item-content>
+          <v-list-item-title class="text-h4 black--text">
+            {{ spaceThresholds.space }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-divider />
+
+      <v-list-item two-line>
+        <v-list-item-avatar>
+          <v-icon
+            :class="okTemp ? 'green': 'red'"
+            dark
+          >
+            {{ okTemp ? 'mdi-check' : 'mdi-close' }}
+          </v-icon>
+        </v-list-item-avatar>
+        <v-list-item-content>
+          <v-list-item-title class="text-h6">
+            Temperature: {{ weather.main.temp.toFixed(0) }}F
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            Acceptable temperature range: {{ spaceThresholds.min_temp }}F
+            - {{ spaceThresholds.max_temp }}F
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-list-item two-line>
+        <v-list-item-avatar>
+          <v-icon
+            :class="okHumidity ? 'green': 'red'"
+            dark
+          >
+            {{ okHumidity ? 'mdi-check' : 'mdi-close' }}
+          </v-icon>
+        </v-list-item-avatar>
+        <v-list-item-content>
+          <v-list-item-title
+            class="text-h6"
+          >
+            Humidity: {{ weather.main.humidity }}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            Acceptable max humidity: {{ spaceThresholds.max_humidity }}
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-list-item two-line>
+        <v-list-item-avatar>
+          <v-icon
+            :class="okAirPollution ? 'green': 'red'"
+            dark
+          >
+            {{ okAirPollution ? 'mdi-check' : 'mdi-close' }}
+          </v-icon>
+        </v-list-item-avatar>
+        <v-list-item-content>
+          <v-list-item-title
+            class="text-h6"
+          >
+            Air Quality Index: {{ airPollution.list[0].main.aqi }}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            Acceptable AQI: {{ spaceThresholds.max_aqi }}
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-list-item
+        two-line
+        :style="openWindow ? 'background-color:#68ad53;': 'background-color:#c42741;'"
+      >
+        <v-list-item-content>
+          <v-list-item-title
+            class="text-h5 white--text"
+          >
+            {{ windowMessage }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-divider />
+
+      <v-card-actions>
+        <v-btn
+          text
+          to="/settings"
         >
-          {{ windowMessage }}
-        </v-list-item-title>
-      </v-list-item-content>
-    </v-list-item>
+          Enable notifications
+        </v-btn>
+        <v-divider vertical />
+        <v-btn
+          text
+          @click="saveSelection"
+        >
+          Save selection
+        </v-btn>
+      </v-card-actions>
+    </v-card>
 
-    <v-divider />
-
-    <v-card-actions>
-      <v-btn text>
-        Enable notifications
-      </v-btn>
-    </v-card-actions>
-  </v-card>
+    <v-alert
+      v-if="alert"
+      :type="alertType"
+      dismissble
+    >
+      {{ alertMessage }}
+    </v-alert>
+  </v-container>
 </template>
 
 <script>
@@ -113,6 +133,8 @@
  * @property main - Contains the AQI
  * @property aqi  - AQI
  */
+import { userStore } from '@/firebase/FirebaseStore';
+
 /**
  * Window Thresholds object from my firebase firestore
  * @typedef {Object} spaceThresholds
@@ -146,6 +168,9 @@ export default {
       okHumidity: Boolean,
       okAirPollution: Boolean,
       windowMessage: '',
+      alertType: '',
+      alertMessage: '',
+      alert: false,
     };
   },
   created() {
@@ -177,6 +202,16 @@ export default {
       } else {
         this.openWindow = false;
         this.windowMessage = 'Keep Closed';
+      }
+    },
+    saveSelection() {
+      if (userStore.userCredential) {
+        const { settings } = userStore;
+        settings.favorite_space = this.spaceThresholds.space;
+        userStore.updateSettings(settings);
+        this.alertMessage = 'Settings Saved';
+        this.alertType = 'success';
+        this.alert = true;
       }
     },
   },

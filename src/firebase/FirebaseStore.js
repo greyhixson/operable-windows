@@ -24,6 +24,8 @@ const firebaseApp = initializeApp({
 
 const db = getFirestore(firebaseApp);
 
+const APIkey = 'fb3f8c4acaba36f086776e594b64a68c';
+
 // Gets an organization's city, state, and name
 async function getOrg(orgName) {
   const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
@@ -83,6 +85,17 @@ async function updateSpace(orgName, spaceObj) {
     });
   } catch (e) {
     console.log('Transaction failed: ', e);
+  }
+}
+
+async function newOrg(org) {
+  const strippedOrg = org.organization.toLowerCase().replace(/\s+/g, '');
+  try {
+    const docRef = doc(db, 'organizations', strippedOrg);
+    await setDoc(docRef, org, { merge: false });
+  } catch (error) {
+    this.errorCode = error.code;
+    this.errorMessage = error.message;
   }
 }
 
@@ -201,5 +214,14 @@ const userStore = {
 };
 
 export {
-  getAllOrgs, getOrg, getSpace, getAllSpaces, updateSpace, newSpace, deleteSpace, userStore,
+  APIkey,
+  getAllOrgs,
+  getOrg,
+  getSpace,
+  getAllSpaces,
+  updateSpace,
+  newSpace,
+  newOrg,
+  deleteSpace,
+  userStore,
 };

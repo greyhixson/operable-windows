@@ -64,9 +64,10 @@
       >
         <v-col cols="3">
           <h2 class="pb-2">
-            Account Settings
+            {{ userStore.userCredential ? 'Account Settings' : 'General Settings' }}
           </h2>
           <v-row
+            v-if="userStore.userCredential"
             no-gutters
             class="pb-2"
           >
@@ -80,19 +81,18 @@
             </v-col>
           </v-row>
           <v-row
+            v-if="userStore.userCredential"
             no-gutters
           >
             <v-dialog
               v-model="dialog"
               persistent
               max-width="500px"
-              :disabled="!alertError"
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
                   class="mb-2"
                   v-bind="attrs"
-                  :disabled="alertError"
                   width="220px"
                   v-on="on"
                   @click="checkRegistered"
@@ -106,8 +106,16 @@
                 </v-card-title>
                 <v-card-text>
                   <v-text-field
-                    v-model="settings.orgName"
+                    v-model="org.organization"
                     label="Organization Name"
+                  />
+                  <v-text-field
+                    v-model="org.city"
+                    label="Organization City"
+                  />
+                  <v-text-field
+                    v-model="org.state"
+                    label="Organization State"
                   />
                 </v-card-text>
                 <v-card-actions>
@@ -122,7 +130,7 @@
                   <v-btn
                     color="blue darken-1"
                     text
-                    @click="dialog = false;"
+                    @click="registerOrg"
                   >
                     Register
                   </v-btn>
@@ -144,6 +152,7 @@
             </v-col>
           </v-row>
           <v-row
+            v-if="userStore.userCredential"
             no-gutters
             class="pb-2"
           >
@@ -175,11 +184,18 @@
                   <v-divider />
 
                   <v-card-actions>
-                    <v-spacer />
                     <v-btn
                       color="primary"
                       text
                       @click="dialog = false"
+                    >
+                      Cancel
+                    </v-btn>
+                    <v-spacer />
+                    <v-btn
+                      color="primary"
+                      text
+                      @click="deleteAccount"
                     >
                       Delete my account
                     </v-btn>
@@ -252,14 +268,20 @@
 </template>
 
 <script>
-import { userStore } from '@/firebase/FirebaseStore';
+import {
+  userStore, newOrg, getOrg, APIkey,
+} from '@/firebase/FirebaseStore';
 
 export default {
   name: 'Settings',
   data() {
     return {
       dialog: false,
-      orgName: '',
+      org: {
+        organization: '',
+        city: '',
+        state: '',
+      },
       orgBtnText: 'Register Organization',
       loadSaveSettings: false,
       settings: {
@@ -276,6 +298,7 @@ export default {
       alert: false,
       alertType: '',
       alertError: false,
+      userStore,
     };
   },
   watch: {
@@ -292,7 +315,7 @@ export default {
   },
   async created() {
     if (userStore.userCredential) {
-      if (!userStore.settingsLoaded) {
+      if (userStore.initUser) {
         await userStore.getSettings();
         this.settings = userStore.settings;
       }
@@ -303,12 +326,36 @@ export default {
     checkRegistered() {
       if (this.settings.organization_name && userStore.userCredential) {
         this.$router.push('/manageorg');
-      } else if (!userStore.userCredential) {
-        this.alertType = 'error';
-        this.alertMessage = 'Please create an account to register an organization.';
-        this.alert = true;
-        this.alertError = true;
       }
+    },
+    async registerOrg() {
+      const orgExists = await getOrg(this.org.organization);
+      if (!orgExists) {
+        if (userStore.userCredential) {
+          const { city, state } = this.org;
+          fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},
+        US&appid=${APIkey}&units=imperial`)
+            .then((response) => {
+              if (response.status === 200) {
+                newOrg(this.org);
+                this.settings.organization_name = this.org.organization;
+                userStore.updateSettings(this.settings);
+                this.alertError = false;
+                this.alertType = 'success';
+                this.alertMessage = 'Successfully registered organization.';
+              } else {
+                this.alertError = true;
+                this.alertType = 'error';
+                this.alertMessage = 'Invalid city or state.';
+              }
+            });
+        }
+      } else {
+        this.alertError = true;
+        this.alertType = 'error';
+        this.alertMessage = 'Organization already exists.';
+      }
+      this.dialog = false;
     },
     async updateProfile() {
       this.loadSaveSettings = true;
@@ -328,6 +375,9 @@ export default {
     clearFavorites() {
       this.settings.favorite_organization = '';
       this.settings.favorite_space = '';
+    },
+    deleteAccount() {
+      this.$router.push('/');
     },
   },
 };

@@ -103,7 +103,7 @@ const userStore = {
   userCredential: null,
   errorCode: null,
   errorMessage: null,
-  settingsLoaded: null,
+  initUser: null,
   settings: {
     first_name: '',
     last_name: '',
@@ -119,8 +119,8 @@ const userStore = {
     const auth = getAuth();
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
+        this.initUser = false;
         this.userCredential = userCredential;
-        this.settingsLoaded = false;
         sendEmailVerification(auth.currentUser).then(() => {
         });
       })
@@ -129,7 +129,13 @@ const userStore = {
         this.errorMessage = error.message;
       });
   },
-
+  async addUser() {
+    if (this.userCredential && this.initUser === false) {
+      const docRef = doc(db, 'users', this.userCredential.user.uid);
+      await setDoc(docRef, this.settings, { merge: true });
+      this.initUser = true;
+    }
+  },
   async signIn(email, password) {
     const auth = getAuth();
     signInWithEmailAndPassword(auth, email, password)

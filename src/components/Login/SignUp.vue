@@ -72,7 +72,7 @@ export default {
       password: '',
       passwordRules: [
         (v) => !!v || 'Password is required',
-        (v) => v.length >= 6 || 'Password must be atleast 6 characters long',
+        (v) => (v && v.length) >= 6 || 'Password must be atleast 6 characters long',
       ],
       confirmPassword: '',
       comparePasswordsRules: [
@@ -94,11 +94,12 @@ export default {
         this.alert = errorCode;
       }
     },
-    'userStore.settingsLoaded': function watchAccountCreation(settingsLoaded) {
-      if (!settingsLoaded) {
+    'userStore.initUser': function watchAccountCreation(initUser) {
+      if (!initUser) {
         this.alertType = 'success';
         this.alert = 'An account verification email has been sent.';
         this.$refs.form.reset();
+        userStore.addUser();
       }
     },
     'userStore.userCredential': function watchUser(userCred) {

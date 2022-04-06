@@ -108,13 +108,13 @@ export default {
       this.spaceSearch = null;
     },
     spaceSelect() {
-      this.getSpaceThresholds();
+      if (this.spaceSelect) {
+        this.getSpaceThresholds();
+      }
     },
   },
   async created() {
     this.orgs = await getAllOrgs();
-    console.log(this.orgs);
-
     if (userStore.userCredential) {
       if (userStore.settings.favorite_organization) {
         const matchedOrg = this.orgs.find((org) => org.organization

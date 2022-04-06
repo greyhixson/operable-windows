@@ -71,13 +71,13 @@ export default {
       ],
       password: '',
       passwordRules: [
-        (v) => v.length >= 6 || 'Password must be atleast 6 characters long',
         (v) => !!v || 'Password is required',
+        (v) => v.length >= 6 || 'Password must be atleast 6 characters long',
       ],
       confirmPassword: '',
       comparePasswordsRules: [
-        (v) => v === this.password || 'Passwords do not match',
         (v) => !!v || 'Confirm password is required',
+        (v) => v === this.password || 'Passwords do not match',
       ],
       alertType: '',
       alert: '',

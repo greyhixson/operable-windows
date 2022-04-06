@@ -103,7 +103,7 @@
           text
           @click="saveSelection"
         >
-          Save selection
+          Save preferences
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -212,8 +212,9 @@ export default {
       if (userStore.userCredential) {
         const { settings } = userStore;
         settings.favorite_space = this.spaceThresholds.space;
+        settings.favorite_organization = this.orgName;
         userStore.updateSettings(settings);
-        this.alertMessage = 'Settings Saved';
+        this.alertMessage = `${this.orgName} and ${this.spaceThresholds.space} saved as defaults`;
         this.alertType = 'success';
         this.alert = true;
       }

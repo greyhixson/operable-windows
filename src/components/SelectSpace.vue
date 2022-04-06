@@ -68,7 +68,9 @@
 
 <script>
 
-import { getAllOrgs, getAllSpaces, getSpace } from '@/firebase/FirebaseStore';
+import {
+  getAllOrgs, getAllSpaces, getSpace, userStore,
+} from '@/firebase/FirebaseStore';
 
 export default {
   name: 'SelectSpace',
@@ -92,6 +94,13 @@ export default {
       this.getCurrentWeatherAndAirPollution();
       const { organization } = this.orgSelect;
       this.spaces = await getAllSpaces(organization);
+      if (userStore.settings.favorite_space) {
+        const matchedSpace = this.spaces.find((space) => space.space
+            === userStore.settings.favorite_space);
+        if (matchedSpace) {
+          this.spaceSelect = matchedSpace;
+        }
+      }
     },
     orgSearch() {
       this.spaces = [];
@@ -104,6 +113,17 @@ export default {
   },
   async created() {
     this.orgs = await getAllOrgs();
+    console.log(this.orgs);
+
+    if (userStore.userCredential) {
+      if (userStore.settings.favorite_organization) {
+        const matchedOrg = this.orgs.find((org) => org.organization
+            === userStore.settings.favorite_organization);
+        if (matchedOrg) {
+          this.orgSelect = matchedOrg;
+        }
+      }
+    }
   },
   methods: {
     getCurrentWeatherAndAirPollution() {
@@ -112,14 +132,10 @@ export default {
         .then((response) => response.json())
         .then((weather) => {
           const { coord: { lat, lon } } = weather;
-          console.log('Weather: ');
-          console.log(weather);
           this.$emit('submitWeather', weather);
           fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${this.APIkey}`)
             .then((response) => response.json())
             .then((airPollution) => {
-              console.log('Air Pollution: ');
-              console.log(airPollution);
               this.$emit('submitAirPollution', airPollution);
             });
         });
@@ -131,6 +147,7 @@ export default {
         const spaceThresholds = await getSpace(organization, space);
         this.$emit('closeCard', false);
         this.$emit('submitThresholds', spaceThresholds);
+        this.$emit('submitOrgName', organization);
       } catch (e) {
         console.log('An error has occurred, please try again later');
       }

@@ -132,7 +132,7 @@
                   <v-btn
                     color="blue darken-1"
                     text
-                    @click="registerOrg;"
+                    @click="registerOrg"
                   >
                     Register
                   </v-btn>

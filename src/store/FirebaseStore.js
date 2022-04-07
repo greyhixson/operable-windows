@@ -6,7 +6,9 @@ import {
   createUserWithEmailAndPassword,
   getAuth,
   sendEmailVerification,
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
   signInWithEmailAndPassword, signOut as firebaseSignOut,
+  deleteUser as firebaseDeleteUser,
 } from 'firebase/auth';
 import userStore from '@/store/UserStore';
 
@@ -29,8 +31,7 @@ const error = {
   code: '',
 };
 
-// firestore functions
-
+// Firestore functions
 // Gets an organization's city, state, and name
 async function getOrg(orgName) {
   try {
@@ -151,17 +152,16 @@ async function deleteSpace(orgName, spaceObj) {
 // User store and store store functions
 async function addUser() {
   try {
-    if (userStore.userCredential && userStore.initUser === false) {
+    if (userStore.userCredential) {
       const docRef = doc(db, 'users', userStore.userCredential.user.uid);
       await setDoc(docRef, userStore.settings, { merge: true });
-      userStore.initUser = true;
     }
   } catch (e) {
     error.message = e;
   }
 }
 
-async function deleteUser() {
+async function deleteUserSettings() {
   try {
     await deleteDoc(doc(db, 'users', userStore.userCredential.user.uid));
   } catch (e) {
@@ -209,16 +209,16 @@ async function createAccount(email, password) {
   const auth = getAuth();
   createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-      userStore.initUser = false;
       userStore.userCredential = userCredential;
       sendEmailVerification(auth.currentUser).then(() => {
+      }).then(() => {
+        addUser();
       });
     })
     .catch((e) => {
       error.message = e.message;
       error.code = e.code;
     });
-  await addUser();
 }
 
 function signIn(email, password) {
@@ -243,9 +243,20 @@ function signOut() {
     });
 }
 
+function deleteUser() {
+  const auth = getAuth();
+  const user = auth.currentUser;
+  firebaseDeleteUser(user).then(() => {
+    // User deleted.
+  }).catch((e) => {
+    error.message = e.message;
+    error.code = e.code;
+  });
+}
+
 function sendPasswordResetEmail() {
   const auth = getAuth();
-  sendPasswordResetEmail(auth, userStore.userCredential.user.email)
+  firebaseSendPasswordResetEmail(auth, userStore.userCredential.user.email)
     .then(() => {
     }).catch((e) => {
       error.message = e.message;
@@ -271,6 +282,7 @@ export {
   sendPasswordResetEmail,
   signOut,
   signIn,
+  deleteUserSettings,
   deleteUser,
   addUser,
 };

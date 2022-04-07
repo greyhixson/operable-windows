@@ -7,6 +7,7 @@
       <v-col cols="6">
         <v-alert
           v-if="alertMessage"
+          v-model="showAlert"
           :type="alertType"
           class="text-center"
           dismissible
@@ -270,7 +271,7 @@
 <script>
 import {
   newOrg, getOrg, deleteOrg, APIkey,
-  getSettings, updateSettings, sendPasswordResetEmail, deleteUser,
+  getSettings, updateSettings, sendPasswordResetEmail, deleteUser, deleteUserSettings,
 } from '@/store/FirebaseStore';
 
 import userStore from '@/store/UserStore';
@@ -300,6 +301,7 @@ export default {
       alertMessage: '',
       alert: false,
       alertType: '',
+      showAlert: false,
       alertError: false,
       userStore,
     };
@@ -314,6 +316,11 @@ export default {
     },
     'userStore.settings': function watchSettingsChange(settings) {
       this.settings = settings;
+      if (this.settings.organization_name) {
+        this.orgBtnText = 'Manage Organization';
+      } else {
+        this.orgBtnText = 'Register Organization';
+      }
     },
   },
   async created() {
@@ -328,8 +335,7 @@ export default {
       }
     },
     async registerOrg() {
-      const orgExists = await getOrg(this.org.organization);
-      if (!orgExists) {
+      if (!await getOrg(this.org.organization)) {
         if (userStore.userCredential) {
           const { city, state } = this.org;
           fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},
@@ -342,10 +348,12 @@ export default {
                 this.alertError = false;
                 this.alertType = 'success';
                 this.alertMessage = 'Successfully registered organization.';
+                this.showAlert = true;
               } else {
                 this.alertError = true;
                 this.alertType = 'error';
                 this.alertMessage = 'Invalid city or state.';
+                this.showAlert = true;
               }
             });
         }
@@ -353,6 +361,7 @@ export default {
         this.alertError = true;
         this.alertType = 'error';
         this.alertMessage = 'Organization already exists.';
+        this.showAlert = true;
       }
       this.dialog = false;
     },
@@ -381,8 +390,9 @@ export default {
         if (userStore.settings.organization_name) {
           deleteOrg(userStore.settings.organization_name);
         }
-        deleteUser();
+        deleteUserSettings();
         userStore.userCredential = null;
+        deleteUser();
         this.$router.push('/');
       }
     },

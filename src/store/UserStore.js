@@ -1,6 +1,5 @@
 const userStore = {
   userCredential: null,
-  initUser: null,
   settings: {
     first_name: '',
     last_name: '',

@@ -85,6 +85,7 @@ export default {
       alert: '',
       showAlert: false,
       accountBtnText: 'Create an Account',
+      initUser: false,
       userStore,
       error,
     };
@@ -102,27 +103,27 @@ export default {
         }
       }
     },
-    'userStore.initUser': function watchAccountCreation(initUser) {
-      if (!initUser) {
-        this.alertType = 'success';
-        this.alert = 'An account verification email has been sent.';
-        this.$refs.form.reset();
-      }
-    },
     'userStore.userCredential': function watchUser(userCred) {
       if (userCred) {
         this.accountBtnText = 'Sign Out';
+        if (this.initUser) {
+          this.showAlert = true;
+          this.alertType = 'success';
+          this.alert = 'An account verification email has been sent.';
+          this.$refs.form.reset();
+        }
       } else if (!userCred) {
         this.accountBtnText = 'Create an Account';
       }
     },
   },
   methods: {
-    accountBtn() {
+    async accountBtn() {
       if (!userStore.userCredential) {
         this.$refs.form.validate();
         if (this.valid) {
-          createAccount(this.email, this.password);
+          this.initUser = true;
+          await createAccount(this.email, this.password);
         }
       } else if (userStore.userCredential) {
         signOut();

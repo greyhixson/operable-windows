@@ -232,21 +232,21 @@ export default {
       maxHumidityRules: [
         (v) => !!v || 'Max humidity is required',
         (v) => (v >= 0 && v <= 100) || 'Value must be in a range 0 to 100',
-        (v) => v.length <= 3 || 'Only 3 characters in length are allowed',
+        (v) => (v && v.length <= 3) || 'Only 3 characters in length are allowed',
       ],
       tempRules: [
         (v) => !!v || 'Temperature is required',
         (v) => (v >= -50 && v <= 150) || 'Value must be in a range -50 to 150',
-        (v) => v.length <= 3 || 'Only 3 characters in length are allowed',
+        (v) => (v && v.length <= 3) || 'Only 3 characters in length are allowed',
       ],
       aqiRules: [
         (v) => !!v || 'AQI is required',
         (v) => (v > 0 && v <= 5) || 'Value must be 1 - 5',
-        (v) => v.length === 1 || 'Only 1 character is allowed',
+        (v) => (v && v.length === 1) || 'Only 1 character is allowed',
       ],
       spaceRule: [
         (v) => !!v || 'The name of the space is required',
-        (v) => v.length <= 30 || 'Only 30 characters in length are allowed',
+        (v) => (v && v.length <= 30) || 'Only 30 characters in length are allowed',
       ],
       valid: false,
     };

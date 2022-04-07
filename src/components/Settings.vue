@@ -214,11 +214,11 @@
             Notification Settings
           </h2>
           <v-checkbox
-            v-model="settings.text_notifications"
+            v-model="settings.text_notifications.enabled"
             label="Text Notifications"
           />
           <v-checkbox
-            v-model="settings.email_notifications"
+            v-model="settings.email_notifications.enabled"
             label="Email Notifications"
           />
         </v-col>
@@ -296,8 +296,14 @@ export default {
         last_name: '',
         phone_number: '',
         favorite_organization: '',
-        text_notifications: false,
-        email_notifications: false,
+        text_notifications: {
+          enabled: false,
+          notifications: [],
+        },
+        email_notifications: {
+          enabled: false,
+          notifications: [],
+        },
         organization_name: '',
         favorite_space: '',
       },

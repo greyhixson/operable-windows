@@ -210,17 +210,88 @@
           </v-row>
         </v-col>
         <v-col cols="3">
-          <h2 class>
+          <h2 class="pb-2">
             Notification Settings
           </h2>
-          <v-checkbox
-            v-model="settings.text_notifications.enabled"
-            label="Text Notifications"
-          />
-          <v-checkbox
-            v-model="settings.email_notifications.enabled"
-            label="Email Notifications"
-          />
+          <v-dialog
+            v-model="dialogTextNotif"
+            width="500px"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                v-bind="attrs"
+                class="mb-2"
+                width="220px"
+                v-on="on"
+              >
+                Open Notifications
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Notifications</span>
+              </v-card-title>
+              <v-card-text>
+                <v-row>
+                  <v-checkbox
+                    v-model="settings.text_notifications.enabled"
+                    label="Text Notifications"
+                  />
+                  <v-checkbox
+                    v-model="settings.email_notifications.enabled"
+                    label="Email Notifications"
+                  />
+                </v-row>
+                <v-autocomplete
+                  v-model="orgSelect"
+                  label="Select an organization"
+                  :items="orgs"
+                  clearable
+                  return-object
+                  :search-input.sync="orgSearch"
+                  :filter="onOrgFilter"
+                >
+                  <template v-slot:selection="{ item }">
+                    <span>{{ item.organization }}</span>
+                  </template>
+                  <template v-slot:item="{ item }">
+                    <v-list-item-content>
+                      <v-list-item-title v-text="item.organization" />
+                      <v-list-item-subtitle v-text="item.city" />
+                      <v-list-item-subtitle v-text="item.state" />
+                    </v-list-item-content>
+                  </template>
+                </v-autocomplete>
+                <v-autocomplete
+                  v-model="spaceSelect"
+                  label="Select a space"
+                  :items="spaces"
+                  clearable
+                  return-object
+                  :search-input.sync="spaceSearch"
+                  :filter="onOrgFilter"
+                >
+                  <template v-slot:selection="{ item }">
+                    <span>{{ item.space }}</span>
+                  </template>
+                  <template v-slot:item="{ item }">
+                    <v-list-item-content>
+                      <v-list-item-title v-text="item.space" />
+                    </v-list-item-content>
+                  </template>
+                </v-autocomplete>
+              </v-card-text>
+              <v-card-actions>
+                <v-btn
+                  color="primary"
+                  text
+                  @click="dialogTextNotif = false"
+                >
+                  Close
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-col>
       </v-row>
       <v-row
@@ -272,8 +343,8 @@
 
 <script>
 import {
-  newOrg, getOrg, deleteOrg, APIkey,
-  updateSettings, sendPasswordResetEmail, deleteUser, deleteUserSettings,
+  newOrg, getOrg, getAllOrgs, deleteOrg, APIkey,
+  updateSettings, sendPasswordResetEmail, deleteUser, deleteUserSettings, getAllSpaces,
 } from '@/store/FirebaseStore';
 
 import userStore from '@/store/UserStore';
@@ -284,6 +355,8 @@ export default {
     return {
       dialogManageOrg: false,
       dialogDeleteAcct: false,
+      dialogTextNotif: false,
+      dialogEmailNotif: false,
       org: {
         organization: '',
         city: '',
@@ -313,6 +386,12 @@ export default {
       showAlert: false,
       alertError: false,
       userStore,
+      orgs: [],
+      spaces: [],
+      orgSearch: null,
+      spaceSearch: null,
+      orgSelect: null,
+      spaceSelect: null,
     };
   },
   watch: {
@@ -327,6 +406,10 @@ export default {
       },
       deep: true,
     },
+    async orgSelect() {
+      const { organization } = this.orgSelect;
+      this.spaces = await getAllSpaces(organization);
+    },
     dialogManageOrg() {
       // Blur bug fix
       this.$refs.orgBtn.$el.blur();
@@ -334,6 +417,16 @@ export default {
     dialogDeleteAcct() {
       // Blur bug fix
       this.$refs.deleteAcctBtn.$el.blur();
+    },
+    async dialogTextNotif() {
+      if (this.orgs.length === 0) {
+        this.orgs = await getAllOrgs();
+      }
+    },
+    async dialogEmailNotif() {
+      if (this.orgs.length === 0) {
+        this.orgs = await getAllOrgs();
+      }
     },
   },
   async created() {
@@ -413,6 +506,18 @@ export default {
         this.$router.push('/');
       }
     },
+    onOrgFilter(item, queryText) {
+      const { organization, state, city } = item;
+      return organization.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
+          || state.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
+          || city.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
+    },
+    /*
+    onSpaceFilter(item, queryText) {
+      const { space } = item;
+      return space.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
+    },
+     */
   },
 };
 </script>

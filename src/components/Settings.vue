@@ -97,7 +97,7 @@
                   v-bind="attrs"
                   width="220px"
                   v-on="on"
-                  @click="checkRegistered;"
+                  @click="checkRegistered"
                 >
                   {{ orgBtnText }}
                 </v-btn>
@@ -327,6 +327,7 @@ export default {
   },
   methods: {
     checkRegistered() {
+      console.log(this.settings);
       if (this.settings.organization_name && userStore.userCredential) {
         this.$router.push('/manageorg');
       }

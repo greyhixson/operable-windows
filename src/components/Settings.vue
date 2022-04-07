@@ -92,11 +92,12 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
+                  ref="orgBtn"
                   class="mb-2"
                   v-bind="attrs"
                   width="220px"
                   v-on="on"
-                  @click="checkRegistered"
+                  @click="checkRegistered;"
                 >
                   {{ orgBtnText }}
                 </v-btn>
@@ -124,14 +125,14 @@
                   <v-btn
                     color="blue darken-1"
                     text
-                    @click="dialog = false"
+                    @click="dialog = false;"
                   >
                     Cancel
                   </v-btn>
                   <v-btn
                     color="blue darken-1"
                     text
-                    @click="registerOrg"
+                    @click="registerOrg;"
                   >
                     Register
                   </v-btn>
@@ -256,7 +257,7 @@
               </v-btn>
               <v-btn
                 to="/"
-                @click="dialog = false"
+                @click="dialog = false;"
               >
                 No
               </v-btn>
@@ -307,20 +308,16 @@ export default {
     };
   },
   watch: {
-    settings() {
-      if (this.settings.organization_name) {
+    'settings.organization_name': function watchOrgName(orgName) {
+      if (orgName) {
         this.orgBtnText = 'Manage Organization';
       } else {
         this.orgBtnText = 'Register Organization';
       }
     },
-    'userStore.settings': function watchSettingsChange(settings) {
-      this.settings = settings;
-      if (this.settings.organization_name) {
-        this.orgBtnText = 'Manage Organization';
-      } else {
-        this.orgBtnText = 'Register Organization';
-      }
+    dialog() {
+      // Bug fix for the orgBtn that stays focused;
+      this.$refs.orgBtn.$el.blur();
     },
   },
   async created() {
@@ -340,11 +337,14 @@ export default {
           const { city, state } = this.org;
           fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},
         US&appid=${APIkey}&units=imperial`)
-            .then((response) => {
-              if (response.status === 200) {
-                newOrg(this.org);
+            .then((response) => response.json())
+            .then(async (weather) => {
+              const { main } = weather;
+              if (main) {
+                console.log(main);
+                await newOrg(this.org);
                 this.settings.organization_name = this.org.organization;
-                updateSettings(this.settings);
+                await updateSettings(this.settings);
                 this.alertError = false;
                 this.alertType = 'success';
                 this.alertMessage = 'Successfully registered organization.';
@@ -352,7 +352,7 @@ export default {
               } else {
                 this.alertError = true;
                 this.alertType = 'error';
-                this.alertMessage = 'Invalid city or state.';
+                this.alertMessage = weather.message;
                 this.showAlert = true;
               }
             });

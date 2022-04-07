@@ -109,7 +109,7 @@ export default {
         if (this.initUser) {
           this.showAlert = true;
           this.alertType = 'success';
-          this.alert = 'An account verification email has been sent.';
+          this.alert = "You've been signed in and an account verification email has been sent.";
           this.$refs.form.reset();
         }
       } else if (!userCred) {

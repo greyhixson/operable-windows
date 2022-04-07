@@ -22,120 +22,137 @@
         <template v-slot:top>
           <v-toolbar
             flat
+            class="mb-4"
           >
-            <v-toolbar-title>{{ orgName }}</v-toolbar-title>
-            <v-divider
-              class="mx-4"
-              inset
-              vertical
-            />
-            <v-spacer />
-            <v-dialog
-              v-model="dialog"
-              max-width="500px"
+            <v-row
+              dense
+              justify="end"
             >
-              <template v-slot:activator="{ on, attrs }">
+              <v-col>
+                <v-toolbar-title class="pl-4">
+                  {{ orgName }}
+                </v-toolbar-title>
+              </v-col>
+              <v-divider
+                vertical
+                height
+              />
+              <v-spacer />
+              <v-col>
                 <v-btn
-                  color="primary"
-                  dark
-                  class="mb-2"
-                  v-bind="attrs"
-                  v-on="on"
+                  to="/"
+                  class="ml-8 mr-8"
                 >
-                  New Space
+                  Home
                 </v-btn>
-              </template>
-              <v-card>
-                <v-card-title>
-                  <span class="text-h5">{{ formTitle }}</span>
-                </v-card-title>
-
-                <v-card-text>
-                  <v-container>
-                    <v-form
-                      ref="form"
-                      v-model="valid"
+                <v-dialog
+                  v-model="dialog"
+                  max-width="500px"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      color="primary"
+                      dark
+                      v-bind="attrs"
+                      v-on="on"
                     >
-                      <v-row>
-                        <v-col
-                          cols="12"
-                          sm="6"
-                          md="4"
-                        >
-                          <v-text-field
-                            v-model="editedItem.space"
-                            label="Space"
-                            :rules="spaceRule"
-                          />
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          sm="6"
-                          md="4"
-                        >
-                          <v-text-field
-                            v-model="editedItem.max_humidity"
-                            label="Maximum Humidity (%)"
-                            :rules="maxHumidityRules"
-                          />
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          sm="6"
-                          md="4"
-                        >
-                          <v-text-field
-                            v-model="editedItem.min_temp"
-                            label="Minimum Temperature (F°)"
-                            :rules="tempRules"
-                          />
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          sm="6"
-                          md="4"
-                        >
-                          <v-text-field
-                            v-model="editedItem.max_temp"
-                            label="Maximum Temperature (F°)"
-                            :rules="tempRules"
-                          />
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          sm="6"
-                          md="4"
-                        >
-                          <v-text-field
-                            v-model="editedItem.max_aqi"
-                            label="Maximum Air Pollution"
-                            :rules="aqiRules"
-                          />
-                        </v-col>
-                      </v-row>
-                    </v-form>
-                  </v-container>
-                </v-card-text>
+                      New Space
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-card-title>
+                      <span class="text-h5">{{ formTitle }}</span>
+                    </v-card-title>
 
-                <v-card-actions>
-                  <v-spacer />
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="close"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="save"
-                  >
-                    Save
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
+                    <v-card-text>
+                      <v-container>
+                        <v-form
+                          ref="form"
+                          v-model="valid"
+                        >
+                          <v-row>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="4"
+                            >
+                              <v-text-field
+                                v-model="editedItem.space"
+                                label="Space"
+                                :rules="spaceRule"
+                              />
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="4"
+                            >
+                              <v-text-field
+                                v-model="editedItem.max_humidity"
+                                label="Maximum Humidity (%)"
+                                :rules="maxHumidityRules"
+                              />
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="4"
+                            >
+                              <v-text-field
+                                v-model="editedItem.min_temp"
+                                label="Minimum Temperature (F°)"
+                                :rules="tempRules"
+                              />
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="4"
+                            >
+                              <v-text-field
+                                v-model="editedItem.max_temp"
+                                label="Maximum Temperature (F°)"
+                                :rules="tempRules"
+                              />
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="4"
+                            >
+                              <v-text-field
+                                v-model="editedItem.max_aqi"
+                                label="Maximum Air Pollution"
+                                :rules="aqiRules"
+                              />
+                            </v-col>
+                          </v-row>
+                        </v-form>
+                      </v-container>
+                    </v-card-text>
+
+                    <v-card-actions>
+                      <v-spacer />
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="close"
+                      >
+                        Cancel
+                      </v-btn>
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="save"
+                      >
+                        Save
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </v-col>
+            </v-row>
+
             <v-dialog
               v-model="dialogDelete"
               max-width="500px"
@@ -184,12 +201,58 @@
       </v-data-table>
     </v-card>
     <h5> To view more information on how air pollution is calculated, visit <a href="https://openweathermap.org/api/air-pollution"> OpenWeather Map </a></h5>
+    <v-dialog
+      v-model="dialogDeleteOrg"
+      width="500"
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          ref="deleteOrgBtn"
+          color="red lighten-2"
+          dark
+          v-bind="attrs"
+          v-on="on"
+        >
+          Delete {{ orgName }}
+        </v-btn>
+      </template>
+      <v-card>
+        <v-card-title class="text-h5 grey lighten-2">
+          Delete {{ orgName }}
+        </v-card-title>
+
+        <v-card-text class="pt-4">
+          This operation can't be undone and will delete your organization
+          and all spaces associated with it.
+        </v-card-text>
+
+        <v-divider />
+
+        <v-card-actions>
+          <v-btn
+            color="primary"
+            text
+            @click="dialogDeleteOrg = false"
+          >
+            Cancel
+          </v-btn>
+          <v-spacer />
+          <v-btn
+            color="primary"
+            text
+            @click="deleteOrg"
+          >
+            Delete {{ orgName }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
 import {
-  getOrg, getAllSpaces, updateSpace, newSpace, deleteSpace,
+  getOrg, getAllSpaces, updateSpace, newSpace, deleteSpace, deleteOrg,
 } from '@/store/FirebaseStore';
 
 import userStore from '@/store/UserStore';
@@ -198,8 +261,9 @@ export default {
   name: 'ManageOrg',
   data() {
     return {
-      dialog: false,
+      dialogDeleteOrg: false,
       dialogDelete: false,
+      dialog: false,
       headers: [
         { text: 'Space', value: 'space' },
         { text: 'Maximum Humidity (%)', value: 'max_humidity' },
@@ -267,6 +331,10 @@ export default {
         this.closeDelete();
       }
     },
+    dialogDeleteOrg() {
+      // Blur bug fix
+      this.$refs.deleteOrgBtn.$el.blur();
+    },
   },
   created() {
     if (userStore.settings) {
@@ -284,6 +352,13 @@ export default {
         console.log('An error has occurred');
       }
       this.loading = false;
+    },
+    async deleteOrg() {
+      if (userStore.settings.organization_name) {
+        await deleteOrg(userStore.settings.organization_name);
+        this.dialogDeleteOrg = false;
+        await this.$router.push('/');
+      }
     },
     editItem(item) {
       this.editedIndex = this.thresholds.indexOf(item);

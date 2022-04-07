@@ -10,6 +10,19 @@ const userStore = {
     text_notifications: false,
     email_notifications: false,
   },
+  clearUserStore() {
+    this.userCredential = null;
+    this.settings = {
+      first_name: '',
+      last_name: '',
+      phone_number: '',
+      favorite_organization: '',
+      favorite_space: '',
+      organization_name: '',
+      text_notifications: false,
+      email_notifications: false,
+    };
+  },
 };
 
 export default userStore;

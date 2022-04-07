@@ -86,7 +86,7 @@
             no-gutters
           >
             <v-dialog
-              v-model="dialog"
+              v-model="dialogManageOrg"
               persistent
               max-width="500px"
             >
@@ -160,10 +160,12 @@
           >
             <v-col>
               <v-dialog
+                v-model="dialogDeleteAcct"
                 width="500"
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
+                    ref="deleteAcctBtn"
                     color="red lighten-2"
                     dark
                     v-bind="attrs"
@@ -189,7 +191,7 @@
                     <v-btn
                       color="primary"
                       text
-                      @click="dialog = false"
+                      @click="dialogDeleteAcct = false"
                     >
                       Cancel
                     </v-btn>
@@ -257,7 +259,6 @@
               </v-btn>
               <v-btn
                 to="/"
-                @click="dialog = false;"
               >
                 No
               </v-btn>
@@ -272,7 +273,7 @@
 <script>
 import {
   newOrg, getOrg, deleteOrg, APIkey,
-  getSettings, updateSettings, sendPasswordResetEmail, deleteUser, deleteUserSettings,
+  updateSettings, sendPasswordResetEmail, deleteUser, deleteUserSettings,
 } from '@/store/FirebaseStore';
 
 import userStore from '@/store/UserStore';
@@ -281,7 +282,8 @@ export default {
   name: 'Settings',
   data() {
     return {
-      dialog: false,
+      dialogManageOrg: false,
+      dialogDeleteAcct: false,
       org: {
         organization: '',
         city: '',
@@ -308,26 +310,38 @@ export default {
     };
   },
   watch: {
-    'settings.organization_name': function watchOrgName(orgName) {
-      if (orgName) {
-        this.orgBtnText = 'Manage Organization';
-      } else {
-        this.orgBtnText = 'Register Organization';
-      }
+    'userStore.settings': {
+      handler(settings) {
+        this.settings = settings;
+        if (settings.organization_name) {
+          this.orgBtnText = 'Manage Organization';
+        } else {
+          this.orgBtnText = 'Register Organization';
+        }
+      },
+      deep: true,
     },
-    dialog() {
-      // Bug fix for the orgBtn that stays focused;
+    dialogManageOrg() {
+      // Blur bug fix
       this.$refs.orgBtn.$el.blur();
+    },
+    dialogDeleteAcct() {
+      // Blur bug fix
+      this.$refs.deleteAcctBtn.$el.blur();
     },
   },
   async created() {
     if (userStore.userCredential) {
-      this.settings = await getSettings();
+      this.settings = userStore.settings;
+      if (this.userStore.settings.organization_name) {
+        this.orgBtnText = 'Manage Organization';
+      } else {
+        this.orgBtnText = 'Register Organization';
+      }
     }
   },
   methods: {
     checkRegistered() {
-      console.log(this.settings);
       if (this.settings.organization_name && userStore.userCredential) {
         this.$router.push('/manageorg');
       }
@@ -342,10 +356,7 @@ export default {
             .then(async (weather) => {
               const { main } = weather;
               if (main) {
-                console.log(main);
                 await newOrg(this.org);
-                this.settings.organization_name = this.org.organization;
-                await updateSettings(this.settings);
                 this.alertError = false;
                 this.alertType = 'success';
                 this.alertMessage = 'Successfully registered organization.';
@@ -364,7 +375,7 @@ export default {
         this.alertMessage = 'Organization already exists.';
         this.showAlert = true;
       }
-      this.dialog = false;
+      this.dialogManageOrg = false;
     },
     async updateProfile() {
       this.loadSaveSettings = true;
@@ -387,7 +398,6 @@ export default {
     },
     deleteAccount() {
       if (userStore.userCredential) {
-        getSettings();
         if (userStore.settings.organization_name) {
           deleteOrg(userStore.settings.organization_name);
         }

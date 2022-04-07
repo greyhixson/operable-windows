@@ -30,8 +30,77 @@ const error = {
   message: '',
   code: '',
 };
-
 // Firestore functions
+async function getSettings() {
+  try {
+    if (userStore.userCredential.user.uid) {
+      const docRef = doc(db, 'users', userStore.userCredential.user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        userStore.settings = docSnap.data();
+      } else {
+        userStore.clearUserStore();
+      }
+    }
+  } catch (e) {
+    error.message = e;
+  }
+}
+
+async function updateSettings() {
+  if (userStore.userCredential.user.uid) {
+    const docRef = doc(db, 'users', userStore.userCredential.user.uid);
+    try {
+      await runTransaction(db, async (transaction) => {
+        const settingsDoc = await transaction.get(docRef);
+        if (!settingsDoc.exists()) {
+          throw new Error('Document does not exist!');
+        }
+        const updatedSpace = Object.assign(settingsDoc.data(), Object(userStore.settings));
+        transaction.update(docRef, updatedSpace);
+      });
+    } catch (e) {
+      error.message = e;
+    }
+  }
+}
+
+async function newOrg(org) {
+  const strippedOrg = org.organization.toLowerCase().replace(/\s+/g, '');
+  try {
+    const docRef = doc(db, 'organizations', strippedOrg);
+    await setDoc(docRef, org, { merge: false });
+    userStore.settings.organization_name = org.organization;
+    await updateSettings();
+  } catch (e) {
+    error.message = e;
+  }
+}
+
+async function newSpace(orgName, spaceObj) {
+  try {
+    const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
+    const strippedSpace = spaceObj.space.toLowerCase().replace(/\s+/g, '');
+    const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
+    await setDoc(docRef, spaceObj, { merge: true });
+  } catch (e) {
+    error.message = e;
+  }
+}
+
+// User store and firestore functions
+async function addUser() {
+  try {
+    if (userStore.userCredential) {
+      const docRef = doc(db, 'users', userStore.userCredential.user.uid);
+      await setDoc(docRef, userStore.settings, { merge: true });
+      await getSettings();
+    }
+  } catch (e) {
+    error.message = e;
+  }
+}
+
 // Gets an organization's city, state, and name
 async function getOrg(orgName) {
   try {
@@ -109,31 +178,12 @@ async function updateSpace(orgName, spaceObj) {
   }
 }
 
-async function newOrg(org) {
-  const strippedOrg = org.organization.toLowerCase().replace(/\s+/g, '');
-  try {
-    const docRef = doc(db, 'organizations', strippedOrg);
-    await setDoc(docRef, org, { merge: false });
-  } catch (e) {
-    error.message = e;
-  }
-}
-
-async function newSpace(orgName, spaceObj) {
-  try {
-    const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
-    const strippedSpace = spaceObj.space.toLowerCase().replace(/\s+/g, '');
-    const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
-    await setDoc(docRef, spaceObj, { merge: true });
-  } catch (e) {
-    error.message = e;
-  }
-}
-
 async function deleteOrg(orgName) {
   try {
     const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
     await deleteDoc(doc(db, 'organizations', strippedOrg));
+    userStore.settings.organization_name = '';
+    await updateSettings();
   } catch (e) {
     error.message = e;
   }
@@ -149,59 +199,13 @@ async function deleteSpace(orgName, spaceObj) {
   }
 }
 
-// User store and firestore functions
-async function addUser() {
-  try {
-    if (userStore.userCredential) {
-      const docRef = doc(db, 'users', userStore.userCredential.user.uid);
-      await setDoc(docRef, userStore.settings, { merge: true });
-    }
-  } catch (e) {
-    error.message = e;
-  }
-}
-
 async function deleteUserSettings() {
   try {
     await deleteDoc(doc(db, 'users', userStore.userCredential.user.uid));
+    await getSettings();
   } catch (e) {
     error.message = e;
   }
-}
-
-async function getSettings() {
-  try {
-    if (userStore.userCredential.user.uid) {
-      const docRef = doc(db, 'users', userStore.userCredential.user.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        userStore.settings = docSnap.data();
-        return docSnap.data();
-      }
-    }
-  } catch (e) {
-    error.message = e;
-  }
-  return null;
-}
-
-async function updateSettings(settingsObj) {
-  if (userStore.userCredential.user.uid) {
-    const docRef = doc(db, 'users', userStore.userCredential.user.uid);
-    try {
-      await runTransaction(db, async (transaction) => {
-        const settingsDoc = await transaction.get(docRef);
-        if (!settingsDoc.exists()) {
-          throw new Error('Document does not exist!');
-        }
-        const updatedSpace = Object.assign(settingsDoc.data(), settingsObj);
-        transaction.update(docRef, updatedSpace);
-      });
-    } catch (e) {
-      error.message = e;
-    }
-  }
-  return null;
 }
 
 // Firebase Authentication functions
@@ -211,8 +215,9 @@ async function createAccount(email, password) {
     .then((userCredential) => {
       userStore.userCredential = userCredential;
       sendEmailVerification(auth.currentUser).then(() => {
-      }).then(() => {
-        addUser();
+      }).then(async () => {
+        await addUser();
+        await getSettings();
       });
     })
     .catch((e) => {
@@ -224,8 +229,9 @@ async function createAccount(email, password) {
 function signIn(email, password) {
   const auth = getAuth();
   signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
+    .then(async (userCredential) => {
       userStore.userCredential = userCredential;
+      await getSettings();
     })
     .catch((e) => {
       error.message = e;
@@ -235,8 +241,9 @@ function signIn(email, password) {
 function signOut() {
   const auth = getAuth();
   firebaseSignOut(auth)
-    .then(() => {
+    .then(async () => {
       userStore.userCredential = null;
+      await getSettings();
     }).catch((e) => {
       error.message = e.message;
       error.code = e.code;
@@ -269,7 +276,6 @@ export {
   error,
   getAllOrgs,
   getAllSpaces,
-  getSettings,
   getOrg,
   getSpace,
   updateSpace,

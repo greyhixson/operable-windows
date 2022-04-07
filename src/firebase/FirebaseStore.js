@@ -28,44 +28,64 @@ const APIkey = 'fb3f8c4acaba36f086776e594b64a68c';
 
 // Gets an organization's city, state, and name
 async function getOrg(orgName) {
-  const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
-  const docRef = doc(db, 'organizations', strippedOrg);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    return docSnap.data();
+  try {
+    const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
+    const docRef = doc(db, 'organizations', strippedOrg);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
+  } catch (error) {
+    this.errorCode = error.code;
+    this.errorMessage = error.message;
   }
   return null;
 }
 
 async function getAllOrgs() {
-  const querySnapshot = await getDocs(collection(db, 'organizations'));
   const orgs = [];
-  querySnapshot.forEach((document) => {
-    orgs.push(document.data());
-  });
+  try {
+    const querySnapshot = await getDocs(collection(db, 'organizations'));
+    querySnapshot.forEach((document) => {
+      orgs.push(document.data());
+    });
+  } catch (error) {
+    this.errorCode = error.code;
+    this.errorMessage = error.message;
+  }
   return orgs;
 }
 
 // Gets the window thresholds for a specific space
 async function getSpace(orgName, space) {
-  const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
-  const strippedSpace = space.toLowerCase().replace(/\s+/g, '');
-  const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    return docSnap.data();
+  try {
+    const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
+    const strippedSpace = space.toLowerCase().replace(/\s+/g, '');
+    const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
+  } catch (error) {
+    this.errorCode = error.code;
+    this.errorMessage = error.message;
   }
   return null;
 }
 
 // Gets the window thresholds for all spaces
 async function getAllSpaces(orgName) {
-  const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
-  const querySnapshot = await getDocs(collection(db, `organizations/${strippedOrg}/spaces`));
   const spaces = [];
-  querySnapshot.forEach((document) => {
-    spaces.push(document.data());
-  });
+  try {
+    const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
+    const querySnapshot = await getDocs(collection(db, `organizations/${strippedOrg}/spaces`));
+    querySnapshot.forEach((document) => {
+      spaces.push(document.data());
+    });
+  } catch (error) {
+    this.errorCode = error.code;
+    this.errorMessage = error.message;
+  }
   return spaces;
 }
 
@@ -73,7 +93,6 @@ async function updateSpace(orgName, spaceObj) {
   const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
   const strippedSpace = spaceObj.space.toLowerCase().replace(/\s+/g, '');
   const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
-
   try {
     await runTransaction(db, async (transaction) => {
       const spaceDoc = await transaction.get(docRef);
@@ -100,10 +119,25 @@ async function newOrg(org) {
 }
 
 async function newSpace(orgName, spaceObj) {
-  const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
-  const strippedSpace = spaceObj.space.toLowerCase().replace(/\s+/g, '');
-  const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
-  await setDoc(docRef, spaceObj, { merge: true });
+  try {
+    const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
+    const strippedSpace = spaceObj.space.toLowerCase().replace(/\s+/g, '');
+    const docRef = doc(db, `organizations/${strippedOrg}/spaces`, strippedSpace);
+    await setDoc(docRef, spaceObj, { merge: true });
+  } catch (error) {
+    this.errorCode = error.code;
+    this.errorMessage = error.message;
+  }
+}
+
+async function deleteOrg(orgName) {
+  try {
+    const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
+    await deleteDoc(doc(db, 'organizations/', strippedOrg));
+  } catch (error) {
+    this.errorCode = error.code;
+    this.errorMessage = error.message;
+  }
 }
 
 async function deleteSpace(orgName, spaceObj) {
@@ -223,5 +257,6 @@ export {
   newSpace,
   newOrg,
   deleteSpace,
+  deleteOrg,
   userStore,
 };

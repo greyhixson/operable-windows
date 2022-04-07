@@ -24,6 +24,7 @@
         required
       />
       <v-text-field
+        v-if="!passwordReset"
         v-model="password"
         class="mx-auto"
         type="password"
@@ -32,6 +33,9 @@
         :rules="passwordRules"
         required
       />
+      <h5 v-if="!passwordReset && forgotPasswordPrompt">
+        Forgot your password? <a @click="passwordReset = true;"> Reset it here </a>
+      </h5>
       <v-row class="pt-6">
         <v-btn
           class="mx-auto"
@@ -50,7 +54,10 @@
           Home
         </v-btn>
       </v-row>
-      <h3 class="mx-auto pt-8">
+      <h3
+        v-if="!passwordReset"
+        class="mx-auto pt-8"
+      >
         Need an account?
         <router-link
           :to="{ path: '/signup' }"
@@ -78,6 +85,8 @@ export default {
       passwordRules: [
         (v) => !!v || 'Password is required',
       ],
+      passwordReset: false,
+      forgotPasswordPrompt: false,
       accountBtnText: 'Sign In',
       valid: false,
       alert: '',
@@ -100,18 +109,27 @@ export default {
     'userStore.errorCode': function watchError() {
       this.alertType = 'error';
       this.alert = 'Incorrect password or email';
+      this.forgotPasswordPrompt = true;
+    },
+    passwordReset() {
+      this.accountBtnText = 'Submit';
     },
   },
   methods: {
     accountBtn() {
-      userStore.errorCode = null;
       if (!userStore.userCredential) {
         this.$refs.form.validate();
         if (this.valid) {
           userStore.signIn(this.email, this.password);
+          if (!userStore.errorMessage) {
+            this.$refs.form.reset();
+          }
         }
       } else if (userStore.userCredential) {
         userStore.signOut();
+      }
+      if (this.passwordReset) {
+        console.log('Yet to be implemented');
       }
     },
   },

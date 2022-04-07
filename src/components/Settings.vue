@@ -214,7 +214,46 @@
             Notification Settings
           </h2>
           <v-dialog
-            v-model="dialogNotif"
+            v-model="dialogManageNotif"
+            width="500px"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                v-bind="attrs"
+                class="mb-2"
+                width="220px"
+                v-on="on"
+              >
+                Manage Notifications
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Manage Notifications</span>
+              </v-card-title>
+              <v-card-text>
+                Text
+              </v-card-text>
+              <v-card-actions>
+                <v-btn
+                  color="primary"
+                  text
+                  @click="dialogManageNotif = false;"
+                >
+                  Save changes
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  text
+                  @click="dialogManageNotif = false;"
+                >
+                  Exit
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          <v-dialog
+            v-model="dialogAddNotif"
             width="500px"
           >
             <template v-slot:activator="{ on, attrs }">
@@ -229,7 +268,7 @@
             </template>
             <v-card>
               <v-card-title>
-                <span class="text-h5">Notifications</span>
+                <span class="text-h5">Add Notifications</span>
               </v-card-title>
               <v-card-text>
                 <v-form
@@ -377,7 +416,8 @@ export default {
     return {
       dialogManageOrg: false,
       dialogDeleteAcct: false,
-      dialogNotif: false,
+      dialogAddNotif: false,
+      dialogManageNotif: false,
       org: {
         organization: '',
         city: '',
@@ -440,7 +480,7 @@ export default {
       // Blur bug fix
       this.$refs.deleteAcctBtn.$el.blur();
     },
-    async dialogNotif() {
+    async dialogAddNotif() {
       if (this.orgs.length === 0) {
         this.orgs = await getAllOrgs();
       }
@@ -526,11 +566,15 @@ export default {
     },
     saveNotification() {
       this.settings.notifications.push(this.notification);
-      this.dialogNotif = false;
+      this.dialogAddNotif = false;
+      this.alertError = true;
+      this.alertType = 'success';
+      this.alertMessage = 'Successfully added notification.';
+      this.showAlert = true;
     },
     exitNotification() {
       this.$refs.form.reset();
-      this.dialogNotif = false;
+      this.dialogAddNotif = false;
     },
     onOrgFilter(item, queryText) {
       const { organization, state, city } = item;

@@ -215,7 +215,7 @@
           </h2>
           <v-dialog
             v-model="dialogManageNotif"
-            width="500px"
+            width="900px"
           >
             <template v-slot:activator="{ on, attrs }">
               <v-btn
@@ -232,20 +232,46 @@
                 <span class="text-h5">Manage Notifications</span>
               </v-card-title>
               <v-card-text>
-                Text
+                <v-data-table
+                  :headers="headers"
+                  :items="settings.notifications"
+                  :hide-default-footer="true"
+                  class="elevation-1"
+                >
+                  <template v-slot:item.emailNotification="{ item }">
+                    <v-simple-checkbox
+                      v-model="item.emailNotification"
+                      :ripple="false"
+                    />
+                  </template>
+                  <template v-slot:item.textNotification="{ item }">
+                    <v-simple-checkbox
+                      v-model="item.textNotification"
+                      :ripple="false"
+                    />
+                  </template>
+                  <template v-slot:item.actions="{ item }">
+                    <v-icon
+                      small
+                      @click="deleteNotification(item)"
+                    >
+                      mdi-delete
+                    </v-icon>
+                  </template>
+                </v-data-table>
               </v-card-text>
               <v-card-actions>
                 <v-btn
                   color="primary"
                   text
-                  @click="dialogManageNotif = false;"
+                  @click="saveNotificationManager"
                 >
                   Save changes
                 </v-btn>
                 <v-btn
                   color="primary"
                   text
-                  @click="dialogManageNotif = false;"
+                  @click="exitNotificationManager"
                 >
                   Exit
                 </v-btn>
@@ -263,12 +289,12 @@
                 width="220px"
                 v-on="on"
               >
-                Add Notifications
+                Add Notification
               </v-btn>
             </template>
             <v-card>
               <v-card-title>
-                <span class="text-h5">Add Notifications</span>
+                <span class="text-h5">Add Notification</span>
               </v-card-title>
               <v-card-text>
                 <v-form
@@ -385,7 +411,7 @@
             >
               <v-btn
                 :loading="loadSaveSettings"
-                @click="updateProfile"
+                @click="saveSettings"
               >
                 Yes
               </v-btn>
@@ -404,8 +430,16 @@
 
 <script>
 import {
-  newOrg, getOrg, getAllOrgs, deleteOrg, APIkey,
-  updateSettings, sendPasswordResetEmail, deleteUser, deleteUserSettings, getAllSpaces,
+  APIkey,
+  deleteOrg,
+  deleteUser,
+  deleteUserSettings,
+  getAllOrgs,
+  getAllSpaces,
+  getOrg,
+  newOrg,
+  sendPasswordResetEmail,
+  updateSettings,
 } from '@/store/FirebaseStore';
 
 import userStore from '@/store/UserStore';
@@ -444,9 +478,18 @@ export default {
       spaces: [],
       orgSearch: null,
       spaceSearch: null,
+      headers: [
+        { text: 'Emails', value: 'emailNotification' },
+        { text: 'Texts', value: 'textNotification' },
+        { text: 'Organization', value: 'orgSelect.organization' },
+        { text: 'Space', value: 'spaceSelect.space' },
+        { text: 'Start Time', value: 'startTime' },
+        { text: 'End Time', value: 'endTime' },
+        { text: 'Delete', value: 'actions', sortable: false },
+      ],
       notification: {
-        textNotification: null,
-        emailNotification: null,
+        textNotification: false,
+        emailNotification: false,
         orgSelect: null,
         spaceSelect: null,
         startTime: null,
@@ -488,7 +531,7 @@ export default {
   },
   async created() {
     if (userStore.userCredential) {
-      this.settings = userStore.settings;
+      this.settings = JSON.parse(JSON.stringify(userStore.settings));
       if (this.userStore.settings.organization_name) {
         this.orgBtnText = 'Manage Organization';
       } else {
@@ -533,10 +576,10 @@ export default {
       }
       this.dialogManageOrg = false;
     },
-    async updateProfile() {
+    async saveSettings() {
       this.loadSaveSettings = true;
       if (userStore.userCredential) {
-        userStore.settings = this.settings;
+        userStore.settings = JSON.parse(JSON.stringify(this.settings));
         await updateSettings();
       }
       this.loadSaveSettings = false;
@@ -564,8 +607,12 @@ export default {
         this.$router.push('/');
       }
     },
-    saveNotification() {
-      this.settings.notifications.push(this.notification);
+    async saveNotification() {
+      const notifCopy1 = JSON.parse(JSON.stringify(this.notification));
+      const notifCopy2 = JSON.parse(JSON.stringify(this.notification));
+      this.settings.notifications.push(notifCopy1);
+      userStore.settings.notifications.push(notifCopy2);
+      await updateSettings();
       this.dialogAddNotif = false;
       this.alertError = true;
       this.alertType = 'success';
@@ -575,6 +622,18 @@ export default {
     exitNotification() {
       this.$refs.form.reset();
       this.dialogAddNotif = false;
+    },
+    deleteNotification(item) {
+      const deleteNotifIndex = this.settings.notifications.indexOf(item);
+      this.settings.notifications.splice(deleteNotifIndex, 1);
+    },
+    async saveNotificationManager() {
+      userStore.settings.notifications = JSON.parse(JSON.stringify(this.settings.notifications));
+      this.dialogManageNotif = false;
+    },
+    exitNotificationManager() {
+      this.settings.notifications = JSON.parse(JSON.stringify(userStore.settings.notifications));
+      this.dialogManageNotif = false;
     },
     onOrgFilter(item, queryText) {
       const { organization, state, city } = item;

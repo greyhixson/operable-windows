@@ -214,7 +214,7 @@
             Notification Settings
           </h2>
           <v-dialog
-            v-model="dialogTextNotif"
+            v-model="dialogNotif"
             width="500px"
           >
             <template v-slot:activator="{ on, attrs }">
@@ -224,7 +224,7 @@
                 width="220px"
                 v-on="on"
               >
-                Open Notifications
+                Add Notifications
               </v-btn>
             </template>
             <v-card>
@@ -232,62 +232,84 @@
                 <span class="text-h5">Notifications</span>
               </v-card-title>
               <v-card-text>
-                <v-row>
-                  <v-checkbox
-                    v-model="settings.text_notifications.enabled"
-                    label="Text Notifications"
-                  />
-                  <v-checkbox
-                    v-model="settings.email_notifications.enabled"
-                    label="Email Notifications"
-                  />
-                </v-row>
-                <v-autocomplete
-                  v-model="orgSelect"
-                  label="Select an organization"
-                  :items="orgs"
-                  clearable
-                  return-object
-                  :search-input.sync="orgSearch"
-                  :filter="onOrgFilter"
+                <v-form
+                  ref="form"
                 >
-                  <template v-slot:selection="{ item }">
-                    <span>{{ item.organization }}</span>
-                  </template>
-                  <template v-slot:item="{ item }">
-                    <v-list-item-content>
-                      <v-list-item-title v-text="item.organization" />
-                      <v-list-item-subtitle v-text="item.city" />
-                      <v-list-item-subtitle v-text="item.state" />
-                    </v-list-item-content>
-                  </template>
-                </v-autocomplete>
-                <v-autocomplete
-                  v-model="spaceSelect"
-                  label="Select a space"
-                  :items="spaces"
-                  clearable
-                  return-object
-                  :search-input.sync="spaceSearch"
-                  :filter="onOrgFilter"
-                >
-                  <template v-slot:selection="{ item }">
-                    <span>{{ item.space }}</span>
-                  </template>
-                  <template v-slot:item="{ item }">
-                    <v-list-item-content>
-                      <v-list-item-title v-text="item.space" />
-                    </v-list-item-content>
-                  </template>
-                </v-autocomplete>
+                  <v-row>
+                    <v-checkbox
+                      v-model="notification.textNotification"
+                      label="Text Notification"
+                    />
+                    <v-checkbox
+                      v-model="notification.emailNotification"
+                      class="pl-4"
+                      label="Email Notification"
+                    />
+                  </v-row>
+                  <v-autocomplete
+                    v-model="notification.orgSelect"
+                    label="Select an organization"
+                    :items="orgs"
+                    clearable
+                    return-object
+                    :search-input.sync="orgSearch"
+                    :filter="onOrgFilter"
+                  >
+                    <template v-slot:selection="{ item }">
+                      <span>{{ item.organization }}</span>
+                    </template>
+                    <template v-slot:item="{ item }">
+                      <v-list-item-content>
+                        <v-list-item-title v-text="item.organization" />
+                        <v-list-item-subtitle v-text="item.city" />
+                        <v-list-item-subtitle v-text="item.state" />
+                      </v-list-item-content>
+                    </template>
+                  </v-autocomplete>
+                  <v-autocomplete
+                    v-model="notification.spaceSelect"
+                    label="Select a space"
+                    :items="spaces"
+                    clearable
+                    return-object
+                    :search-input.sync="spaceSearch"
+                    :filter="onSpaceFilter"
+                  >
+                    <template v-slot:selection="{ item }">
+                      <span>{{ item.space }}</span>
+                    </template>
+                    <template v-slot:item="{ item }">
+                      <v-list-item-content>
+                        <v-list-item-title v-text="item.space" />
+                      </v-list-item-content>
+                    </template>
+                  </v-autocomplete>
+                  <v-text-field
+                    v-model="notification.startTime"
+                    label="Start time"
+                    type="time"
+                  />
+                  <v-text-field
+                    v-model="notification.endTime"
+                    label="End time"
+                    type="time"
+                  />
+                </v-form>
               </v-card-text>
               <v-card-actions>
                 <v-btn
                   color="primary"
                   text
-                  @click="dialogTextNotif = false"
+                  @click="saveNotification"
                 >
-                  Close
+                  Save notification
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  text
+                  @click="exitNotification"
+                >
+                  Exit
                 </v-btn>
               </v-card-actions>
             </v-card>
@@ -355,8 +377,7 @@ export default {
     return {
       dialogManageOrg: false,
       dialogDeleteAcct: false,
-      dialogTextNotif: false,
-      dialogEmailNotif: false,
+      dialogNotif: false,
       org: {
         organization: '',
         city: '',
@@ -369,14 +390,7 @@ export default {
         last_name: '',
         phone_number: '',
         favorite_organization: '',
-        text_notifications: {
-          enabled: false,
-          notifications: [],
-        },
-        email_notifications: {
-          enabled: false,
-          notifications: [],
-        },
+        notifications: [],
         organization_name: '',
         favorite_space: '',
       },
@@ -390,8 +404,14 @@ export default {
       spaces: [],
       orgSearch: null,
       spaceSearch: null,
-      orgSelect: null,
-      spaceSelect: null,
+      notification: {
+        textNotification: null,
+        emailNotification: null,
+        orgSelect: null,
+        spaceSelect: null,
+        startTime: null,
+        endTime: null,
+      },
     };
   },
   watch: {
@@ -406,9 +426,11 @@ export default {
       },
       deep: true,
     },
-    async orgSelect() {
-      const { organization } = this.orgSelect;
-      this.spaces = await getAllSpaces(organization);
+    'notification.orgSelect': async function watchOrgSelect(orgSelect) {
+      if (orgSelect) {
+        const { organization } = orgSelect;
+        this.spaces = await getAllSpaces(organization);
+      }
     },
     dialogManageOrg() {
       // Blur bug fix
@@ -418,12 +440,7 @@ export default {
       // Blur bug fix
       this.$refs.deleteAcctBtn.$el.blur();
     },
-    async dialogTextNotif() {
-      if (this.orgs.length === 0) {
-        this.orgs = await getAllOrgs();
-      }
-    },
-    async dialogEmailNotif() {
+    async dialogNotif() {
       if (this.orgs.length === 0) {
         this.orgs = await getAllOrgs();
       }
@@ -479,7 +496,8 @@ export default {
     async updateProfile() {
       this.loadSaveSettings = true;
       if (userStore.userCredential) {
-        await updateSettings(this.settings);
+        userStore.settings = this.settings;
+        await updateSettings();
       }
       this.loadSaveSettings = false;
       await this.$router.push('/');
@@ -506,18 +524,24 @@ export default {
         this.$router.push('/');
       }
     },
+    saveNotification() {
+      this.settings.notifications.push(this.notification);
+      this.dialogNotif = false;
+    },
+    exitNotification() {
+      this.$refs.form.reset();
+      this.dialogNotif = false;
+    },
     onOrgFilter(item, queryText) {
       const { organization, state, city } = item;
       return organization.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
           || state.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
           || city.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
     },
-    /*
     onSpaceFilter(item, queryText) {
       const { space } = item;
       return space.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
     },
-     */
   },
 };
 </script>

@@ -7,14 +7,7 @@ const userStore = {
     favorite_organization: '',
     favorite_space: '',
     organization_name: '',
-    text_notifications: {
-      enabled: false,
-      notifications: [],
-    },
-    email_notifications: {
-      enabled: false,
-      notifications: [],
-    },
+    notifications: [],
   },
   clearUserStore() {
     this.userCredential = null;
@@ -25,14 +18,7 @@ const userStore = {
       favorite_organization: '',
       favorite_space: '',
       organization_name: '',
-      text_notifications: {
-        enabled: false,
-        notifications: [],
-      },
-      email_notifications: {
-        enabled: false,
-        notifications: [],
-      },
+      notifications: [],
     };
   },
 };

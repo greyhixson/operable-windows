@@ -1,6 +1,8 @@
 <template>
   <v-container>
-    <v-card>
+    <v-card
+      class="mb-4"
+    >
       <v-card-title>
         <v-text-field
           v-model="search"
@@ -18,6 +20,8 @@
         class="elevation-1"
         :loading="loading"
         loading-text="Loading... Please wait"
+        no-data-text="Please add a new space."
+        no-result-text="No space found."
       >
         <template v-slot:top>
           <v-toolbar
@@ -47,7 +51,7 @@
                 </v-btn>
                 <v-dialog
                   v-model="dialog"
-                  max-width="500px"
+                  max-width="400px"
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -55,6 +59,7 @@
                       dark
                       v-bind="attrs"
                       v-on="on"
+                      @click="$refs.form.resetValidation()"
                     >
                       New Space
                     </v-btn>
@@ -73,53 +78,33 @@
                           <v-row>
                             <v-col
                               cols="12"
-                              sm="6"
-                              md="4"
+                              sm="12"
+                              md="10"
                             >
                               <v-text-field
                                 v-model="editedItem.space"
                                 label="Space"
                                 :rules="spaceRule"
                               />
-                            </v-col>
-                            <v-col
-                              cols="12"
-                              sm="6"
-                              md="4"
-                            >
+
                               <v-text-field
                                 v-model="editedItem.max_humidity"
                                 label="Maximum Humidity (%)"
                                 :rules="maxHumidityRules"
                               />
-                            </v-col>
-                            <v-col
-                              cols="12"
-                              sm="6"
-                              md="4"
-                            >
+
                               <v-text-field
                                 v-model="editedItem.min_temp"
                                 label="Minimum Temperature (F°)"
                                 :rules="tempRules"
                               />
-                            </v-col>
-                            <v-col
-                              cols="12"
-                              sm="6"
-                              md="4"
-                            >
+
                               <v-text-field
                                 v-model="editedItem.max_temp"
                                 label="Maximum Temperature (F°)"
                                 :rules="tempRules"
                               />
-                            </v-col>
-                            <v-col
-                              cols="12"
-                              sm="6"
-                              md="4"
-                            >
+
                               <v-text-field
                                 v-model="editedItem.max_aqi"
                                 label="Maximum Air Pollution"
@@ -200,7 +185,6 @@
         </template>
       </v-data-table>
     </v-card>
-    <h5> To view more information on how air pollution is calculated, visit <a href="https://openweathermap.org/api/air-pollution"> OpenWeather Map </a></h5>
     <v-dialog
       v-model="dialogDeleteOrg"
       width="500"
@@ -317,7 +301,7 @@ export default {
   },
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? 'New Space' : 'Edit Space';
+      return this.editedIndex === -1 ? 'Add a new space' : 'Edit Space';
     },
   },
   watch: {

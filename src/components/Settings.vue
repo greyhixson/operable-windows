@@ -269,8 +269,11 @@
 
 <script>
 import {
-  userStore, newOrg, getOrg, APIkey,
-} from '@/firebase/FirebaseStore';
+  newOrg, getOrg, deleteOrg, APIkey,
+  getSettings, updateSettings, sendPasswordResetEmail, deleteUser,
+} from '@/store/FirebaseStore';
+
+import userStore from '@/store/UserStore';
 
 export default {
   name: 'Settings',
@@ -315,11 +318,7 @@ export default {
   },
   async created() {
     if (userStore.userCredential) {
-      if (userStore.initUser) {
-        await userStore.getSettings();
-        this.settings = userStore.settings;
-      }
-      this.settings = userStore.settings;
+      this.settings = await getSettings();
     }
   },
   methods: {
@@ -339,7 +338,7 @@ export default {
               if (response.status === 200) {
                 newOrg(this.org);
                 this.settings.organization_name = this.org.organization;
-                userStore.updateSettings(this.settings);
+                updateSettings(this.settings);
                 this.alertError = false;
                 this.alertType = 'success';
                 this.alertMessage = 'Successfully registered organization.';
@@ -360,7 +359,7 @@ export default {
     async updateProfile() {
       this.loadSaveSettings = true;
       if (userStore.userCredential) {
-        await userStore.updateSettings(this.settings);
+        await updateSettings(this.settings);
       }
       this.loadSaveSettings = false;
       await this.$router.push('/');
@@ -370,14 +369,22 @@ export default {
       this.alertType = 'info';
       this.alert = true;
       this.alertError = false;
-      userStore.sendPasswordResetEmail();
+      sendPasswordResetEmail();
     },
     clearFavorites() {
       this.settings.favorite_organization = '';
       this.settings.favorite_space = '';
     },
     deleteAccount() {
-      this.$router.push('/');
+      if (userStore.userCredential) {
+        getSettings();
+        if (userStore.settings.organization_name) {
+          deleteOrg(userStore.settings.organization_name);
+        }
+        deleteUser();
+        userStore.userCredential = null;
+        this.$router.push('/');
+      }
     },
   },
 };

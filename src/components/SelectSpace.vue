@@ -69,8 +69,10 @@
 <script>
 
 import {
-  getAllOrgs, getAllSpaces, getSpace, userStore,
-} from '@/firebase/FirebaseStore';
+  getAllOrgs, getAllSpaces, getSpace, APIkey,
+} from '@/store/FirebaseStore';
+
+import userStore from '@/store/UserStore';
 
 export default {
   name: 'SelectSpace',
@@ -82,7 +84,6 @@ export default {
       spaceSearch: null,
       spaceSelect: null,
       spaces: [],
-      APIkey: 'fb3f8c4acaba36f086776e594b64a68c',
       awaitingSearch: true,
     };
   },
@@ -128,12 +129,12 @@ export default {
   methods: {
     getCurrentWeatherAndAirPollution() {
       const { city, state } = this.orgSelect;
-      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},US&appid=${this.APIkey}&units=imperial`)
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},US&appid=${APIkey}&units=imperial`)
         .then((response) => response.json())
         .then((weather) => {
           const { coord: { lat, lon } } = weather;
           this.$emit('submitWeather', weather);
-          fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${this.APIkey}`)
+          fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${APIkey}`)
             .then((response) => response.json())
             .then((airPollution) => {
               this.$emit('submitAirPollution', airPollution);

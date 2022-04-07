@@ -189,8 +189,10 @@
 
 <script>
 import {
-  getOrg, getAllSpaces, updateSpace, newSpace, deleteSpace, userStore,
-} from '@/firebase/FirebaseStore';
+  getOrg, getAllSpaces, updateSpace, newSpace, deleteSpace,
+} from '@/store/FirebaseStore';
+
+import userStore from '@/store/UserStore';
 
 export default {
   name: 'ManageOrg',

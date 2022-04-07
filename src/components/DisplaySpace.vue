@@ -133,10 +133,11 @@
  * @property main - Contains the AQI
  * @property aqi  - AQI
  */
-import { userStore } from '@/firebase/FirebaseStore';
+import userStore from '@/store/UserStore';
+import { updateSettings } from '@/store/FirebaseStore';
 
 /**
- * Window Thresholds object from my firebase firestore
+ * Window Thresholds object from my store firestore
  * @typedef {Object} spaceThresholds
  * @property min_temp     - Min temp (C°) it needs to be for the window to be open
  * @property max_temp     - Max temp (C°) it can be for the window to be open
@@ -213,7 +214,7 @@ export default {
         const { settings } = userStore;
         settings.favorite_space = this.spaceThresholds.space;
         settings.favorite_organization = this.orgName;
-        userStore.updateSettings(settings);
+        updateSettings(settings);
         this.alertMessage = `${this.orgName} and ${this.spaceThresholds.space} saved as defaults`;
         this.alertType = 'success';
         this.alert = true;

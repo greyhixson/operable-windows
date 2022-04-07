@@ -4,6 +4,7 @@
   >
     <v-alert
       v-if="alert && alertType"
+      v-model="showAlert"
       :type="alertType"
       dismissible
     >
@@ -58,7 +59,8 @@
 </template>
 
 <script>
-import { userStore } from '@/firebase/FirebaseStore';
+import { createAccount, signOut, error } from '@/store/FirebaseStore';
+import userStore from '@/store/UserStore';
 
 export default {
   name: 'SignUp',
@@ -81,17 +83,23 @@ export default {
       ],
       alertType: '',
       alert: '',
+      showAlert: false,
       accountBtnText: 'Create an Account',
       userStore,
+      error,
     };
   },
   watch: {
-    'userStore.errorCode': function watchErrors(errorCode) {
-      this.alertType = 'error';
-      if (errorCode === 'auth/email-already-in-use') {
-        this.alert = 'An account with this email already exists';
-      } else {
-        this.alert = errorCode;
+    'error.code': function watchError(code) {
+      if (code) {
+        error.message = '';
+        this.showAlert = true;
+        this.alertType = 'error';
+        if (code === 'auth/email-already-in-use') {
+          this.alert = 'An account with this email already exists';
+        } else {
+          this.alert = code;
+        }
       }
     },
     'userStore.initUser': function watchAccountCreation(initUser) {
@@ -99,7 +107,6 @@ export default {
         this.alertType = 'success';
         this.alert = 'An account verification email has been sent.';
         this.$refs.form.reset();
-        userStore.addUser();
       }
     },
     'userStore.userCredential': function watchUser(userCred) {
@@ -112,14 +119,13 @@ export default {
   },
   methods: {
     accountBtn() {
-      userStore.errorCode = null;
       if (!userStore.userCredential) {
         this.$refs.form.validate();
         if (this.valid) {
-          userStore.createAccount(this.email, this.password);
+          createAccount(this.email, this.password);
         }
       } else if (userStore.userCredential) {
-        userStore.signOut();
+        signOut();
       }
     },
   },

@@ -4,6 +4,7 @@
   >
     <v-alert
       v-if="alert && alertType"
+      v-model="showAlert"
       :type="alertType"
       dismissible
     >
@@ -71,7 +72,8 @@
 </template>
 
 <script>
-import { userStore } from '@/firebase/FirebaseStore';
+import userStore from '@/store/UserStore';
+import { signIn, signOut, error } from '@/store/FirebaseStore';
 
 export default {
   name: 'SignIn',
@@ -91,7 +93,9 @@ export default {
       valid: false,
       alert: '',
       alertType: '',
+      showAlert: false,
       userStore,
+      error,
     };
   },
   watch: {
@@ -100,16 +104,22 @@ export default {
         this.accountBtnText = 'Sign Out';
         this.alert = 'You are now signed in';
         this.alertType = 'success';
+        this.showAlert = true;
+        this.$refs.form.reset();
       } else if (!userCred) {
         this.accountBtnText = 'Sign In';
         this.alert = '';
         this.alertType = '';
       }
     },
-    'userStore.errorCode': function watchError() {
-      this.alertType = 'error';
-      this.alert = 'Incorrect password or email';
-      this.forgotPasswordPrompt = true;
+    'error.message': function watchError() {
+      if (error.message) {
+        error.message = '';
+        this.alertType = 'error';
+        this.alert = 'Incorrect password or email';
+        this.forgotPasswordPrompt = true;
+        this.showAlert = true;
+      }
     },
     passwordReset() {
       this.accountBtnText = 'Submit';
@@ -120,13 +130,10 @@ export default {
       if (!userStore.userCredential) {
         this.$refs.form.validate();
         if (this.valid) {
-          userStore.signIn(this.email, this.password);
-          if (!userStore.errorMessage) {
-            this.$refs.form.reset();
-          }
+          signIn(this.email, this.password);
         }
       } else if (userStore.userCredential) {
-        userStore.signOut();
+        signOut();
       }
       if (this.passwordReset) {
         console.log('Yet to be implemented');

@@ -40,7 +40,8 @@
 </template>
 
 <script>
-import { userStore } from '@/firebase/FirebaseStore';
+import userStore from '@/store/UserStore';
+import { signOut } from '@/store/FirebaseStore';
 import SelectSpace from '../components/SelectSpace.vue';
 import DisplaySpace from '../components/DisplaySpace.vue';
 
@@ -97,7 +98,7 @@ export default {
       if (!userStore.userCredential) {
         this.$router.push('/signin');
       } else if (userStore.userCredential) {
-        userStore.signOut();
+        signOut();
       }
     },
   },

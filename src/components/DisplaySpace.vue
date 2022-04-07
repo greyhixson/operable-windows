@@ -137,7 +137,7 @@ import userStore from '@/store/UserStore';
 import { updateSettings } from '@/store/FirebaseStore';
 
 /**
- * Window Thresholds object from my store firestore
+ * Window Thresholds object from the firestore
  * @typedef {Object} spaceThresholds
  * @property min_temp     - Min temp (C°) it needs to be for the window to be open
  * @property max_temp     - Max temp (C°) it can be for the window to be open

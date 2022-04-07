@@ -149,7 +149,7 @@ async function deleteSpace(orgName, spaceObj) {
   }
 }
 
-// User store and store store functions
+// User store and firestore functions
 async function addUser() {
   try {
     if (userStore.userCredential) {

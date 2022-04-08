@@ -133,9 +133,6 @@
  * @property main - Contains the AQI
  * @property aqi  - AQI
  */
-import Vue from 'vue';
-import userStore from '@/store/UserStore';
-import { updateSettings } from '@/store/FirebaseStore';
 
 /**
  * Window Thresholds object from the firestore
@@ -146,6 +143,10 @@ import { updateSettings } from '@/store/FirebaseStore';
  * @property max_aqi      - Max air pollution it can be for the window to be open
  * @property space        - The location the user is in
  */
+
+import Vue from 'vue';
+import userStore from '@/store/UserStore';
+import { updateSettings } from '@/store/FirebaseStore';
 
 export default {
   name: 'DisplaySpace',

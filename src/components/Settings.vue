@@ -119,7 +119,7 @@
                   </v-card-title>
                   <v-card-text>
                     <v-text-field
-                      v-model="org.organization"
+                      v-model="org.name"
                       label="Organization Name"
                     />
                     <v-text-field
@@ -337,11 +337,11 @@
                         :filter="onOrgFilter"
                       >
                         <template v-slot:selection="{ item }">
-                          <span>{{ item.organization }}</span>
+                          <span>{{ item.name }}</span>
                         </template>
                         <template v-slot:item="{ item }">
                           <v-list-item-content>
-                            <v-list-item-title v-text="item.organization" />
+                            <v-list-item-title v-text="item.name" />
                             <v-list-item-subtitle v-text="item.city" />
                             <v-list-item-subtitle v-text="item.state" />
                           </v-list-item-content>
@@ -456,10 +456,9 @@ import {
   newOrg,
   updateSettings,
 } from '@/API/firestoreAPI';
-
 import { user, APIkey } from '@/store/store';
-
 import { deleteUser, sendPasswordResetEmail } from '@/API/authAPI';
+import { writeNewOrg } from '@/API/databaseAPI';
 
 export default {
   name: 'Settings',
@@ -471,7 +470,7 @@ export default {
       dialogManageNotif: false,
       dialog: false,
       org: {
-        organization: '',
+        name: '',
         city: '',
         state: '',
       },
@@ -529,8 +528,8 @@ export default {
     },
     'notification.orgSelect': async function watchOrgSelect(orgSelect) {
       if (orgSelect) {
-        const { organization } = orgSelect;
-        this.spaces = await getAllSpaces(organization);
+        const { name } = orgSelect;
+        this.spaces = await getAllSpaces(name);
       }
     },
     dialogManageOrg() {
@@ -547,7 +546,7 @@ export default {
       }
     },
   },
-  async created() {
+  async mounted() {
     if (user) {
       this.settings = JSON.parse(JSON.stringify(user.settings));
       if (this.user.settings.organization_name) {
@@ -564,7 +563,7 @@ export default {
       }
     },
     async registerOrg() {
-      if (!await getOrg(this.org.organization)) {
+      if (!await getOrg(this.org.name)) {
         if (user.userCredential) {
           const { city, state } = this.org;
           fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},
@@ -573,6 +572,7 @@ export default {
             .then(async (weather) => {
               const { main } = weather;
               if (main) {
+                writeNewOrg(this.org);
                 await newOrg(this.org);
                 this.alertError = false;
                 this.alertType = 'success';
@@ -654,8 +654,8 @@ export default {
       this.dialogManageNotif = false;
     },
     onOrgFilter(item, queryText) {
-      const { organization, state, city } = item;
-      return organization.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
+      const { name, state, city } = item;
+      return name.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
           || state.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
           || city.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
     },

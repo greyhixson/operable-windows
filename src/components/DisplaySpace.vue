@@ -173,7 +173,7 @@ export default {
       alert: false,
     };
   },
-  created() {
+  mounted() {
     this.checkTemp();
     this.checkHumidity();
     this.checkAirPollution();

@@ -43,11 +43,11 @@ async function updateSettings() {
 }
 
 async function newOrg(org) {
-  const strippedOrg = org.organization.toLowerCase().replace(/\s+/g, '');
+  const strippedOrg = org.name.toLowerCase().replace(/\s+/g, '');
   try {
     const docRef = doc(db, 'organizations', strippedOrg);
     await setDoc(docRef, org, { merge: false });
-    user.settings.organization_name = org.organization;
+    user.settings.organization_name = org.name;
     await updateSettings();
   } catch (e) {
     error.message = e;

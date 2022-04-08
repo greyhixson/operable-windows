@@ -111,7 +111,7 @@ export default {
       }
     },
   },
-  async created() {
+  async mounted() {
     this.orgs = await getAllOrgs();
     if (user.settings.favorite_organization) {
       this.findFavoriteOrg(user.settings.favorite_organization);

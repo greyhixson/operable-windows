@@ -11,6 +11,7 @@ import {
   deleteUser as firebaseDeleteUser,
 } from 'firebase/auth';
 import userStore from '@/store/UserStore';
+import Vue from 'vue';
 
 const firebaseApp = initializeApp({
   apiKey: 'AIzaSyCBg6Qdq-gOWa3yA_9zP62mzXRv8yDi7sI',
@@ -33,7 +34,7 @@ const error = {
 // Firestore functions
 async function getSettings() {
   try {
-    if (userStore.userCredential.user.uid) {
+    if (userStore.userCredential) {
       const docRef = doc(db, 'users', userStore.userCredential.user.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
@@ -48,7 +49,8 @@ async function getSettings() {
 }
 
 async function updateSettings() {
-  if (userStore.userCredential.user.uid) {
+  Vue.$cookies.set('settings', userStore.settings);
+  if (userStore.userCredential) {
     const docRef = doc(db, 'users', userStore.userCredential.user.uid);
     try {
       await runTransaction(db, async (transaction) => {
@@ -232,6 +234,7 @@ function signIn(email, password) {
     .then(async (userCredential) => {
       userStore.userCredential = userCredential;
       await getSettings();
+      Vue.$cookies.set('settings', userStore.settings);
     })
     .catch((e) => {
       error.message = e;

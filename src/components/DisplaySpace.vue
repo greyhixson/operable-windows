@@ -144,7 +144,6 @@
  * @property space        - The location the user is in
  */
 
-import Vue from 'vue';
 import userStore from '@/store/UserStore';
 import { updateSettings } from '@/store/FirebaseStore';
 
@@ -212,14 +211,14 @@ export default {
       }
     },
     saveSelection() {
+      const { settings } = userStore;
+      settings.favorite_space = this.spaceThresholds.space;
+      settings.favorite_organization = this.orgName;
       if (userStore.userCredential) {
-        const { settings } = userStore;
-        settings.favorite_space = this.spaceThresholds.space;
-        settings.favorite_organization = this.orgName;
         updateSettings(settings);
       }
-      Vue.$cookies.set('favorite_organization', this.orgName);
-      Vue.$cookies.set('favorite_space', this.spaceThresholds.space);
+      this.$cookies.set('settings', settings);
+      console.log(this.$cookies.get('settings'));
       this.alertMessage = `${this.orgName} and ${this.spaceThresholds.space} saved as defaults`;
       this.alertType = 'success';
       this.alert = true;

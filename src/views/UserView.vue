@@ -71,12 +71,20 @@ export default {
       }
     },
   },
-  created() {
+  mounted() {
     if (userStore.userCredential) {
       this.accountBtnText = 'Sign Out';
     } else if (!userStore.userCredential) {
       this.accountBtnText = 'Sign In';
     }
+
+    this.$nextTick(() => {
+      if (!this.$cookies.isKey('settings')) {
+        this.$cookies.set('settings', userStore.settings);
+      } else if (this.$cookies.isKey('settings')) {
+        userStore.settings = this.$cookies.get('settings');
+      }
+    });
   },
   methods: {
     getWeather(event) {

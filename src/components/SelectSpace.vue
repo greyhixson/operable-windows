@@ -68,7 +68,6 @@
 
 <script>
 
-import Vue from 'vue';
 import {
   getAllOrgs, getAllSpaces, getSpace, APIkey,
 } from '@/store/FirebaseStore';
@@ -98,8 +97,6 @@ export default {
       this.spaces = await getAllSpaces(organization);
       if (userStore.settings.favorite_space) {
         this.findFavoriteSpace(userStore.settings.favorite_space);
-      } else if (Vue.$cookies.get('favorite_space')) {
-        this.findFavoriteSpace(Vue.$cookies.get('favorite_space'));
       }
     },
     orgSearch() {
@@ -115,12 +112,8 @@ export default {
   },
   async created() {
     this.orgs = await getAllOrgs();
-    if (userStore.userCredential) {
-      if (userStore.settings.favorite_organization) {
-        this.findFavoriteOrg(userStore.settings.favorite_organization);
-      }
-    } else if (Vue.$cookies.get('favorite_organization')) {
-      this.findFavoriteOrg(Vue.$cookies.get('favorite_organization'));
+    if (userStore.settings.favorite_organization) {
+      this.findFavoriteOrg(userStore.settings.favorite_organization);
     }
   },
   methods: {

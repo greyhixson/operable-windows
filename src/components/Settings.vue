@@ -452,6 +452,7 @@ export default {
       dialogDeleteAcct: false,
       dialogAddNotif: false,
       dialogManageNotif: false,
+      dialog: false,
       org: {
         organization: '',
         city: '',
@@ -530,7 +531,7 @@ export default {
     },
   },
   async created() {
-    if (userStore.userCredential) {
+    if (userStore) {
       this.settings = JSON.parse(JSON.stringify(userStore.settings));
       if (this.userStore.settings.organization_name) {
         this.orgBtnText = 'Manage Organization';
@@ -578,19 +579,19 @@ export default {
     },
     async saveSettings() {
       this.loadSaveSettings = true;
-      if (userStore.userCredential) {
-        userStore.settings = JSON.parse(JSON.stringify(this.settings));
-        await updateSettings();
-      }
+      userStore.settings = JSON.parse(JSON.stringify(this.settings));
+      await updateSettings();
       this.loadSaveSettings = false;
       await this.$router.push('/');
     },
     resetPassword() {
-      this.alertMessage = 'Check your inbox for an email to reset your password';
-      this.alertType = 'info';
-      this.alert = true;
-      this.alertError = false;
-      sendPasswordResetEmail();
+      if (userStore.userCredential) {
+        this.alertMessage = 'Check your inbox for an email to reset your password';
+        this.alertType = 'info';
+        this.alert = true;
+        this.alertError = false;
+        sendPasswordResetEmail();
+      }
     },
     clearFavorites() {
       this.settings.favorite_organization = '';

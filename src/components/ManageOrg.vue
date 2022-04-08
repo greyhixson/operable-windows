@@ -234,9 +234,9 @@
 <script>
 import {
   getOrg, getAllSpaces, updateSpace, newSpace, deleteSpace, deleteOrg,
-} from '@/store/FirebaseStore';
+} from '@/API/firestoreAPI';
 
-import userStore from '@/store/UserStore';
+import { user } from '@/store/store';
 
 export default {
   name: 'ManageOrg',
@@ -318,11 +318,11 @@ export default {
     },
   },
   created() {
-    if (!userStore.userCredential) {
+    if (!user.userCredential) {
       this.$router.push('/');
     }
-    if (userStore.settings) {
-      this.orgName = userStore.settings.organization_name;
+    if (user.settings) {
+      this.orgName = user.settings.organization_name;
       this.getOrg();
     }
   },
@@ -338,8 +338,8 @@ export default {
       this.loading = false;
     },
     async deleteOrg() {
-      if (userStore.settings.organization_name) {
-        await deleteOrg(userStore.settings.organization_name);
+      if (user.settings.organization_name) {
+        await deleteOrg(user.settings.organization_name);
         this.dialogDeleteOrg = false;
         await this.$router.push('/');
       }

@@ -138,8 +138,8 @@
  * @property space        - The location the user is in
  */
 
-import userStore from '@/store/UserStore';
-import { updateSettings } from '@/store/FirebaseStore';
+import { updateSettings } from '@/API/firestoreAPI';
+import { user } from '@/store/store';
 
 export default {
   name: 'DisplaySpace',
@@ -205,10 +205,10 @@ export default {
       }
     },
     saveSelection() {
-      const { settings } = userStore;
+      const { settings } = user;
       settings.favorite_space = this.spaceThresholds.space;
       settings.favorite_organization = this.orgName;
-      if (userStore.userCredential) {
+      if (user.userCredential) {
         updateSettings(settings);
       }
       this.$cookies.set('settings', settings);

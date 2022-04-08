@@ -72,8 +72,8 @@
 </template>
 
 <script>
-import userStore from '@/store/UserStore';
-import { signIn, signOut, error } from '@/store/FirebaseStore';
+import { signIn, signOut } from '@/API/authAPI';
+import { user, error } from '@/store/store';
 
 export default {
   name: 'SignIn',
@@ -94,12 +94,12 @@ export default {
       alert: '',
       alertType: '',
       showAlert: false,
-      userStore,
+      user,
       error,
     };
   },
   watch: {
-    'userStore.userCredential': function watchUser(userCred) {
+    'user.userCredential': function watchUser(userCred) {
       if (userCred) {
         this.accountBtnText = 'Sign Out';
         this.alert = 'You are now signed in';
@@ -127,12 +127,12 @@ export default {
   },
   methods: {
     accountBtn() {
-      if (!userStore.userCredential) {
+      if (!user.userCredential) {
         this.$refs.form.validate();
         if (this.valid) {
           signIn(this.email, this.password);
         }
-      } else if (userStore.userCredential) {
+      } else if (user.userCredential) {
         signOut();
       }
       if (this.passwordReset) {

@@ -1,46 +1,21 @@
-import { initializeApp } from 'firebase/app';
 import {
   getFirestore, collection, doc, getDoc, getDocs, setDoc, deleteDoc, runTransaction,
 } from 'firebase/firestore';
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  sendEmailVerification,
-  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
-  signInWithEmailAndPassword, signOut as firebaseSignOut,
-  deleteUser as firebaseDeleteUser,
-} from 'firebase/auth';
-import userStore from '@/store/UserStore';
+
+import { app, user, error } from '@/store/store';
 import Vue from 'vue';
 
-const firebaseApp = initializeApp({
-  apiKey: 'AIzaSyCBg6Qdq-gOWa3yA_9zP62mzXRv8yDi7sI',
-  authDomain: 'operable-windows.firebaseapp.com',
-  projectId: 'operable-windows',
-  storageBucket: 'operable-windows.appspot.com',
-  messagingSenderId: '379289738007',
-  appId: '1:379289738007:web:343a97bc2900ebb8303552',
-});
+const db = getFirestore(app);
 
-const db = getFirestore(firebaseApp);
-
-const APIkey = 'fb3f8c4acaba36f086776e594b64a68c';
-
-// eslint-disable-next-line import/no-mutable-exports
-const error = {
-  message: '',
-  code: '',
-};
-// Firestore functions
 async function getSettings() {
   try {
-    if (userStore.userCredential) {
-      const docRef = doc(db, 'users', userStore.userCredential.user.uid);
+    if (user.userCredential) {
+      const docRef = doc(db, 'users', user.userCredential.user.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        userStore.settings = docSnap.data();
+        user.settings = docSnap.data();
       } else {
-        userStore.clearUserStore();
+        user.clearUser();
       }
     }
   } catch (e) {
@@ -49,16 +24,16 @@ async function getSettings() {
 }
 
 async function updateSettings() {
-  Vue.$cookies.set('settings', userStore.settings);
-  if (userStore.userCredential) {
-    const docRef = doc(db, 'users', userStore.userCredential.user.uid);
+  Vue.$cookies.set('settings', user.settings);
+  if (user.userCredential) {
+    const docRef = doc(db, 'users', user.userCredential.user.uid);
     try {
       await runTransaction(db, async (transaction) => {
         const settingsDoc = await transaction.get(docRef);
         if (!settingsDoc.exists()) {
           throw new Error('Document does not exist!');
         }
-        const updatedSpace = Object.assign(settingsDoc.data(), Object(userStore.settings));
+        const updatedSpace = Object.assign(settingsDoc.data(), Object(user.settings));
         transaction.update(docRef, updatedSpace);
       });
     } catch (e) {
@@ -72,7 +47,7 @@ async function newOrg(org) {
   try {
     const docRef = doc(db, 'organizations', strippedOrg);
     await setDoc(docRef, org, { merge: false });
-    userStore.settings.organization_name = org.organization;
+    user.settings.organization_name = org.organization;
     await updateSettings();
   } catch (e) {
     error.message = e;
@@ -93,9 +68,9 @@ async function newSpace(orgName, spaceObj) {
 // User store and firestore functions
 async function addUser() {
   try {
-    if (userStore.userCredential) {
-      const docRef = doc(db, 'users', userStore.userCredential.user.uid);
-      await setDoc(docRef, userStore.settings, { merge: true });
+    if (user.userCredential) {
+      const docRef = doc(db, 'users', user.userCredential.user.uid);
+      await setDoc(docRef, user.settings, { merge: true });
       await getSettings();
     }
   } catch (e) {
@@ -184,7 +159,7 @@ async function deleteOrg(orgName) {
   try {
     const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
     await deleteDoc(doc(db, 'organizations', strippedOrg));
-    userStore.settings.organization_name = '';
+    user.settings.organization_name = '';
     await updateSettings();
   } catch (e) {
     error.message = e;
@@ -203,7 +178,7 @@ async function deleteSpace(orgName, spaceObj) {
 
 async function deleteUserSettings() {
   try {
-    await deleteDoc(doc(db, 'users', userStore.userCredential.user.uid));
+    await deleteDoc(doc(db, 'users', user.userCredential.user.uid));
     await getSettings();
   } catch (e) {
     error.message = e;
@@ -211,72 +186,8 @@ async function deleteUserSettings() {
 }
 
 // Firebase Authentication functions
-async function createAccount(email, password) {
-  const auth = getAuth();
-  createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      userStore.userCredential = userCredential;
-      sendEmailVerification(auth.currentUser).then(() => {
-      }).then(async () => {
-        await addUser();
-        await getSettings();
-      });
-    })
-    .catch((e) => {
-      error.message = e.message;
-      error.code = e.code;
-    });
-}
-
-function signIn(email, password) {
-  const auth = getAuth();
-  signInWithEmailAndPassword(auth, email, password)
-    .then(async (userCredential) => {
-      userStore.userCredential = userCredential;
-      await getSettings();
-      Vue.$cookies.set('settings', userStore.settings);
-    })
-    .catch((e) => {
-      error.message = e;
-    });
-}
-
-function signOut() {
-  const auth = getAuth();
-  firebaseSignOut(auth)
-    .then(async () => {
-      userStore.userCredential = null;
-      await getSettings();
-    }).catch((e) => {
-      error.message = e.message;
-      error.code = e.code;
-    });
-}
-
-function deleteUser() {
-  const auth = getAuth();
-  const user = auth.currentUser;
-  firebaseDeleteUser(user).then(() => {
-    // User deleted.
-  }).catch((e) => {
-    error.message = e.message;
-    error.code = e.code;
-  });
-}
-
-function sendPasswordResetEmail() {
-  const auth = getAuth();
-  firebaseSendPasswordResetEmail(auth, userStore.userCredential.user.email)
-    .then(() => {
-    }).catch((e) => {
-      error.message = e.message;
-      error.code = e.code;
-    });
-}
 
 export {
-  APIkey,
-  error,
   getAllOrgs,
   getAllSpaces,
   getOrg,
@@ -284,14 +195,10 @@ export {
   updateSpace,
   newSpace,
   newOrg,
-  createAccount,
   deleteSpace,
   deleteOrg,
   updateSettings,
-  sendPasswordResetEmail,
-  signOut,
-  signIn,
   deleteUserSettings,
-  deleteUser,
   addUser,
+  getSettings,
 };

@@ -77,10 +77,10 @@
           xl="3"
         >
           <h2 class="pb-2">
-            {{ userStore.userCredential ? 'Account Settings' : 'General Settings' }}
+            {{ user.userCredential ? 'Account Settings' : 'General Settings' }}
           </h2>
           <v-row
-            v-if="userStore.userCredential"
+            v-if="user.userCredential"
             dense
           >
             <v-col>
@@ -93,7 +93,7 @@
             </v-col>
           </v-row>
           <v-row
-            v-if="userStore.userCredential"
+            v-if="user.userCredential"
             dense
           >
             <v-col>
@@ -163,7 +163,7 @@
             </v-col>
           </v-row>
           <v-row
-            v-if="userStore.userCredential"
+            v-if="user.userCredential"
             dense
           >
             <v-col>
@@ -448,19 +448,18 @@
 
 <script>
 import {
-  APIkey,
   deleteOrg,
-  deleteUser,
   deleteUserSettings,
   getAllOrgs,
   getAllSpaces,
   getOrg,
   newOrg,
-  sendPasswordResetEmail,
   updateSettings,
-} from '@/store/FirebaseStore';
+} from '@/API/firestoreAPI';
 
-import userStore from '@/store/UserStore';
+import { user, APIkey } from '@/store/store';
+
+import { deleteUser, sendPasswordResetEmail } from '@/API/authAPI';
 
 export default {
   name: 'Settings',
@@ -492,7 +491,7 @@ export default {
       alertType: '',
       showAlert: false,
       alertError: false,
-      userStore,
+      user,
       orgs: [],
       spaces: [],
       orgSearch: null,
@@ -517,7 +516,7 @@ export default {
     };
   },
   watch: {
-    'userStore.settings': {
+    'user.settings': {
       handler(settings) {
         this.settings = JSON.parse(JSON.stringify(settings));
         if (settings.organization_name) {
@@ -549,9 +548,9 @@ export default {
     },
   },
   async created() {
-    if (userStore) {
-      this.settings = JSON.parse(JSON.stringify(userStore.settings));
-      if (this.userStore.settings.organization_name) {
+    if (user) {
+      this.settings = JSON.parse(JSON.stringify(user.settings));
+      if (this.user.settings.organization_name) {
         this.orgBtnText = 'Manage Organization';
       } else {
         this.orgBtnText = 'Register Organization';
@@ -560,13 +559,13 @@ export default {
   },
   methods: {
     checkRegistered() {
-      if (this.settings.organization_name && userStore.userCredential) {
+      if (this.settings.organization_name && user.userCredential) {
         this.$router.push('/manageorg');
       }
     },
     async registerOrg() {
       if (!await getOrg(this.org.organization)) {
-        if (userStore.userCredential) {
+        if (user.userCredential) {
           const { city, state } = this.org;
           fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},
         US&appid=${APIkey}&units=imperial`)
@@ -597,13 +596,13 @@ export default {
     },
     async saveSettings() {
       this.loadSaveSettings = true;
-      userStore.settings = JSON.parse(JSON.stringify(this.settings));
+      user.settings = JSON.parse(JSON.stringify(this.settings));
       await updateSettings();
       this.loadSaveSettings = false;
       await this.$router.push('/');
     },
     resetPassword() {
-      if (userStore.userCredential) {
+      if (user.userCredential) {
         this.alertMessage = 'Check your inbox for an email to reset your password';
         this.alertType = 'info';
         this.alert = true;
@@ -616,12 +615,12 @@ export default {
       this.settings.favorite_space = '';
     },
     deleteAccount() {
-      if (userStore.userCredential) {
-        if (userStore.settings.organization_name) {
-          deleteOrg(userStore.settings.organization_name);
+      if (user.userCredential) {
+        if (user.settings.organization_name) {
+          deleteOrg(user.settings.organization_name);
         }
         deleteUserSettings();
-        userStore.userCredential = null;
+        user.userCredential = null;
         deleteUser();
         this.$router.push('/');
       }
@@ -630,7 +629,7 @@ export default {
       const notifCopy1 = JSON.parse(JSON.stringify(this.notification));
       const notifCopy2 = JSON.parse(JSON.stringify(this.notification));
       this.settings.notifications.push(notifCopy1);
-      userStore.settings.notifications.push(notifCopy2);
+      user.settings.notifications.push(notifCopy2);
       await updateSettings();
       this.dialogAddNotif = false;
       this.alertError = true;
@@ -647,11 +646,11 @@ export default {
       this.settings.notifications.splice(deleteNotifIndex, 1);
     },
     async saveNotificationManager() {
-      userStore.settings.notifications = JSON.parse(JSON.stringify(this.settings.notifications));
+      user.settings.notifications = JSON.parse(JSON.stringify(this.settings.notifications));
       this.dialogManageNotif = false;
     },
     exitNotificationManager() {
-      this.settings.notifications = JSON.parse(JSON.stringify(userStore.settings.notifications));
+      this.settings.notifications = JSON.parse(JSON.stringify(user.settings.notifications));
       this.dialogManageNotif = false;
     },
     onOrgFilter(item, queryText) {

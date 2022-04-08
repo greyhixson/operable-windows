@@ -59,8 +59,8 @@
 </template>
 
 <script>
-import { createAccount, signOut, error } from '@/store/FirebaseStore';
-import userStore from '@/store/UserStore';
+import { createAccount, signOut } from '@/API/authAPI';
+import { user, error } from '@/store/store';
 
 export default {
   name: 'SignUp',
@@ -86,7 +86,7 @@ export default {
       showAlert: false,
       accountBtnText: 'Create an Account',
       initUser: false,
-      userStore,
+      user,
       error,
     };
   },
@@ -103,7 +103,7 @@ export default {
         }
       }
     },
-    'userStore.userCredential': function watchUser(userCred) {
+    'user.userCredential': function watchUser(userCred) {
       if (userCred) {
         this.accountBtnText = 'Sign Out';
         if (this.initUser) {
@@ -119,13 +119,13 @@ export default {
   },
   methods: {
     async accountBtn() {
-      if (!userStore.userCredential) {
+      if (!user.userCredential) {
         this.$refs.form.validate();
         if (this.valid) {
           this.initUser = true;
           await createAccount(this.email, this.password);
         }
-      } else if (userStore.userCredential) {
+      } else if (user.userCredential) {
         signOut();
       }
     },

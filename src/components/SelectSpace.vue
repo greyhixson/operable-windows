@@ -68,10 +68,10 @@
 <script>
 
 import {
-  getAllOrgs, getAllSpaces, getSpace, APIkey,
-} from '@/store/FirebaseStore';
+  getAllOrgs, getAllSpaces, getSpace,
+} from '@/API/firestoreAPI';
 
-import userStore from '@/store/UserStore';
+import { user, APIkey } from '@/store/store';
 
 export default {
   name: 'SelectSpace',
@@ -95,8 +95,8 @@ export default {
         this.getCurrentWeatherAndAirPollution();
         const { organization } = this.orgSelect;
         this.spaces = await getAllSpaces(organization);
-        if (userStore.settings.favorite_space) {
-          this.findFavoriteSpace(userStore.settings.favorite_space);
+        if (user.settings.favorite_space) {
+          this.findFavoriteSpace(user.settings.favorite_space);
         }
       }
     },
@@ -113,8 +113,8 @@ export default {
   },
   async created() {
     this.orgs = await getAllOrgs();
-    if (userStore.settings.favorite_organization) {
-      this.findFavoriteOrg(userStore.settings.favorite_organization);
+    if (user.settings.favorite_organization) {
+      this.findFavoriteOrg(user.settings.favorite_organization);
     }
   },
   methods: {

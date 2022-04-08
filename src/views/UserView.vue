@@ -52,8 +52,8 @@
 </template>
 
 <script>
-import userStore from '@/store/UserStore';
-import { signOut } from '@/store/FirebaseStore';
+import { signOut } from '@/API/authAPI';
+import { user } from '@/store/store';
 import SelectSpace from '../components/SelectSpace.vue';
 import DisplaySpace from '../components/DisplaySpace.vue';
 
@@ -71,11 +71,11 @@ export default {
       submittedOrgName: '',
       cardClosed: false,
       accountBtnText: 'Sign In',
-      userStore,
+      user,
     };
   },
   watch: {
-    'userStore.userCredential': function watchUser(userCred) {
+    'user.userCredential': function watchUser(userCred) {
       if (userCred) {
         this.accountBtnText = 'Sign Out';
       } else if (!userCred) {
@@ -84,17 +84,17 @@ export default {
     },
   },
   mounted() {
-    if (userStore.userCredential) {
+    if (user.userCredential) {
       this.accountBtnText = 'Sign Out';
-    } else if (!userStore.userCredential) {
+    } else if (!user.userCredential) {
       this.accountBtnText = 'Sign In';
     }
 
     this.$nextTick(() => {
       if (!this.$cookies.isKey('settings')) {
-        this.$cookies.set('settings', userStore.settings);
+        this.$cookies.set('settings', user.settings);
       } else if (this.$cookies.isKey('settings')) {
-        userStore.settings = this.$cookies.get('settings');
+        user.settings = this.$cookies.get('settings');
       }
     });
   },
@@ -115,9 +115,9 @@ export default {
       this.cardClosed = event;
     },
     accountBtn() {
-      if (!userStore.userCredential) {
+      if (!user.userCredential) {
         this.$router.push('/signin');
-      } else if (userStore.userCredential) {
+      } else if (user.userCredential) {
         signOut();
       }
     },

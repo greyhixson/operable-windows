@@ -7,7 +7,7 @@
         color="#87212E"
       >
         <v-toolbar-title style="color: white; font-size: 25px;">
-          Operable Windows
+          Operable Windows Notifier
         </v-toolbar-title>
       </v-app-bar>
       <v-container

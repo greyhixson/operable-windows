@@ -68,6 +68,7 @@
 
 <script>
 
+import Vue from 'vue';
 import {
   getAllOrgs, getAllSpaces, getSpace, APIkey,
 } from '@/store/FirebaseStore';
@@ -96,11 +97,9 @@ export default {
       const { organization } = this.orgSelect;
       this.spaces = await getAllSpaces(organization);
       if (userStore.settings.favorite_space) {
-        const matchedSpace = this.spaces.find((space) => space.space
-            === userStore.settings.favorite_space);
-        if (matchedSpace) {
-          this.spaceSelect = matchedSpace;
-        }
+        this.findFavoriteSpace(userStore.settings.favorite_space);
+      } else if (Vue.$cookies.get('favorite_space')) {
+        this.findFavoriteSpace(Vue.$cookies.get('favorite_space'));
       }
     },
     orgSearch() {
@@ -118,12 +117,10 @@ export default {
     this.orgs = await getAllOrgs();
     if (userStore.userCredential) {
       if (userStore.settings.favorite_organization) {
-        const matchedOrg = this.orgs.find((org) => org.organization
-            === userStore.settings.favorite_organization);
-        if (matchedOrg) {
-          this.orgSelect = matchedOrg;
-        }
+        this.findFavoriteOrg(userStore.settings.favorite_organization);
       }
+    } else if (Vue.$cookies.get('favorite_organization')) {
+      this.findFavoriteOrg(Vue.$cookies.get('favorite_organization'));
     }
   },
   methods: {
@@ -151,6 +148,18 @@ export default {
         this.$emit('submitOrgName', organization);
       } catch (e) {
         console.log('An error has occurred, please try again later');
+      }
+    },
+    findFavoriteSpace(favoriteSpace) {
+      const matchedSpace = this.spaces.find((space) => space.space === favoriteSpace);
+      if (matchedSpace) {
+        this.spaceSelect = matchedSpace;
+      }
+    },
+    findFavoriteOrg(favoriteOrg) {
+      const matchedOrg = this.orgs.find((org) => org.organization === favoriteOrg);
+      if (matchedOrg) {
+        this.orgSelect = matchedOrg;
       }
     },
     onOrgFilter(item, queryText) {

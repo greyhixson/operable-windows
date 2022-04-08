@@ -133,6 +133,7 @@
  * @property main - Contains the AQI
  * @property aqi  - AQI
  */
+import Vue from 'vue';
 import userStore from '@/store/UserStore';
 import { updateSettings } from '@/store/FirebaseStore';
 
@@ -215,10 +216,12 @@ export default {
         settings.favorite_space = this.spaceThresholds.space;
         settings.favorite_organization = this.orgName;
         updateSettings(settings);
-        this.alertMessage = `${this.orgName} and ${this.spaceThresholds.space} saved as defaults`;
-        this.alertType = 'success';
-        this.alert = true;
       }
+      Vue.$cookies.set('favorite_organization', this.orgName);
+      Vue.$cookies.set('favorite_space', this.spaceThresholds.space);
+      this.alertMessage = `${this.orgName} and ${this.spaceThresholds.space} saved as defaults`;
+      this.alertType = 'success';
+      this.alert = true;
     },
   },
 };

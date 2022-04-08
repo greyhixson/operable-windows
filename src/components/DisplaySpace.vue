@@ -212,7 +212,6 @@ export default {
         updateSettings(settings);
       }
       this.$cookies.set('settings', settings);
-      console.log(this.$cookies.get('settings'));
       this.alertMessage = 'Preferences saved';
       this.alertType = 'success';
       this.alert = true;

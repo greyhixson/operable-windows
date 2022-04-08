@@ -59,7 +59,7 @@
                       dark
                       v-bind="attrs"
                       v-on="on"
-                      @click="$refs.form.resetValidation()"
+                      @click="resetValidation"
                     >
                       New Space
                     </v-btn>
@@ -372,6 +372,9 @@ export default {
         this.editedItem = { ...this.defaultItem };
         this.editedIndex = -1;
       });
+    },
+    resetValidation() {
+      this.$refs.form.resetValidation();
     },
     save() {
       this.$refs.form.validate();

@@ -6,8 +6,8 @@
     >
       <v-col
         cols="auto"
-        xs="1"
-        xl="3"
+        xs="2"
+        xl="6"
       >
         <v-alert
           v-if="alertMessage"
@@ -519,7 +519,7 @@ export default {
   watch: {
     'userStore.settings': {
       handler(settings) {
-        this.settings = settings;
+        this.settings = JSON.parse(JSON.stringify(settings));
         if (settings.organization_name) {
           this.orgBtnText = 'Manage Organization';
         } else {

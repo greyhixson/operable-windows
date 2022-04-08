@@ -29,11 +29,10 @@
             class="mb-4"
           >
             <v-row
-              dense
               justify="end"
             >
-              <v-col>
-                <v-toolbar-title class="pl-4">
+              <v-col cols="auto">
+                <v-toolbar-title>
                   {{ orgName }}
                 </v-toolbar-title>
               </v-col>
@@ -42,13 +41,14 @@
                 height
               />
               <v-spacer />
-              <v-col>
+              <v-col cols="auto">
                 <v-btn
                   to="/"
-                  class="ml-8 mr-8"
                 >
                   Home
                 </v-btn>
+              </v-col>
+              <v-col>
                 <v-dialog
                   v-model="dialog"
                   max-width="400px"
@@ -59,7 +59,6 @@
                       dark
                       v-bind="attrs"
                       v-on="on"
-                      @click="resetValidation"
                     >
                       New Space
                     </v-btn>
@@ -78,8 +77,6 @@
                           <v-row>
                             <v-col
                               cols="12"
-                              sm="12"
-                              md="10"
                             >
                               <v-text-field
                                 v-model="editedItem.space"
@@ -321,6 +318,9 @@ export default {
     },
   },
   created() {
+    if (!userStore.userCredential) {
+      this.$router.push('/');
+    }
     if (userStore.settings) {
       this.orgName = userStore.settings.organization_name;
       this.getOrg();
@@ -365,6 +365,7 @@ export default {
         this.editedItem = { ...this.defaultItem };
         this.editedIndex = -1;
       });
+      this.$refs.form.resetValidation();
     },
     closeDelete() {
       this.dialogDelete = false;
@@ -372,9 +373,6 @@ export default {
         this.editedItem = { ...this.defaultItem };
         this.editedIndex = -1;
       });
-    },
-    resetValidation() {
-      this.$refs.form.resetValidation();
     },
     save() {
       this.$refs.form.validate();
@@ -387,6 +385,7 @@ export default {
           newSpace(this.orgName, this.editedItem);
         }
         this.close();
+        this.$refs.form.reset();
       }
     },
   },

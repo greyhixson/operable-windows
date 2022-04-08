@@ -89,14 +89,16 @@ export default {
   },
   watch: {
     async orgSelect() {
-      this.spaces = [];
-      this.spaceSelect = null;
-      this.spaceSearch = null;
-      this.getCurrentWeatherAndAirPollution();
-      const { organization } = this.orgSelect;
-      this.spaces = await getAllSpaces(organization);
-      if (userStore.settings.favorite_space) {
-        this.findFavoriteSpace(userStore.settings.favorite_space);
+      if (this.orgSelect) {
+        this.spaces = [];
+        this.spaceSelect = null;
+        this.spaceSearch = null;
+        this.getCurrentWeatherAndAirPollution();
+        const { organization } = this.orgSelect;
+        this.spaces = await getAllSpaces(organization);
+        if (userStore.settings.favorite_space) {
+          this.findFavoriteSpace(userStore.settings.favorite_space);
+        }
       }
     },
     orgSearch() {

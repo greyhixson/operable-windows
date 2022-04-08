@@ -112,6 +112,7 @@
       v-if="alert"
       :type="alertType"
       dismissble
+      class="mt-2"
     >
       {{ alertMessage }}
     </v-alert>
@@ -219,7 +220,7 @@ export default {
       }
       this.$cookies.set('settings', settings);
       console.log(this.$cookies.get('settings'));
-      this.alertMessage = `${this.orgName} and ${this.spaceThresholds.space} saved as defaults`;
+      this.alertMessage = 'Preferences saved';
       this.alertType = 'success';
       this.alert = true;
     },

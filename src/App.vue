@@ -1,6 +1,15 @@
 <template>
-  <v-app>
+  <v-app :style="{background: $vuetify.theme.themes[theme].background}">
     <v-main>
+      <v-app-bar
+        app
+        dense
+        color="#87212E"
+      >
+        <v-toolbar-title style="color: white; font-size: 25px;">
+          Operable Windows
+        </v-toolbar-title>
+      </v-app-bar>
       <v-container
         id="appView"
         fill-height
@@ -40,5 +49,10 @@ export default {
   data: () => ({
     //
   }),
+  computed: {
+    theme() {
+      return (this.$vuetify.theme.dark) ? 'dark' : 'light';
+    },
+  },
 };
 </script>

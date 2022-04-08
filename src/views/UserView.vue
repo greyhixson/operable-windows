@@ -16,11 +16,10 @@
     />
 
     <v-row
-      dense
       class="pt-6"
     >
       <v-btn
-        class="mx-auto"
+        class="mr-4"
         width="180"
         height="50"
         @click="accountBtn"

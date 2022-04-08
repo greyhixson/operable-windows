@@ -49,7 +49,6 @@
 <style scoped>
 .search {
   font-size: 20px;
-  min-width: 400px;
 }
 
 .search >>> label {

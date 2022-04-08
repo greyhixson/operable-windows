@@ -1,39 +1,52 @@
 <template>
   <v-container class="text-center">
-    <select-space
-      @submitWeather="getWeather"
-      @submitThresholds="getThresholds"
-      @submitOrgName="getOrgName"
-      @submitAirPollution="getAirPollution"
-      @closeCard="closeCard"
-    />
-    <display-space
-      v-if="submittedThresholds && submittedWeather && submittedAirPollution && !cardClosed"
-      :weather="submittedWeather"
-      :space-thresholds="submittedThresholds"
-      :org-name="submittedOrgName"
-      :air-pollution="submittedAirPollution"
-    />
-
+    <v-row no-gutters>
+      <v-col>
+        <select-space
+          @submitWeather="getWeather"
+          @submitThresholds="getThresholds"
+          @submitOrgName="getOrgName"
+          @submitAirPollution="getAirPollution"
+          @closeCard="closeCard"
+        />
+      </v-col>
+    </v-row>
     <v-row
-      class="pt-6"
+      no-gutters
     >
-      <v-btn
-        class="mr-4"
-        width="180"
-        height="50"
-        @click="accountBtn"
-      >
-        {{ accountBtnText }}
-      </v-btn>
-      <v-btn
-        class="mx-auto"
-        width="180"
-        height="50"
-        to="/settings"
-      >
-        Settings
-      </v-btn>
+      <v-col>
+        <display-space
+          v-if="submittedThresholds && submittedWeather && submittedAirPollution && !cardClosed"
+          class="pb-4"
+          :weather="submittedWeather"
+          :space-thresholds="submittedThresholds"
+          :org-name="submittedOrgName"
+          :air-pollution="submittedAirPollution"
+        />
+      </v-col>
+    </v-row>
+    <v-row
+      no-gutters
+      class="mx-auto"
+    >
+      <v-col>
+        <v-btn
+          class="mr-8"
+          width="165"
+          height="50"
+          @click="accountBtn"
+        >
+          {{ accountBtnText }}
+        </v-btn>
+        <v-btn
+          class="mx-auto"
+          width="165"
+          height="50"
+          to="/settings"
+        >
+          Settings
+        </v-btn>
+      </v-col>
     </v-row>
   </v-container>
 </template>

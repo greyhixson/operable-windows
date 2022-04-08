@@ -94,13 +94,6 @@
       <v-card-actions>
         <v-btn
           text
-          to="/settings"
-        >
-          Enable notifications
-        </v-btn>
-        <v-divider vertical />
-        <v-btn
-          text
           @click="saveSelection"
         >
           Save preferences

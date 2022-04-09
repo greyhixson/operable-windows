@@ -73,6 +73,12 @@ async function deleteOrg(orgName) {
   }
 }
 
+async function deleteUser() {
+  if (user.userCredential) {
+    await remove(ref(db, `users/${user.userCredential.user.uid}`));
+  }
+}
+
 async function deleteSpace(orgName, spaceObj) {
   if (user.userCredential && user.settings.organization_name === orgName) {
     const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
@@ -85,7 +91,6 @@ async function getAllOrgs() {
   try {
     const dbRef = ref(db);
     const orgsObj = await (await get(child(dbRef, 'organizations'))).val();
-    console.log(orgsObj);
     return Object.values(orgsObj);
   } catch (e) {
     error.message = e.message;
@@ -95,16 +100,14 @@ async function getAllOrgs() {
 }
 
 async function getAllSpaces(orgName) {
-  if (user.userCredential && user.settings.organization_name === orgName) {
-    const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
-    try {
-      const dbRef = ref(db);
-      const spacesObj = await (await get(child(dbRef, `organizations/${strippedOrg}/spaces`))).val();
-      return Object.values(spacesObj);
-    } catch (e) {
-      error.message = e.message;
-      error.code = e.code;
-    }
+  const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
+  try {
+    const dbRef = ref(db);
+    const spacesObj = await (await get(child(dbRef, `organizations/${strippedOrg}/spaces`))).val();
+    return Object.values(spacesObj);
+  } catch (e) {
+    error.message = e.message;
+    error.code = e.code;
   }
   return null;
 }
@@ -162,5 +165,6 @@ export {
   getAllOrgs,
   deleteOrg,
   deleteSpace,
+  deleteUser,
   addUserSettingsListener,
 };

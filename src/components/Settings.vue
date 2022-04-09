@@ -357,11 +357,11 @@
                         :filter="onSpaceFilter"
                       >
                         <template v-slot:selection="{ item }">
-                          <span>{{ item.space }}</span>
+                          <span>{{ item.name }}</span>
                         </template>
                         <template v-slot:item="{ item }">
                           <v-list-item-content>
-                            <v-list-item-title v-text="item.space" />
+                            <v-list-item-title v-text="item.name" />
                           </v-list-item-content>
                         </template>
                       </v-autocomplete>
@@ -449,16 +449,13 @@
 <script>
 import {
   deleteOrg,
-  deleteUserSettings,
   getAllOrgs,
   getAllSpaces,
   getOrg,
-  newOrg,
-  updateSettings,
-} from '@/API/firestoreAPI';
+  writeNewOrg, writeUserSettings,
+} from '@/API/databaseAPI';
 import { user, APIkey } from '@/store/store';
 import { deleteUser, sendPasswordResetEmail } from '@/API/authAPI';
-import { writeNewOrg } from '@/API/databaseAPI';
 
 export default {
   name: 'Settings',
@@ -573,7 +570,6 @@ export default {
               const { main } = weather;
               if (main) {
                 writeNewOrg(this.org);
-                await newOrg(this.org);
                 this.alertError = false;
                 this.alertType = 'success';
                 this.alertMessage = 'Successfully registered organization.';
@@ -597,7 +593,7 @@ export default {
     async saveSettings() {
       this.loadSaveSettings = true;
       user.settings = JSON.parse(JSON.stringify(this.settings));
-      await updateSettings();
+      await writeUserSettings();
       this.loadSaveSettings = false;
       await this.$router.push('/');
     },
@@ -619,7 +615,6 @@ export default {
         if (user.settings.organization_name) {
           deleteOrg(user.settings.organization_name);
         }
-        deleteUserSettings();
         user.userCredential = null;
         deleteUser();
         this.$router.push('/');
@@ -630,7 +625,7 @@ export default {
       const notifCopy2 = JSON.parse(JSON.stringify(this.notification));
       this.settings.notifications.push(notifCopy1);
       user.settings.notifications.push(notifCopy2);
-      await updateSettings();
+      await writeUserSettings();
       this.dialogAddNotif = false;
       this.alertError = true;
       this.alertType = 'success';
@@ -660,8 +655,8 @@ export default {
           || city.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
     },
     onSpaceFilter(item, queryText) {
-      const { space } = item;
-      return space.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
+      const { name } = item;
+      return name.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
     },
   },
 };

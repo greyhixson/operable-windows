@@ -206,7 +206,7 @@ export default {
     },
     saveSelection() {
       const { settings } = user;
-      settings.favorite_space = this.spaceThresholds.space;
+      settings.favorite_space = this.spaceThresholds.name;
       settings.favorite_organization = this.orgName;
       if (user.userCredential) {
         writeUserSettings(settings);

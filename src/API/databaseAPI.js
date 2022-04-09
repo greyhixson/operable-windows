@@ -1,6 +1,6 @@
 import { app, error, user } from '@/store/store';
 import {
-  getDatabase, ref, set, onValue, get, child, remove,
+  child, get, getDatabase, onValue, ref, remove, set,
 } from 'firebase/database';
 import Vue from 'vue';
 
@@ -41,18 +41,29 @@ function addUserSettingsListener() {
   }
 }
 
-function getOrg(orgName) {
-  const dbRef = ref(db);
-  let orgObj = null;
-  get(child(dbRef, `organizations/${orgName}`)).then((snapshot) => {
-    if (snapshot.exists()) {
-      orgObj = snapshot.val();
-    }
-  }).catch((e) => {
+async function getOrg(orgName) {
+  const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
+  try {
+    const dbRef = ref(db);
+    return await (await get(child(dbRef, `organizations/${strippedOrg}`))).val();
+  } catch (e) {
     error.message = e.message;
     error.code = e.code;
-  });
-  return orgObj;
+  }
+  return null;
+}
+
+async function getSpace(orgName, spaceName) {
+  const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
+  const strippedSpace = spaceName.toLowerCase().replace(/\s+/g, '');
+  try {
+    const dbRef = ref(db);
+    return await (await get(child(dbRef, `organizations/${strippedOrg}/spaces/${strippedSpace}`))).val();
+  } catch (e) {
+    error.message = e.message;
+    error.code = e.code;
+  }
+  return null;
 }
 
 async function deleteOrg(orgName) {
@@ -70,20 +81,32 @@ async function deleteSpace(orgName, spaceObj) {
   }
 }
 
+async function getAllOrgs() {
+  try {
+    const dbRef = ref(db);
+    const orgsObj = await (await get(child(dbRef, 'organizations'))).val();
+    console.log(orgsObj);
+    return Object.values(orgsObj);
+  } catch (e) {
+    error.message = e.message;
+    error.code = e.code;
+  }
+  return null;
+}
+
 async function getAllSpaces(orgName) {
-  let spacesArr = [];
   if (user.userCredential && user.settings.organization_name === orgName) {
     const strippedOrg = orgName.toLowerCase().replace(/\s+/g, '');
-    const dbRef = ref(db);
     try {
+      const dbRef = ref(db);
       const spacesObj = await (await get(child(dbRef, `organizations/${strippedOrg}/spaces`))).val();
-      spacesArr = Object.values(spacesObj);
+      return Object.values(spacesObj);
     } catch (e) {
       error.message = e.message;
       error.code = e.code;
     }
   }
-  return spacesArr;
+  return null;
 }
 
 function writeNewOrg(org) {
@@ -134,7 +157,9 @@ export {
   writeNewOrg,
   writeSpace,
   getOrg,
+  getSpace,
   getAllSpaces,
+  getAllOrgs,
   deleteOrg,
   deleteSpace,
   addUserSettingsListener,

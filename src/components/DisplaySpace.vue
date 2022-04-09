@@ -7,7 +7,7 @@
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="text-h4 black--text">
-            {{ spaceThresholds.space }}
+            {{ spaceThresholds.name }}
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
@@ -138,7 +138,7 @@
  * @property space        - The location the user is in
  */
 
-import { updateSettings } from '@/API/firestoreAPI';
+import { writeUserSettings } from '@/API/databaseAPI';
 import { user } from '@/store/store';
 
 export default {
@@ -209,7 +209,7 @@ export default {
       settings.favorite_space = this.spaceThresholds.space;
       settings.favorite_organization = this.orgName;
       if (user.userCredential) {
-        updateSettings(settings);
+        writeUserSettings(settings);
       }
       this.$cookies.set('settings', settings);
       this.alertMessage = 'Preferences saved';

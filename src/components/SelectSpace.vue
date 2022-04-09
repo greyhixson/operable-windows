@@ -12,11 +12,11 @@
       return-object
     >
       <template v-slot:selection="{ item }">
-        <span>{{ item.organization }}</span>
+        <span>{{ item.name }}</span>
       </template>
       <template v-slot:item="{ item }">
         <v-list-item-content>
-          <v-list-item-title v-text="item.organization" />
+          <v-list-item-title v-text="item.name" />
           <v-list-item-subtitle v-text="item.city" />
           <v-list-item-subtitle v-text="item.state" />
         </v-list-item-content>
@@ -35,11 +35,11 @@
       return-object
     >
       <template v-slot:selection="{ item }">
-        <span>{{ item.space }}</span>
+        <span>{{ item.name }}</span>
       </template>
       <template v-slot:item="{ item }">
         <v-list-item-content>
-          <v-list-item-title v-text="item.space" />
+          <v-list-item-title v-text="item.name" />
         </v-list-item-content>
       </template>
     </v-autocomplete>
@@ -69,7 +69,7 @@
 
 import {
   getAllOrgs, getAllSpaces, getSpace,
-} from '@/API/firestoreAPI';
+} from '@/API/databaseAPI';
 
 import { user, APIkey } from '@/store/store';
 
@@ -93,8 +93,8 @@ export default {
         this.spaceSelect = null;
         this.spaceSearch = null;
         this.getCurrentWeatherAndAirPollution();
-        const { organization } = this.orgSelect;
-        this.spaces = await getAllSpaces(organization);
+        const { name } = this.orgSelect;
+        this.spaces = await getAllSpaces(name);
         if (user.settings.favorite_space) {
           this.findFavoriteSpace(user.settings.favorite_space);
         }
@@ -133,38 +133,38 @@ export default {
         });
     },
     async getSpaceThresholds() {
-      const { organization } = this.orgSelect;
-      const { space } = this.spaceSelect;
+      const { name: orgName } = this.orgSelect;
+      const { name: spaceName } = this.spaceSelect;
       try {
-        const spaceThresholds = await getSpace(organization, space);
+        const spaceThresholds = await getSpace(orgName, spaceName);
         this.$emit('closeCard', false);
         this.$emit('submitThresholds', spaceThresholds);
-        this.$emit('submitOrgName', organization);
+        this.$emit('submitOrgName', orgName);
       } catch (e) {
         console.log('An error has occurred, please try again later');
       }
     },
     findFavoriteSpace(favoriteSpace) {
-      const matchedSpace = this.spaces.find((space) => space.space === favoriteSpace);
+      const matchedSpace = this.spaces.find((space) => space.name === favoriteSpace);
       if (matchedSpace) {
         this.spaceSelect = matchedSpace;
       }
     },
     findFavoriteOrg(favoriteOrg) {
-      const matchedOrg = this.orgs.find((org) => org.organization === favoriteOrg);
+      const matchedOrg = this.orgs.find((org) => org.name === favoriteOrg);
       if (matchedOrg) {
         this.orgSelect = matchedOrg;
       }
     },
     onOrgFilter(item, queryText) {
-      const { organization, state, city } = item;
-      return organization.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
+      const { name, state, city } = item;
+      return name.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
           || state.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
           || city.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
     },
     onSpaceFilter(item, queryText) {
-      const { space } = item;
-      return space.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
+      const { name } = item;
+      return name.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
     },
   },
 };

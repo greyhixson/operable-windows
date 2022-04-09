@@ -495,8 +495,8 @@ export default {
       headers: [
         { text: 'Emails', value: 'emailNotification' },
         { text: 'Texts', value: 'textNotification' },
-        { text: 'Organization', value: 'orgSelect.organization' },
-        { text: 'Space', value: 'spaceSelect.space' },
+        { text: 'Organization', value: 'orgSelect.name' },
+        { text: 'Space', value: 'spaceSelect.name' },
         { text: 'Start Time', value: 'startTime' },
         { text: 'End Time', value: 'endTime' },
         { text: 'Delete', value: 'actions', sortable: false },
@@ -515,7 +515,7 @@ export default {
     'user.settings': {
       handler(settings) {
         this.settings = JSON.parse(JSON.stringify(settings));
-        if (settings.organization_name) {
+        if (settings) {
           this.orgBtnText = 'Manage Organization';
         } else {
           this.orgBtnText = 'Register Organization';
@@ -610,14 +610,13 @@ export default {
       this.settings.favorite_organization = '';
       this.settings.favorite_space = '';
     },
-    deleteAccount() {
+    async deleteAccount() {
       if (user.userCredential) {
         if (user.settings.organization_name) {
-          deleteOrg(user.settings.organization_name);
+          await deleteOrg(user.settings.organization_name);
         }
-        user.userCredential = null;
-        deleteUser();
-        this.$router.push('/');
+        await deleteUser();
+        await this.$router.push('/');
       }
     },
     async saveNotification() {

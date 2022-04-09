@@ -73,7 +73,7 @@ async function deleteOrg(orgName) {
   }
 }
 
-async function deleteUser() {
+async function deleteUserSettings() {
   if (user.userCredential) {
     await remove(ref(db, `users/${user.userCredential.user.uid}`));
   }
@@ -165,6 +165,6 @@ export {
   getAllOrgs,
   deleteOrg,
   deleteSpace,
-  deleteUser,
+  deleteUserSettings,
   addUserSettingsListener,
 };

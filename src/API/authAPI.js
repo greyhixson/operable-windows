@@ -6,7 +6,7 @@ import {
 } from 'firebase/auth';
 import { error, user } from '@/store/store';
 import Vue from 'vue';
-import { writeUserSettings, addUserSettingsListener } from '@/API/databaseAPI';
+import { writeUserSettings, deleteUserSettings, addUserSettingsListener } from '@/API/databaseAPI';
 
 let auth = null;
 
@@ -51,10 +51,11 @@ function signOut() {
     });
 }
 
-function deleteUser() {
+async function deleteUser() {
   const userAuth = auth.currentUser;
+  await deleteUserSettings();
   firebaseDeleteUser(userAuth).then(() => {
-    // User deleted.
+    user.userCredential = '';
   }).catch((e) => {
     error.message = e.message;
     error.code = e.code;

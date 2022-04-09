@@ -79,9 +79,9 @@
                               cols="12"
                             >
                               <v-text-field
-                                v-model="editedItem.space"
-                                label="Space"
-                                :rules="spaceRule"
+                                v-model="editedItem.name"
+                                label="Name"
+                                :rules="nameRule"
                               />
 
                               <v-text-field
@@ -233,9 +233,8 @@
 
 <script>
 import {
-  getOrg, getAllSpaces, updateSpace, newSpace, deleteSpace, deleteOrg,
-} from '@/API/firestoreAPI';
-
+  writeSpace, getOrg, getAllSpaces, deleteOrg, deleteSpace,
+} from '@/API/databaseAPI';
 import { user } from '@/store/store';
 
 export default {
@@ -246,7 +245,7 @@ export default {
       dialogDelete: false,
       dialog: false,
       headers: [
-        { text: 'Space', value: 'space' },
+        { text: 'Name', value: 'name' },
         { text: 'Maximum Humidity (%)', value: 'max_humidity' },
         { text: 'Minimum Temperature (F°)', value: 'min_temp' },
         { text: 'Maximum Temperature (F°)', value: 'max_temp' },
@@ -261,14 +260,14 @@ export default {
       editedIndex: -1,
       loading: false,
       editedItem: {
-        space: null,
+        name: null,
         max_humidity: null,
         min_temp: null,
         max_temp: null,
         max_aqi: null,
       },
       defaultItem: {
-        space: null,
+        name: null,
         max_humidity: null,
         min_temp: null,
         max_temp: null,
@@ -289,7 +288,7 @@ export default {
         (v) => (v > 0 && v <= 5) || 'Value must be 1 - 5',
         (v) => (v && v.length === 1) || 'Only 1 character is allowed',
       ],
-      spaceRule: [
+      nameRule: [
         (v) => !!v || 'The name of the space is required',
         (v) => (v && v.length <= 30) || 'Only 30 characters in length are allowed',
       ],
@@ -317,26 +316,19 @@ export default {
       this.$refs.deleteOrgBtn.$el.blur();
     },
   },
-  created() {
+  async mounted() {
     if (!user.userCredential) {
-      this.$router.push('/');
+      await this.$router.push('/');
     }
     if (user.settings) {
       this.orgName = user.settings.organization_name;
-      this.getOrg();
+      this.loading = true;
+      this.org = await getOrg(this.orgName);
+      this.thresholds = await getAllSpaces(this.orgName);
+      this.loading = false;
     }
   },
   methods: {
-    async getOrg() {
-      this.loading = true;
-      try {
-        this.org = await getOrg(this.orgName);
-        this.thresholds = await getAllSpaces(this.orgName);
-      } catch {
-        console.log('An error has occurred');
-      }
-      this.loading = false;
-    },
     async deleteOrg() {
       if (user.settings.organization_name) {
         await deleteOrg(user.settings.organization_name);
@@ -379,11 +371,10 @@ export default {
       if (this.valid) {
         if (this.editedIndex > -1) {
           Object.assign(this.thresholds[this.editedIndex], this.editedItem);
-          updateSpace(this.orgName, this.editedItem);
         } else {
           this.thresholds.push(this.editedItem);
-          newSpace(this.orgName, this.editedItem);
         }
+        writeSpace(this.orgName, this.editedItem);
         this.close();
         this.$refs.form.reset();
       }

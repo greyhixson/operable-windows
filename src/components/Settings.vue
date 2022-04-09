@@ -119,7 +119,7 @@
                   </v-card-title>
                   <v-card-text>
                     <v-text-field
-                      v-model="org.organization"
+                      v-model="org.name"
                       label="Organization Name"
                     />
                     <v-text-field
@@ -337,11 +337,11 @@
                         :filter="onOrgFilter"
                       >
                         <template v-slot:selection="{ item }">
-                          <span>{{ item.organization }}</span>
+                          <span>{{ item.name }}</span>
                         </template>
                         <template v-slot:item="{ item }">
                           <v-list-item-content>
-                            <v-list-item-title v-text="item.organization" />
+                            <v-list-item-title v-text="item.name" />
                             <v-list-item-subtitle v-text="item.city" />
                             <v-list-item-subtitle v-text="item.state" />
                           </v-list-item-content>
@@ -357,11 +357,11 @@
                         :filter="onSpaceFilter"
                       >
                         <template v-slot:selection="{ item }">
-                          <span>{{ item.space }}</span>
+                          <span>{{ item.name }}</span>
                         </template>
                         <template v-slot:item="{ item }">
                           <v-list-item-content>
-                            <v-list-item-title v-text="item.space" />
+                            <v-list-item-title v-text="item.name" />
                           </v-list-item-content>
                         </template>
                       </v-autocomplete>
@@ -449,16 +449,12 @@
 <script>
 import {
   deleteOrg,
-  deleteUserSettings,
   getAllOrgs,
   getAllSpaces,
   getOrg,
-  newOrg,
-  updateSettings,
-} from '@/API/firestoreAPI';
-
+  writeNewOrg, writeUserSettings,
+} from '@/API/databaseAPI';
 import { user, APIkey } from '@/store/store';
-
 import { deleteUser, sendPasswordResetEmail } from '@/API/authAPI';
 
 export default {
@@ -471,7 +467,7 @@ export default {
       dialogManageNotif: false,
       dialog: false,
       org: {
-        organization: '',
+        name: '',
         city: '',
         state: '',
       },
@@ -499,8 +495,8 @@ export default {
       headers: [
         { text: 'Emails', value: 'emailNotification' },
         { text: 'Texts', value: 'textNotification' },
-        { text: 'Organization', value: 'orgSelect.organization' },
-        { text: 'Space', value: 'spaceSelect.space' },
+        { text: 'Organization', value: 'orgSelect.name' },
+        { text: 'Space', value: 'spaceSelect.name' },
         { text: 'Start Time', value: 'startTime' },
         { text: 'End Time', value: 'endTime' },
         { text: 'Delete', value: 'actions', sortable: false },
@@ -519,7 +515,7 @@ export default {
     'user.settings': {
       handler(settings) {
         this.settings = JSON.parse(JSON.stringify(settings));
-        if (settings.organization_name) {
+        if (settings) {
           this.orgBtnText = 'Manage Organization';
         } else {
           this.orgBtnText = 'Register Organization';
@@ -529,8 +525,8 @@ export default {
     },
     'notification.orgSelect': async function watchOrgSelect(orgSelect) {
       if (orgSelect) {
-        const { organization } = orgSelect;
-        this.spaces = await getAllSpaces(organization);
+        const { name } = orgSelect;
+        this.spaces = await getAllSpaces(name);
       }
     },
     dialogManageOrg() {
@@ -547,7 +543,7 @@ export default {
       }
     },
   },
-  async created() {
+  async mounted() {
     if (user) {
       this.settings = JSON.parse(JSON.stringify(user.settings));
       if (this.user.settings.organization_name) {
@@ -564,7 +560,7 @@ export default {
       }
     },
     async registerOrg() {
-      if (!await getOrg(this.org.organization)) {
+      if (!await getOrg(this.org.name)) {
         if (user.userCredential) {
           const { city, state } = this.org;
           fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},
@@ -573,7 +569,7 @@ export default {
             .then(async (weather) => {
               const { main } = weather;
               if (main) {
-                await newOrg(this.org);
+                writeNewOrg(this.org);
                 this.alertError = false;
                 this.alertType = 'success';
                 this.alertMessage = 'Successfully registered organization.';
@@ -597,7 +593,7 @@ export default {
     async saveSettings() {
       this.loadSaveSettings = true;
       user.settings = JSON.parse(JSON.stringify(this.settings));
-      await updateSettings();
+      await writeUserSettings();
       this.loadSaveSettings = false;
       await this.$router.push('/');
     },
@@ -614,15 +610,13 @@ export default {
       this.settings.favorite_organization = '';
       this.settings.favorite_space = '';
     },
-    deleteAccount() {
+    async deleteAccount() {
       if (user.userCredential) {
         if (user.settings.organization_name) {
-          deleteOrg(user.settings.organization_name);
+          await deleteOrg(user.settings.organization_name);
         }
-        deleteUserSettings();
-        user.userCredential = null;
-        deleteUser();
-        this.$router.push('/');
+        await deleteUser();
+        await this.$router.push('/');
       }
     },
     async saveNotification() {
@@ -630,7 +624,7 @@ export default {
       const notifCopy2 = JSON.parse(JSON.stringify(this.notification));
       this.settings.notifications.push(notifCopy1);
       user.settings.notifications.push(notifCopy2);
-      await updateSettings();
+      await writeUserSettings();
       this.dialogAddNotif = false;
       this.alertError = true;
       this.alertType = 'success';
@@ -654,14 +648,14 @@ export default {
       this.dialogManageNotif = false;
     },
     onOrgFilter(item, queryText) {
-      const { organization, state, city } = item;
-      return organization.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
+      const { name, state, city } = item;
+      return name.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
           || state.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
           || city.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
     },
     onSpaceFilter(item, queryText) {
-      const { space } = item;
-      return space.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
+      const { name } = item;
+      return name.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
     },
   },
 };

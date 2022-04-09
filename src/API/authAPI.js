@@ -6,7 +6,7 @@ import {
 } from 'firebase/auth';
 import { error, user } from '@/store/store';
 import Vue from 'vue';
-import { addUser, getSettings } from '@/API/firestoreAPI';
+import { writeUserSettings, deleteUserSettings, addUserSettingsListener } from '@/API/databaseAPI';
 
 let auth = null;
 
@@ -17,8 +17,8 @@ async function createAccount(email, password) {
       user.userCredential = userCredential;
       sendEmailVerification(auth.currentUser).then(() => {
       }).then(async () => {
-        await addUser();
-        await getSettings();
+        await writeUserSettings();
+        await addUserSettingsListener();
       });
     })
     .catch((e) => {
@@ -32,7 +32,7 @@ function signIn(email, password) {
   signInWithEmailAndPassword(auth, email, password)
     .then(async (userCredential) => {
       user.userCredential = userCredential;
-      await getSettings();
+      await addUserSettingsListener();
       Vue.$cookies.set('settings', user.settings);
     })
     .catch((e) => {
@@ -44,17 +44,18 @@ function signOut() {
   firebaseSignOut(auth)
     .then(async () => {
       user.userCredential = null;
-      await getSettings();
+      await addUserSettingsListener();
     }).catch((e) => {
       error.message = e.message;
       error.code = e.code;
     });
 }
 
-function deleteUser() {
+async function deleteUser() {
   const userAuth = auth.currentUser;
+  await deleteUserSettings();
   firebaseDeleteUser(userAuth).then(() => {
-    // User deleted.
+    user.userCredential = '';
   }).catch((e) => {
     error.message = e.message;
     error.code = e.code;

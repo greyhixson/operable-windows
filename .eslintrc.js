@@ -20,5 +20,6 @@ module.exports = {
   rules: {
     'no-console': 'off',
     'no-debugger': 'off',
+    'max-len': ["error", { "code": 120 }]
   },
 };

@@ -3,16 +3,15 @@
     style="width: 400px;"
   >
     <v-alert
-      v-if="alert && alertType"
       v-model="showAlert"
       :type="alertType"
       dismissible
     >
-      {{ alert }}
+      {{ alertMsg }}
     </v-alert>
     <v-form
       ref="form"
-      v-model="valid"
+      v-model="formValid"
       @submit.prevent="accountBtn"
     >
       <v-text-field
@@ -59,14 +58,18 @@
 </template>
 
 <script>
-import { createAccount, signOut } from '@/API/authAPI';
-import { user, error } from '@/store/store';
+import {
+  createUserWithEmailAndPassword, getAuth, signOut, onAuthStateChanged,
+} from 'firebase/auth';
 
 export default {
   name: 'SignUp',
   data() {
     return {
-      valid: true,
+      formValid: false,
+      alertType: 'success',
+      alertMsg: '',
+      accountBtnText: 'Create an Account',
       email: '',
       emailRules: [
         (v) => !!v || 'Email is required',
@@ -81,52 +84,51 @@ export default {
         (v) => !!v || 'Confirm password is required',
         (v) => v === this.password || 'Passwords do not match',
       ],
-      alertType: '',
-      alert: '',
-      showAlert: false,
-      accountBtnText: 'Create an Account',
-      initUser: false,
-      user,
-      error,
     };
   },
-  watch: {
-    'error.code': function watchError(code) {
-      if (code) {
-        error.message = '';
-        this.showAlert = true;
-        this.alertType = 'error';
-        if (code === 'auth/email-already-in-use') {
-          this.alert = 'An account with this email already exists';
-        } else {
-          this.alert = code;
-        }
-      }
+  computed: {
+    showAlert() {
+      return Boolean(this.alertMsg);
     },
-    'user.userCredential': function watchUser(userCred) {
-      if (userCred) {
-        this.accountBtnText = 'Sign Out';
-        if (this.initUser) {
-          this.showAlert = true;
-          this.alertType = 'success';
-          this.alert = "You've been signed in and an account verification email has been sent.";
-          this.$refs.form.reset();
-        }
-      } else if (!userCred) {
+    auth() {
+      console.log(getAuth);
+      return getAuth();
+    },
+  },
+  mounted() {
+    const { auth } = this;
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        this.accountBtnText = 'Sign out';
+      } else {
         this.accountBtnText = 'Create an Account';
       }
-    },
+    });
   },
   methods: {
     async accountBtn() {
-      if (!user.userCredential) {
-        this.$refs.form.validate();
-        if (this.valid) {
-          this.initUser = true;
-          await createAccount(this.email, this.password);
+      if (this.auth) {
+        try {
+          await signOut(this.auth);
+          this.alertType = 'success';
+          this.alertMsg = "You've been signed out.";
+        } catch (error) {
+          this.alertType = 'error';
+          this.alertMsg = error.code;
         }
-      } else if (user.userCredential) {
-        signOut();
+      } else {
+        this.$refs.form.validate();
+        if (this.formValid) {
+          try {
+            await createUserWithEmailAndPassword(this.auth, this.email, this.password);
+            this.alertType = 'success';
+            this.alertMsg = 'Account successfully created.';
+            this.$refs.form.reset();
+          } catch (error) {
+            this.alertType = 'error';
+            this.alertMsg = error.code;
+          }
+        }
       }
     },
   },

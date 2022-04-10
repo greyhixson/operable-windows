@@ -1,31 +1,13 @@
+/*
 import {
   createUserWithEmailAndPassword, deleteUser as firebaseDeleteUser,
   getAuth,
   sendEmailVerification, sendPasswordResetEmail as firebaseSendPasswordResetEmail,
   signInWithEmailAndPassword, signOut as firebaseSignOut,
 } from 'firebase/auth';
-import { error, user } from '@/store/store';
+import { user } from '@/store/store';
 import Vue from 'vue';
 import { addUser, getSettings } from '@/API/firestoreAPI';
-
-let auth = null;
-
-async function createAccount(email, password) {
-  auth = getAuth();
-  createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      user.userCredential = userCredential;
-      sendEmailVerification(auth.currentUser).then(() => {
-      }).then(async () => {
-        await addUser();
-        await getSettings();
-      });
-    })
-    .catch((e) => {
-      error.message = e.message;
-      error.code = e.code;
-    });
-}
 
 function signIn(email, password) {
   auth = getAuth();
@@ -73,3 +55,4 @@ function sendPasswordResetEmail() {
 export {
   createAccount, signIn, signOut, deleteUser, sendPasswordResetEmail,
 };
+ */

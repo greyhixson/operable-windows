@@ -1,11 +1,10 @@
+/*
 import {
   getFirestore, collection, doc, getDoc, getDocs, setDoc, deleteDoc, runTransaction,
 } from 'firebase/firestore';
 
 import { app, user, error } from '@/store/store';
 import Vue from 'vue';
-
-const db = getFirestore(app);
 
 async function getSettings() {
   try {
@@ -202,3 +201,5 @@ export {
   addUser,
   getSettings,
 };
+
+*/

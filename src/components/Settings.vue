@@ -34,14 +34,6 @@
         >
           <h2> Personal Details</h2>
           <v-text-field
-            v-model="settings.first_name"
-            label="First name"
-          />
-          <v-text-field
-            v-model="settings.last_name"
-            label="Last name"
-          />
-          <v-text-field
             v-model="settings.phone_number"
             label="Phone Number"
           />
@@ -478,9 +470,6 @@ export default {
       orgBtnText: 'Register Organization',
       loadSaveSettings: false,
       settings: {
-        first_name: '',
-        last_name: '',
-        phone_number: '',
         favorite_organization: '',
         notifications: [],
         organization_name: '',

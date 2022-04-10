@@ -2,13 +2,13 @@
   <v-container
     style="width: 400px;"
   >
-    <v-alert
-      v-model="showAlert"
-      :type="alertType"
-      dismissible
-    >
-      {{ alertMsg }}
-    </v-alert>
+    <alert-banner
+      v-if="alert.msg && alert.type"
+      :alert-msg="alert.msg"
+      :alert-type="alert.type"
+      :show-alert-prop="alert.show"
+      @resetAlert="resetAlert"
+    />
     <v-form
       ref="form"
       v-model="validForm"
@@ -63,14 +63,21 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/store/store';
+import AlertBanner from '@/components/AlertBanner.vue';
 
 export default {
   name: 'SignUp',
+  components: {
+    AlertBanner,
+  },
   data() {
     return {
       validForm: false,
-      alertType: 'success',
-      alertMsg: '',
+      alert: {
+        type: '',
+        msg: '',
+        show: false,
+      },
       accountBtnText: 'Create an Account',
       email: '',
       emailRules: [
@@ -89,14 +96,6 @@ export default {
     };
   },
   computed: {
-    showAlert: {
-      get() {
-        return Boolean(this.alertMsg);
-      },
-      set() {
-        this.alertMsg = '';
-      },
-    },
     auth() {
       return getAuth();
     },
@@ -136,7 +135,6 @@ export default {
               ownedOrgName: '',
             });
             this.setAlert('success', 'Account successfully created.');
-            this.alertType = 'success';
             this.$refs.form.reset();
           } catch (error) {
             this.setAlert('error', error.code);
@@ -144,9 +142,15 @@ export default {
         }
       }
     },
+    resetAlert() {
+      this.alert.show = false;
+      this.alert.msg = '';
+      this.alert.type = '';
+    },
     setAlert(alertType, alertMsg) {
-      this.alertType = alertType;
-      this.alertMsg = alertMsg;
+      this.alert.show = true;
+      this.alert.msg = alertMsg;
+      this.alert.type = alertType;
     },
   },
 };

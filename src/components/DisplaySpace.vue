@@ -100,15 +100,13 @@
         </v-btn>
       </v-card-actions>
     </v-card>
-
-    <v-alert
-      v-if="alert"
-      :type="alertType"
-      dismissble
-      class="mt-2"
-    >
-      {{ alertMessage }}
-    </v-alert>
+    <alert-banner
+      v-if="alert.msg && alert.type"
+      :alert-msg="alert.msg"
+      :alert-type="alert.type"
+      :show-alert-prop="alert.show"
+      @resetAlert="resetAlert"
+    />
   </v-container>
 </template>
 
@@ -128,10 +126,6 @@
  * @property aqi  - AQI
  */
 
-import { getAuth } from 'firebase/auth';
-import { db } from '@/store/store';
-import { doc, updateDoc } from 'firebase/firestore';
-
 /**
  * Window Thresholds object from the firestore
  * @typedef {Object} space
@@ -142,8 +136,16 @@ import { doc, updateDoc } from 'firebase/firestore';
  * @property name         - The name of the space
  */
 
+import { getAuth } from 'firebase/auth';
+import { db } from '@/store/store';
+import { doc, updateDoc } from 'firebase/firestore';
+import AlertBanner from '@/components/AlertBanner.vue';
+
 export default {
   name: 'DisplaySpace',
+  components: {
+    AlertBanner,
+  },
   props: {
     space: {
       type: Object,
@@ -169,9 +171,11 @@ export default {
       okHumidity: Boolean,
       okAirPollution: Boolean,
       windowMessage: '',
-      alertType: '',
-      alertMessage: '',
-      alert: false,
+      alert: {
+        type: '',
+        msg: '',
+        show: false,
+      },
     };
   },
   computed: {
@@ -219,9 +223,14 @@ export default {
           favorite: updatedFavorite,
         });
       }
-      this.alertMessage = 'Preferences saved';
-      this.alertType = 'success';
-      this.alert = true;
+      this.alert.show = true;
+      this.alert.msg = 'Preferences saved';
+      this.alert.type = 'success';
+    },
+    resetAlert() {
+      this.alert.show = false;
+      this.alert.msg = '';
+      this.alert.type = '';
     },
   },
 };

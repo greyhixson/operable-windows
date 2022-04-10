@@ -1,9 +1,11 @@
 <template>
   <v-container>
     <alert-banner
-      v-if="alertMsg && alertType"
-      :alert-msg="alertMsg"
-      :alert-type="alertType"
+      v-if="alert.msg && alert.type"
+      :alert-msg="alert.msg"
+      :alert-type="alert.type"
+      :show-alert-prop="alert.show"
+      @resetAlert="resetAlert"
     />
     <v-autocomplete
       v-model="orgSelect"
@@ -65,8 +67,11 @@ export default {
   },
   data() {
     return {
-      alertType: 'success',
-      alertMsg: '',
+      alert: {
+        type: '',
+        msg: '',
+        show: false,
+      },
       orgSearch: '',
       orgSelect: null,
       orgs: [],
@@ -192,9 +197,15 @@ export default {
     getInputKey(input) {
       return input?.toLowerCase().replace(/\s+/g, '');
     },
+    resetAlert() {
+      this.alert.show = false;
+      this.alert.msg = '';
+      this.alert.type = '';
+    },
     setAlert(alertType, alertMsg) {
-      this.alertType = alertType;
-      this.alertMsg = alertMsg;
+      this.alert.show = true;
+      this.alert.msg = alertMsg;
+      this.alert.type = alertType;
     },
   },
 };

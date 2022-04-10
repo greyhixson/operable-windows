@@ -3,9 +3,11 @@
     style="width: 400px;"
   >
     <alert-banner
-      v-if="alertMsg && alertType"
-      :alert-msg="alertMsg"
-      :alert-type="alertType"
+      v-if="alert.msg && alert.type"
+      :alert-msg="alert.msg"
+      :alert-type="alert.type"
+      :show-alert-prop="alert.show"
+      @resetAlert="resetAlert"
     />
     <v-form
       ref="form"
@@ -82,8 +84,11 @@ export default {
   data() {
     return {
       validForm: false,
-      alertType: 'success',
-      alertMsg: '',
+      alert: {
+        type: '',
+        msg: '',
+        show: false,
+      },
       email: '',
       emailRules: [
         (v) => !!v || 'Email is required',
@@ -145,9 +150,15 @@ export default {
         console.log('Yet to be implemented');
       }
     },
+    resetAlert() {
+      this.alert.show = false;
+      this.alert.msg = '';
+      this.alert.type = '';
+    },
     setAlert(alertType, alertMsg) {
-      this.alertType = alertType;
-      this.alertMsg = alertMsg;
+      this.alert.show = true;
+      this.alert.msg = alertMsg;
+      this.alert.type = alertType;
     },
   },
 };

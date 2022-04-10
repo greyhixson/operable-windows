@@ -2,13 +2,11 @@
   <v-container
     style="width: 400px;"
   >
-    <v-alert
-      v-model="showAlert"
-      :type="alertType"
-      dismissible
-    >
-      {{ alertMsg }}
-    </v-alert>
+    <alert-banner
+      v-if="alertMsg && alertType"
+      :alert-msg="alertMsg"
+      :alert-type="alertType"
+    />
     <v-form
       ref="form"
       v-model="validForm"
@@ -74,9 +72,13 @@
 import {
   getAuth, signOut, signInWithEmailAndPassword, onAuthStateChanged,
 } from 'firebase/auth';
+import AlertBanner from '../AlertBanner.vue';
 
 export default {
   name: 'SignIn',
+  components: {
+    AlertBanner,
+  },
   data() {
     return {
       validForm: false,
@@ -96,14 +98,6 @@ export default {
     };
   },
   computed: {
-    showAlert: {
-      get() {
-        return Boolean(this.alertMsg);
-      },
-      set() {
-        this.alertMsg = '';
-      },
-    },
     auth() {
       return getAuth();
     },
@@ -144,7 +138,7 @@ export default {
           this.setAlert('success', "You've been signed out.");
           this.$refs.form.reset();
         } catch (error) {
-          this.setAlert('error', error.code);
+          this.setAlert('error', 'An error has occurred, please try again later');
         }
       }
       if (this.passwordReset) {

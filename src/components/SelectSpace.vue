@@ -1,5 +1,10 @@
 <template>
   <v-container>
+    <alert-banner
+      v-if="alertMsg && alertType"
+      :alert-msg="alertMsg"
+      :alert-type="alertType"
+    />
     <v-autocomplete
       v-model="orgSelect"
       class="search"
@@ -51,11 +56,17 @@ import {
   doc, getDocs, getDoc, collection,
 } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import AlertBanner from '@/components/AlertBanner.vue';
 
 export default {
   name: 'SelectSpace',
+  components: {
+    AlertBanner,
+  },
   data() {
     return {
+      alertType: 'success',
+      alertMsg: '',
       orgSearch: '',
       orgSelect: null,
       orgs: [],
@@ -92,7 +103,7 @@ export default {
             }
           }
         } catch (error) {
-          console.log(error);
+          this.setAlert('error', 'An error has occurred, please try again later.');
         }
       } else {
         this.spaces = [];
@@ -139,7 +150,7 @@ export default {
             this.userFavorite.spaceName = userObj.favorite.spaceName;
           }
         } catch (error) {
-          console.log(error.message);
+          this.setAlert('error', 'An error has occurred, please try again later.');
         }
       }
     });
@@ -151,7 +162,7 @@ export default {
         this.orgs.push(document.data());
       });
     } catch (error) {
-      console.log(error);
+      this.setAlert('error', 'An error has occurred, please try again later.');
     }
   },
   methods: {
@@ -180,6 +191,10 @@ export default {
     },
     getInputKey(input) {
       return input?.toLowerCase().replace(/\s+/g, '');
+    },
+    setAlert(alertType, alertMsg) {
+      this.alertType = alertType;
+      this.alertMsg = alertMsg;
     },
   },
 };

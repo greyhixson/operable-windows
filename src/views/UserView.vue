@@ -4,7 +4,7 @@
       <v-col>
         <select-space
           @submitWeather="getWeather"
-          @submitThresholds="getThresholds"
+          @submitSpace="getSpace"
           @submitOrgName="getOrgName"
           @submitAirPollution="getAirPollution"
           @closeCard="closeCard"
@@ -16,10 +16,10 @@
     >
       <v-col>
         <display-space
-          v-if="submittedThresholds && submittedWeather && submittedAirPollution && !cardClosed"
+          v-if="submittedSpace && submittedWeather && submittedAirPollution && submittedOrgName && !cardClosed"
           class="pb-4"
           :weather="submittedWeather"
-          :space-thresholds="submittedThresholds"
+          :space="submittedSpace"
           :org-name="submittedOrgName"
           :air-pollution="submittedAirPollution"
         />
@@ -52,8 +52,7 @@
 </template>
 
 <script>
-import { signOut } from '@/API/authAPI';
-import { user } from '@/store/store';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import SelectSpace from '../components/SelectSpace.vue';
 import DisplaySpace from '../components/DisplaySpace.vue';
 
@@ -66,35 +65,25 @@ export default {
   data() {
     return {
       submittedWeather: '',
-      submittedThresholds: '',
+      submittedSpace: '',
       submittedAirPollution: '',
       submittedOrgName: '',
       cardClosed: false,
       accountBtnText: 'Sign In',
-      user,
     };
   },
-  watch: {
-    'user.userCredential': function watchUser(userCred) {
-      if (userCred) {
-        this.accountBtnText = 'Sign Out';
-      } else if (!userCred) {
-        this.accountBtnText = 'Sign In';
-      }
+  computed: {
+    auth() {
+      return getAuth();
     },
   },
   mounted() {
-    if (user.userCredential) {
-      this.accountBtnText = 'Sign Out';
-    } else if (!user.userCredential) {
-      this.accountBtnText = 'Sign In';
-    }
-
-    this.$nextTick(() => {
-      if (!this.$cookies.isKey('settings')) {
-        this.$cookies.set('settings', user.settings);
-      } else if (this.$cookies.isKey('settings')) {
-        user.settings = this.$cookies.get('settings');
+    const { auth } = this;
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        this.accountBtnText = 'Sign out';
+      } else {
+        this.accountBtnText = 'Sign in';
       }
     });
   },
@@ -102,8 +91,8 @@ export default {
     getWeather(event) {
       this.submittedWeather = event;
     },
-    getThresholds(event) {
-      this.submittedThresholds = event;
+    getSpace(event) {
+      this.submittedSpace = event;
     },
     getOrgName(event) {
       this.submittedOrgName = event;
@@ -114,12 +103,15 @@ export default {
     closeCard(event) {
       this.cardClosed = event;
     },
-    accountBtn() {
-      if (!user.userCredential) {
-        this.$router.push('/signin');
-      } else if (user.userCredential) {
-        signOut();
+    async accountBtn() {
+      if (this.auth.currentUser) {
+        try {
+          await signOut(this.auth);
+        } catch (error) {
+          console.log(error);
+        }
       }
+      await this.$router.push('/signin');
     },
   },
 };

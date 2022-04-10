@@ -93,7 +93,6 @@ export default {
       passwordReset: false,
       forgotPasswordPrompt: false,
       accountBtnText: 'Sign In',
-
     };
   },
   computed: {

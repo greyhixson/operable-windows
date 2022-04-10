@@ -7,7 +7,7 @@
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="text-h4 black--text">
-            {{ spaceThresholds.space }}
+            {{ space.name }}
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
@@ -28,8 +28,8 @@
             Temperature: {{ weather.main.temp.toFixed(0) }}F
           </v-list-item-title>
           <v-list-item-subtitle>
-            Acceptable temperature range: {{ spaceThresholds.min_temp }}F
-            - {{ spaceThresholds.max_temp }}F
+            Acceptable temperature range: {{ space.minTemp }}F
+            - {{ space.maxTemp }}F
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -50,7 +50,7 @@
             Humidity: {{ weather.main.humidity }}
           </v-list-item-title>
           <v-list-item-subtitle>
-            Acceptable max humidity: {{ spaceThresholds.max_humidity }}
+            Acceptable max humidity: {{ space.maxHumidity }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -71,7 +71,7 @@
             Air Quality Index: {{ airPollution.list[0].main.aqi }}
           </v-list-item-title>
           <v-list-item-subtitle>
-            Acceptable AQI: {{ spaceThresholds.max_aqi }}
+            Acceptable AQI: {{ space.maxAqi }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -96,7 +96,7 @@
           text
           @click="saveSelection"
         >
-          Save preferences
+          Save selection
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -128,23 +128,23 @@
  * @property aqi  - AQI
  */
 
+import { getAuth } from 'firebase/auth';
+import { db } from '@/store/store';
+
 /**
  * Window Thresholds object from the firestore
- * @typedef {Object} spaceThresholds
- * @property min_temp     - Min temp (C°) it needs to be for the window to be open
- * @property max_temp     - Max temp (C°) it can be for the window to be open
- * @property max_humidity - Max humidity it can be for the window to be open
- * @property max_aqi      - Max air pollution it can be for the window to be open
- * @property space        - The location the user is in
+ * @typedef {Object} space
+ * @property minTemp     - Min temp (C°) it needs to be for the window to be open
+ * @property maxTemp     - Max temp (C°) it can be for the window to be open
+ * @property maxHumidity - Max humidity it can be for the window to be open
+ * @property maxAqi      - Max air pollution it can be for the window to be open
+ * @property name         - The name of the space
  */
-
-import { updateSettings } from '@/API/firestoreAPI';
-import { user } from '@/store/store';
 
 export default {
   name: 'DisplaySpace',
   props: {
-    spaceThresholds: {
+    space: {
       type: Object,
       required: true,
     },
@@ -173,6 +173,11 @@ export default {
       alert: false,
     };
   },
+  computed: {
+    auth() {
+      return getAuth();
+    },
+  },
   created() {
     this.checkTemp();
     this.checkHumidity();
@@ -182,17 +187,17 @@ export default {
   methods: {
     checkTemp() {
       const { main: { temp } } = this.weather;
-      const { min_temp: minTemp, max_temp: maxTemp } = this.spaceThresholds;
+      const { minTemp, maxTemp } = this.space;
       this.okTemp = (temp > minTemp) && (temp < maxTemp);
     },
     checkHumidity() {
       const { main: { humidity } } = this.weather;
-      const { max_humidity: humidityMax } = this.spaceThresholds;
+      const { humidityMax } = this.space;
       this.okHumidity = humidity < humidityMax;
     },
     checkAirPollution() {
       const { list: [{ main: { aqi } }] } = this.airPollution;
-      const { max_aqi: aqiMax } = this.spaceThresholds;
+      const { aqiMax } = this.space;
       this.okAirPollution = aqi < aqiMax;
     },
     decideWindow() {
@@ -204,14 +209,14 @@ export default {
         this.windowMessage = 'Keep Closed';
       }
     },
-    saveSelection() {
-      const { settings } = user;
-      settings.favorite_space = this.spaceThresholds.space;
-      settings.favorite_organization = this.orgName;
-      if (user.userCredential) {
-        updateSettings(settings);
+    async saveSelection() {
+      const updatedFavorite = { orgName: this.orgName, spaceName: this.space.name };
+      if (this.auth.currentUser) {
+        const { uid } = this.auth.currentUser;
+        await db.collection('users').doc(uid).update({
+          favorites: updatedFavorite,
+        });
       }
-      this.$cookies.set('settings', settings);
       this.alertMessage = 'Preferences saved';
       this.alertType = 'success';
       this.alert = true;

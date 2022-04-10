@@ -7,16 +7,15 @@
       :search-input.sync="orgSearch"
       :filter="onOrgFilter"
       label="Search for your organizaton"
-      height="60"
       clearable
       return-object
     >
       <template v-slot:selection="{ item }">
-        <span>{{ item.organization }}</span>
+        <span>{{ item.name }}</span>
       </template>
       <template v-slot:item="{ item }">
         <v-list-item-content>
-          <v-list-item-title v-text="item.organization" />
+          <v-list-item-title v-text="item.name" />
           <v-list-item-subtitle v-text="item.city" />
           <v-list-item-subtitle v-text="item.state" />
         </v-list-item-content>
@@ -30,48 +29,28 @@
       :filter="onSpaceFilter"
       label="Search for your space"
       no-data-text="Please select an organization first"
-      height="60"
       clearable
       return-object
     >
       <template v-slot:selection="{ item }">
-        <span>{{ item.space }}</span>
+        <span>{{ item.name }}</span>
       </template>
       <template v-slot:item="{ item }">
         <v-list-item-content>
-          <v-list-item-title v-text="item.space" />
+          <v-list-item-title v-text="item.name" />
         </v-list-item-content>
       </template>
     </v-autocomplete>
   </v-container>
 </template>
 
-<style scoped>
-.search {
-  font-size: 20px;
-}
-
-.search >>> label {
-  font-size: 20px;
-  padding-bottom: 30px;
-}
-</style>
-
-<style>
-/* Vuetify bug fix */
-.v-select__selections input {
-  width: 0 !important;
-  min-width: 0 !important;
-}
-</style>
-
 <script>
 
+import { APIkey, db } from '@/store/store';
 import {
-  getAllOrgs, getAllSpaces, getSpace,
-} from '@/API/firestoreAPI';
-
-import { user, APIkey } from '@/store/store';
+  doc, getDocs, getDoc, collection,
+} from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 export default {
   name: 'SelectSpace',
@@ -84,20 +63,42 @@ export default {
       spaceSelect: null,
       spaces: [],
       awaitingSearch: true,
+      userFavorite: {
+        orgName: null,
+        spaceName: null,
+      },
     };
+  },
+  computed: {
+    auth() {
+      return getAuth();
+    },
   },
   watch: {
     async orgSelect() {
       if (this.orgSelect) {
+        const { name, city, state } = this.orgSelect;
+        try {
+          this.getCurrentWeatherAndAirPollution(city, state);
+          const orgKey = this.getInputKey(name);
+          const querySnapshot = await getDocs(collection(db, `organizations/${orgKey}/spaces`));
+          querySnapshot.forEach((document) => {
+            this.spaces.push(document.data());
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
         this.spaces = [];
         this.spaceSelect = null;
         this.spaceSearch = null;
-        this.getCurrentWeatherAndAirPollution();
-        const { organization } = this.orgSelect;
-        this.spaces = await getAllSpaces(organization);
-        if (user.settings.favorite_space) {
-          this.findFavoriteSpace(user.settings.favorite_space);
-        }
+      }
+    },
+    async spaceSelect() {
+      if (this.spaceSelect && this.orgSelect) {
+        this.$emit('closeCard', false);
+        this.$emit('submitSpace', this.spaceSelect);
+        this.$emit('submitOrgName', this.orgSelect.name);
       }
     },
     orgSearch() {
@@ -105,21 +106,56 @@ export default {
       this.spaceSelect = null;
       this.spaceSearch = null;
     },
-    spaceSelect() {
-      if (this.spaceSelect) {
-        this.getSpaceThresholds();
-      }
+    userFavorite: {
+      handler() {
+        const { orgName, spaceName } = this.userFavorite;
+        if (orgName) {
+          const matchedOrg = this.orgs.find((org) => org.name === orgName);
+          if (matchedOrg) {
+            this.orgSelect = matchedOrg;
+          }
+        }
+        if (spaceName) {
+          const matchedSpace = this.spaces.find((space) => space.name === spaceName);
+          if (matchedSpace) {
+            this.spaceSelect = matchedSpace;
+          }
+        }
+      },
+      deep: true,
     },
   },
+  async mounted() {
+    const { auth } = this;
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Get the user's favorite org and space
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userRef);
+          if (userDoc.exists()) {
+            const userObj = userDoc.data();
+            this.userFavorite.orgName = userObj.favorite.orgName;
+            this.userFavorite.spaceName = userObj.favorite.spaceName;
+          }
+        } catch (error) {
+          console.log(error.message);
+        }
+      }
+    });
+  },
   async created() {
-    this.orgs = await getAllOrgs();
-    if (user.settings.favorite_organization) {
-      this.findFavoriteOrg(user.settings.favorite_organization);
+    try {
+      const querySnapshot = await getDocs(collection(db, 'organizations'));
+      querySnapshot.forEach((document) => {
+        this.orgs.push(document.data());
+      });
+    } catch (error) {
+      console.log(error);
     }
   },
   methods: {
-    getCurrentWeatherAndAirPollution() {
-      const { city, state } = this.orgSelect;
+    getCurrentWeatherAndAirPollution(city, state) {
       fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},US&appid=${APIkey}&units=imperial`)
         .then((response) => response.json())
         .then((weather) => {
@@ -132,39 +168,18 @@ export default {
             });
         });
     },
-    async getSpaceThresholds() {
-      const { organization } = this.orgSelect;
-      const { space } = this.spaceSelect;
-      try {
-        const spaceThresholds = await getSpace(organization, space);
-        this.$emit('closeCard', false);
-        this.$emit('submitThresholds', spaceThresholds);
-        this.$emit('submitOrgName', organization);
-      } catch (e) {
-        console.log('An error has occurred, please try again later');
-      }
-    },
-    findFavoriteSpace(favoriteSpace) {
-      const matchedSpace = this.spaces.find((space) => space.space === favoriteSpace);
-      if (matchedSpace) {
-        this.spaceSelect = matchedSpace;
-      }
-    },
-    findFavoriteOrg(favoriteOrg) {
-      const matchedOrg = this.orgs.find((org) => org.organization === favoriteOrg);
-      if (matchedOrg) {
-        this.orgSelect = matchedOrg;
-      }
-    },
     onOrgFilter(item, queryText) {
-      const { organization, state, city } = item;
-      return organization.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
+      const { name, state, city } = item;
+      return name.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
           || state.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())
           || city.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
     },
     onSpaceFilter(item, queryText) {
-      const { space } = item;
-      return space.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
+      const { name } = item;
+      return name.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
+    },
+    getInputKey(input) {
+      return input?.toLowerCase().replace(/\s+/g, '');
     },
   },
 };

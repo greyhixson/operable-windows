@@ -87,11 +87,15 @@ export default {
     };
   },
   computed: {
-    showAlert() {
-      return Boolean(this.alertMsg);
+    showAlert: {
+      get() {
+        return Boolean(this.alertMsg);
+      },
+      set() {
+        this.alertMsg = '';
+      },
     },
     auth() {
-      console.log(getAuth);
       return getAuth();
     },
   },
@@ -107,7 +111,7 @@ export default {
   },
   methods: {
     async accountBtn() {
-      if (this.auth) {
+      if (this.auth.currentUser) {
         try {
           await signOut(this.auth);
           this.alertType = 'success';

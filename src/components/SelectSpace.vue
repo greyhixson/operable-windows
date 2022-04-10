@@ -56,16 +56,15 @@ export default {
   name: 'SelectSpace',
   data() {
     return {
-      orgSearch: null,
+      orgSearch: '',
       orgSelect: null,
       orgs: [],
-      spaceSearch: null,
+      spaceSearch: '',
       spaceSelect: null,
       spaces: [],
-      awaitingSearch: true,
       userFavorite: {
-        orgName: null,
-        spaceName: null,
+        orgName: '',
+        spaceName: '',
       },
     };
   },
@@ -78,6 +77,7 @@ export default {
     async orgSelect() {
       if (this.orgSelect) {
         const { name, city, state } = this.orgSelect;
+        const { spaceName } = this.userFavorite;
         try {
           this.getCurrentWeatherAndAirPollution(city, state);
           const orgKey = this.getInputKey(name);
@@ -85,6 +85,12 @@ export default {
           querySnapshot.forEach((document) => {
             this.spaces.push(document.data());
           });
+          if (spaceName) {
+            const matchedSpace = this.spaces.find((space) => space.name === spaceName);
+            if (matchedSpace) {
+              this.spaceSelect = matchedSpace;
+            }
+          }
         } catch (error) {
           console.log(error);
         }
@@ -108,17 +114,11 @@ export default {
     },
     userFavorite: {
       handler() {
-        const { orgName, spaceName } = this.userFavorite;
+        const { orgName } = this.userFavorite;
         if (orgName) {
           const matchedOrg = this.orgs.find((org) => org.name === orgName);
           if (matchedOrg) {
             this.orgSelect = matchedOrg;
-          }
-        }
-        if (spaceName) {
-          const matchedSpace = this.spaces.find((space) => space.name === spaceName);
-          if (matchedSpace) {
-            this.spaceSelect = matchedSpace;
           }
         }
       },

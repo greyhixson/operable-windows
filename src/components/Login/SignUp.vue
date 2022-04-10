@@ -61,6 +61,8 @@
 import {
   createUserWithEmailAndPassword, getAuth, signOut, onAuthStateChanged,
 } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '@/store/store';
 
 export default {
   name: 'SignUp',
@@ -125,6 +127,14 @@ export default {
         if (this.validForm) {
           try {
             await createUserWithEmailAndPassword(this.auth, this.email, this.password);
+            const { uid } = this.auth.currentUser;
+            await setDoc(doc(db, 'users', uid), {
+              favorite: {
+                orgName: '',
+                spaceName: '',
+              },
+              ownedOrgName: '',
+            });
             this.setAlert('success', 'Account successfully created.');
             this.alertType = 'success';
             this.$refs.form.reset();

@@ -110,8 +110,9 @@ export default {
         } catch (error) {
           console.log(error);
         }
+      } else {
+        await this.$router.push('/signin');
       }
-      await this.$router.push('/signin');
     },
   },
 };

@@ -130,6 +130,7 @@
 
 import { getAuth } from 'firebase/auth';
 import { db } from '@/store/store';
+import { doc, updateDoc } from 'firebase/firestore';
 
 /**
  * Window Thresholds object from the firestore
@@ -213,8 +214,9 @@ export default {
       const updatedFavorite = { orgName: this.orgName, spaceName: this.space.name };
       if (this.auth.currentUser) {
         const { uid } = this.auth.currentUser;
-        await db.collection('users').doc(uid).update({
-          favorites: updatedFavorite,
+        const userDocRef = doc(db, 'users', uid);
+        await updateDoc(userDocRef, {
+          favorite: updatedFavorite,
         });
       }
       this.alertMessage = 'Preferences saved';

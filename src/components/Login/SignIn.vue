@@ -119,10 +119,8 @@ export default {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         this.accountBtnText = 'Sign out';
-        this.$refs.form.reset();
       } else {
         this.accountBtnText = 'Sign in';
-        this.$refs.form.reset();
       }
     });
   },
@@ -133,28 +131,30 @@ export default {
         if (this.validForm) {
           try {
             await signInWithEmailAndPassword(this.auth, this.email, this.password);
-            this.alertType = 'success';
-            this.alertMsg = 'You are now signed in';
+            this.setAlert('success', 'You are now signed in');
             this.forgotPasswordPrompt = false;
+            this.$refs.form.reset();
           } catch (error) {
-            this.alertType = 'error';
-            this.alertMsg = 'Incorrect password or email';
+            this.setAlert('error', 'Incorrect password or email');
             this.forgotPasswordPrompt = true;
           }
         }
       } else if (this.auth.currentUser) {
         try {
           await signOut(this.auth);
-          this.alertType = 'success';
-          this.alertMsg = "You've been signed out.";
+          this.setAlert('success', "You've been signed out.");
+          this.$refs.form.reset();
         } catch (error) {
-          this.alertType = 'error';
-          this.alertMsg = error.code;
+          this.setAlert('error', error.code);
         }
       }
       if (this.passwordReset) {
         console.log('Yet to be implemented');
       }
+    },
+    setAlert(alertType, alertMsg) {
+      this.alertType = alertType;
+      this.alertMsg = alertMsg;
     },
   },
 };

@@ -115,11 +115,9 @@ export default {
       if (this.auth.currentUser) {
         try {
           await signOut(this.auth);
-          this.alertType = 'success';
-          this.alertMsg = "You've been signed out.";
+          this.setAlert('success', "You've been signed out.");
         } catch (error) {
-          this.alertType = 'error';
-          this.alertMsg = error.code;
+          this.setAlert('error', error.code);
         }
         // If the user is signed out, create an accout
       } else {
@@ -127,15 +125,18 @@ export default {
         if (this.validForm) {
           try {
             await createUserWithEmailAndPassword(this.auth, this.email, this.password);
+            this.setAlert('success', 'Account successfully created.');
             this.alertType = 'success';
-            this.alertMsg = 'Account successfully created.';
             this.$refs.form.reset();
           } catch (error) {
-            this.alertType = 'error';
-            this.alertMsg = error.code;
+            this.setAlert('error', error.code);
           }
         }
       }
+    },
+    setAlert(alertType, alertMsg) {
+      this.alertType = alertType;
+      this.alertMsg = alertMsg;
     },
   },
 };

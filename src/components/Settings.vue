@@ -9,15 +9,13 @@
         xs="2"
         xl="6"
       >
-        <v-alert
-          v-if="alertMessage"
-          v-model="showAlert"
-          :type="alertType"
-          class="text-center"
-          dismissible
-        >
-          {{ alertMessage }}
-        </v-alert>
+        <alert-banner
+          v-if="alert.msg && alert.type"
+          :alert-msg="alert.msg"
+          :alert-type="alert.type"
+          :show-alert-prop="alert.show"
+          @resetAlert="resetAlert"
+        />
       </v-col>
     </v-row>
     <v-container
@@ -47,13 +45,13 @@
             Organization Settings
           </h2>
           <v-text-field
-            v-model="settings.favorite_organization"
+            v-model="settings.favorite.orgName"
             readonly
             label="Favorite Organization"
           />
 
           <v-text-field
-            v-model="settings.favorite_space"
+            v-model="settings.favorite.spaceName"
             readonly
             label="Favorite Space"
           />
@@ -69,10 +67,10 @@
           xl="3"
         >
           <h2 class="pb-2">
-            {{ user.userCredential ? 'Account Settings' : 'General Settings' }}
+            {{ loggedIn ? 'Account Settings' : 'General Settings' }}
           </h2>
           <v-row
-            v-if="user.userCredential"
+            v-if="loggedIn"
             dense
           >
             <v-col>
@@ -85,7 +83,7 @@
             </v-col>
           </v-row>
           <v-row
-            v-if="user.userCredential"
+            v-if="loggedIn"
             dense
           >
             <v-col>
@@ -111,15 +109,15 @@
                   </v-card-title>
                   <v-card-text>
                     <v-text-field
-                      v-model="org.organization"
+                      v-model="registerOrgObj.name"
                       label="Organization Name"
                     />
                     <v-text-field
-                      v-model="org.city"
+                      v-model="registerOrgObj.city"
                       label="Organization City"
                     />
                     <v-text-field
-                      v-model="org.state"
+                      v-model="registerOrgObj.state"
                       label="Organization State"
                     />
                   </v-card-text>
@@ -144,18 +142,8 @@
               </v-dialog>
             </v-col>
           </v-row>
-          <v-row dense>
-            <v-col>
-              <v-btn
-                width="220px"
-                @click="clearFavorites"
-              >
-                Clear Favorites
-              </v-btn>
-            </v-col>
-          </v-row>
           <v-row
-            v-if="user.userCredential"
+            v-if="loggedIn"
             dense
           >
             <v-col>
@@ -329,11 +317,11 @@
                         :filter="onOrgFilter"
                       >
                         <template v-slot:selection="{ item }">
-                          <span>{{ item.organization }}</span>
+                          <span>{{ item.name }}</span>
                         </template>
                         <template v-slot:item="{ item }">
                           <v-list-item-content>
-                            <v-list-item-title v-text="item.organization" />
+                            <v-list-item-title v-text="item.name" />
                             <v-list-item-subtitle v-text="item.city" />
                             <v-list-item-subtitle v-text="item.state" />
                           </v-list-item-content>
@@ -349,11 +337,11 @@
                         :filter="onSpaceFilter"
                       >
                         <template v-slot:selection="{ item }">
-                          <span>{{ item.space }}</span>
+                          <span>{{ item.name }}</span>
                         </template>
                         <template v-slot:item="{ item }">
                           <v-list-item-content>
-                            <v-list-item-title v-text="item.space" />
+                            <v-list-item-title v-text="item.name" />
                           </v-list-item-content>
                         </template>
                       </v-autocomplete>
@@ -439,22 +427,21 @@
 </template>
 
 <script>
+
+import { APIkey, db } from '@/store/store';
 import {
-  deleteOrg,
-  deleteUserSettings,
-  getAllOrgs,
-  getAllSpaces,
-  getOrg,
-  newOrg,
-  updateSettings,
-} from '@/API/firestoreAPI';
-
-import { user, APIkey } from '@/store/store';
-
-import { deleteUser, sendPasswordResetEmail } from '@/API/authAPI';
+  getAuth, onAuthStateChanged, sendPasswordResetEmail, deleteUser,
+} from 'firebase/auth';
+import {
+  doc, getDoc, setDoc, deleteDoc,
+} from 'firebase/firestore';
+import AlertBanner from '@/components/AlertBanner.vue';
 
 export default {
   name: 'Settings',
+  components: {
+    AlertBanner,
+  },
   data() {
     return {
       dialogManageOrg: false,
@@ -462,25 +449,25 @@ export default {
       dialogAddNotif: false,
       dialogManageNotif: false,
       dialog: false,
-      org: {
-        organization: '',
+      registerOrgObj: {
+        name: '',
         city: '',
         state: '',
       },
       orgBtnText: 'Register Organization',
       loadSaveSettings: false,
       settings: {
-        favorite_organization: '',
-        notifications: [],
-        organization_name: '',
-        favorite_space: '',
+        favorite: {
+          orgName: '',
+          spaceName: '',
+        },
+        ownedOrgName: '',
       },
-      alertMessage: '',
-      alert: false,
-      alertType: '',
-      showAlert: false,
-      alertError: false,
-      user,
+      alert: {
+        type: '',
+        msg: '',
+        show: false,
+      },
       orgs: [],
       spaces: [],
       orgSearch: null,
@@ -495,14 +482,22 @@ export default {
         { text: 'Delete', value: 'actions', sortable: false },
       ],
       notification: {
-        textNotification: false,
-        emailNotification: false,
-        orgSelect: null,
-        spaceSelect: null,
-        startTime: null,
-        endTime: null,
+        orgName: '',
+        orgSpace: '',
+        times: [],
+        type: {
+          email: false,
+          text: false,
+        },
       },
+      ownsOrg: false,
+      loggedIn: false,
     };
+  },
+  computed: {
+    auth() {
+      return getAuth();
+    },
   },
   watch: {
     'user.settings': {
@@ -536,95 +531,115 @@ export default {
       }
     },
   },
-  async created() {
-    if (user) {
-      this.settings = JSON.parse(JSON.stringify(user.settings));
-      if (this.user.settings.organization_name) {
-        this.orgBtnText = 'Manage Organization';
+  async mounted() {
+    const { auth } = this;
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        this.loggedIn = true;
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userRef);
+          if (userDoc.exists()) {
+            const userObj = userDoc.data();
+            if (userObj.ownedOrgName) {
+              this.orgBtnText = 'Manage Organization';
+              this.ownsOrg = true;
+            } else {
+              this.orgBtnText = 'Register Organization';
+            }
+          }
+        } catch (error) {
+          this.setAlert('error', 'An error has occurred, please try again later.');
+        }
       } else {
-        this.orgBtnText = 'Register Organization';
+        this.loggedIn = false;
+        this.ownsOrg = false;
       }
-    }
+    });
   },
   methods: {
     checkRegistered() {
-      if (this.settings.organization_name && user.userCredential) {
+      if (this.loggedIn && this.ownsOrg) {
         this.$router.push('/manageorg');
       }
     },
     async registerOrg() {
-      if (!await getOrg(this.org.organization)) {
-        if (user.userCredential) {
-          const { city, state } = this.org;
-          fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},
+      const { city, state, name } = this.registerOrgObj;
+      const orgKey = this.getInputKey(name);
+      const orgRef = doc(db, 'organizations', orgKey);
+      if (!orgRef && this.loggedIn) {
+        fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},
         US&appid=${APIkey}&units=imperial`)
-            .then((response) => response.json())
-            .then(async (weather) => {
-              const { main } = weather;
-              if (main) {
-                await newOrg(this.org);
-                this.alertError = false;
-                this.alertType = 'success';
-                this.alertMessage = 'Successfully registered organization.';
-                this.showAlert = true;
-              } else {
-                this.alertError = true;
-                this.alertType = 'error';
-                this.alertMessage = weather.message;
-                this.showAlert = true;
-              }
-            });
-        }
+          .then((response) => response.json())
+          .then(async (weather) => {
+            const { main } = weather;
+            if (main) {
+              await setDoc(doc(db, 'organizations', orgKey), {
+                name,
+                city,
+                state,
+              });
+              this.settings.ownedOrgName = name;
+              await this.saveUserSettings(this.settings);
+              this.setAlert('success', 'Successfully registered organization.');
+            } else {
+              this.setAlert('error', weather.message);
+            }
+          });
       } else {
-        this.alertError = true;
-        this.alertType = 'error';
-        this.alertMessage = 'Organization already exists.';
-        this.showAlert = true;
+        this.setAlert('error', 'Organization already exists.');
       }
       this.dialogManageOrg = false;
     },
-    async saveSettings() {
+    async saveUserSettings(settings) {
       this.loadSaveSettings = true;
-      user.settings = JSON.parse(JSON.stringify(this.settings));
-      await updateSettings();
+      const userRef = doc(db, 'users', this.auth.currentUser.uid);
+      await setDoc(userRef, {
+        favorites: settings.favorites,
+        ownedOrgName: settings.ownedOrgName,
+      });
       this.loadSaveSettings = false;
-      await this.$router.push('/');
     },
-    resetPassword() {
-      if (user.userCredential) {
-        this.alertMessage = 'Check your inbox for an email to reset your password';
-        this.alertType = 'info';
-        this.alert = true;
-        this.alertError = false;
-        sendPasswordResetEmail();
+    async resetPassword() {
+      if (this.loggedIn) {
+        this.setAlert('info', 'Check your inbox for an email to reset your password');
+        await sendPasswordResetEmail(this.auth, this.auth.currentUser.email);
       }
     },
-    clearFavorites() {
-      this.settings.favorite_organization = '';
-      this.settings.favorite_space = '';
-    },
-    deleteAccount() {
-      if (user.userCredential) {
-        if (user.settings.organization_name) {
-          deleteOrg(user.settings.organization_name);
+    async deleteAccount() {
+      if (this.loggedIn) {
+        try {
+          if (this.settings.ownedOrgName) {
+            const userRef = doc(db, 'users', this.auth.currentUser.uid);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+              const { ownedOrgName } = userDoc.data();
+              if (ownedOrgName) {
+                const orgKey = this.getInputKey(ownedOrgName);
+                await deleteDoc(doc(db, 'organizations', orgKey));
+              }
+            }
+          }
+          await deleteDoc(doc(db, 'users', this.auth.currentUser.uid));
+        } catch (error) {
+          this.setAlert('error', error.message);
         }
-        deleteUserSettings();
-        user.userCredential = null;
-        deleteUser();
-        this.$router.push('/');
+        await deleteUser(this.auth.currentUser);
       }
     },
     async saveNotification() {
-      const notifCopy1 = JSON.parse(JSON.stringify(this.notification));
-      const notifCopy2 = JSON.parse(JSON.stringify(this.notification));
-      this.settings.notifications.push(notifCopy1);
-      user.settings.notifications.push(notifCopy2);
-      await updateSettings();
+      try {
+        await setDoc(doc(db, 'notifications', this.auth.currentUser.uid), {
+          orgName: this.notification.orgName,
+          orgSpace: this.notification.orgSpace,
+          times: this.times,
+          type: this.type,
+        });
+        this.setAlert('success', 'Successfully added notification.');
+      } catch (error) {
+        this.setAlert('error', error.message);
+      }
       this.dialogAddNotif = false;
-      this.alertError = true;
-      this.alertType = 'success';
-      this.alertMessage = 'Successfully added notification.';
-      this.showAlert = true;
     },
     exitNotification() {
       this.$refs.form.reset();
@@ -651,6 +666,19 @@ export default {
     onSpaceFilter(item, queryText) {
       const { space } = item;
       return space.toLocaleLowerCase().includes(queryText.toLocaleLowerCase());
+    },
+    getInputKey(input) {
+      return input?.toLowerCase().replace(/\s+/g, '');
+    },
+    resetAlert() {
+      this.alert.show = false;
+      this.alert.msg = '';
+      this.alert.type = '';
+    },
+    setAlert(alertType, alertMsg) {
+      this.alert.show = true;
+      this.alert.msg = alertMsg;
+      this.alert.type = alertType;
     },
   },
 };

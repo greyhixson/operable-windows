@@ -3,16 +3,15 @@
     style="width: 400px;"
   >
     <v-alert
-      v-if="alert && alertType"
       v-model="showAlert"
       :type="alertType"
       dismissible
     >
-      {{ alert }}
+      {{ alertMsg }}
     </v-alert>
     <v-form
       ref="form"
-      v-model="valid"
+      v-model="validForm"
       @submit.prevent="accountBtn"
     >
       <v-text-field
@@ -72,13 +71,17 @@
 </template>
 
 <script>
-import { signIn, signOut } from '@/API/authAPI';
-import { user, error } from '@/store/store';
+import {
+  getAuth, signOut, signInWithEmailAndPassword, onAuthStateChanged,
+} from 'firebase/auth';
 
 export default {
   name: 'SignIn',
   data() {
     return {
+      validForm: false,
+      alertType: 'success',
+      alertMsg: '',
       email: '',
       emailRules: [
         (v) => !!v || 'Email is required',
@@ -90,50 +93,64 @@ export default {
       passwordReset: false,
       forgotPasswordPrompt: false,
       accountBtnText: 'Sign In',
-      valid: false,
-      alert: '',
-      alertType: '',
-      showAlert: false,
-      user,
-      error,
+
     };
   },
+  computed: {
+    showAlert: {
+      get() {
+        return Boolean(this.alertMsg);
+      },
+      set() {
+        this.alertMsg = '';
+      },
+    },
+    auth() {
+      return getAuth();
+    },
+  },
   watch: {
-    'user.userCredential': function watchUser(userCred) {
-      if (userCred) {
-        this.accountBtnText = 'Sign Out';
-        this.alert = 'You are now signed in';
-        this.alertType = 'success';
-        this.showAlert = true;
-        this.$refs.form.reset();
-      } else if (!userCred) {
-        this.accountBtnText = 'Sign In';
-        this.alert = '';
-        this.alertType = '';
-      }
-    },
-    'error.message': function watchError() {
-      if (error.message) {
-        error.message = '';
-        this.alertType = 'error';
-        this.alert = 'Incorrect password or email';
-        this.forgotPasswordPrompt = true;
-        this.showAlert = true;
-      }
-    },
     passwordReset() {
       this.accountBtnText = 'Submit';
     },
   },
+  mounted() {
+    const { auth } = this;
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        this.accountBtnText = 'Sign out';
+        this.$refs.form.reset();
+      } else {
+        this.accountBtnText = 'Sign in';
+        this.$refs.form.reset();
+      }
+    });
+  },
   methods: {
-    accountBtn() {
-      if (!user.userCredential) {
+    async accountBtn() {
+      if (!this.auth.currentUser) {
         this.$refs.form.validate();
-        if (this.valid) {
-          signIn(this.email, this.password);
+        if (this.validForm) {
+          try {
+            await signInWithEmailAndPassword(this.auth, this.email, this.password);
+            this.alertType = 'success';
+            this.alertMsg = 'You are now signed in';
+            this.forgotPasswordPrompt = false;
+          } catch (error) {
+            this.alertType = 'error';
+            this.alertMsg = 'Incorrect password or email';
+            this.forgotPasswordPrompt = true;
+          }
         }
-      } else if (user.userCredential) {
-        signOut();
+      } else if (this.auth.currentUser) {
+        try {
+          await signOut(this.auth);
+          this.alertType = 'success';
+          this.alertMsg = "You've been signed out.";
+        } catch (error) {
+          this.alertType = 'error';
+          this.alertMsg = error.code;
+        }
       }
       if (this.passwordReset) {
         console.log('Yet to be implemented');

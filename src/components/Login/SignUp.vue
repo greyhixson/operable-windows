@@ -11,7 +11,7 @@
     </v-alert>
     <v-form
       ref="form"
-      v-model="formValid"
+      v-model="validForm"
       @submit.prevent="accountBtn"
     >
       <v-text-field
@@ -66,7 +66,7 @@ export default {
   name: 'SignUp',
   data() {
     return {
-      formValid: false,
+      validForm: false,
       alertType: 'success',
       alertMsg: '',
       accountBtnText: 'Create an Account',
@@ -111,6 +111,7 @@ export default {
   },
   methods: {
     async accountBtn() {
+      // If the user is signed in, sign them out
       if (this.auth.currentUser) {
         try {
           await signOut(this.auth);
@@ -120,9 +121,10 @@ export default {
           this.alertType = 'error';
           this.alertMsg = error.code;
         }
+        // If the user is signed out, create an accout
       } else {
         this.$refs.form.validate();
-        if (this.formValid) {
+        if (this.validForm) {
           try {
             await createUserWithEmailAndPassword(this.auth, this.email, this.password);
             this.alertType = 'success';

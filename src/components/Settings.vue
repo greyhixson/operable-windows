@@ -412,25 +412,14 @@
                           </template>
                           <v-list>
                             <v-list-item
-                              v-for="(time, index) in item.times"
+                              v-for="(timeObj, index) in item.times"
                               :key="index"
                             >
-                              <v-list-item-title>{{ time.day + ' at ' + time.sendTime }}</v-list-item-title>
+                              <v-list-item-title>{{ timeObj.day + ' at ' + timeObj.sendTime }}</v-list-item-title>
                             </v-list-item>
                           </v-list>
                         </v-menu>
                       </template>
-                    </v-data-table>
-                  </v-card-text>
-                </v-card>
-              </v-dialog>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-container>
-</template>
                       <template v-slot:item.actions="{ item }">
                         <v-icon
                           small
@@ -532,7 +521,7 @@ export default {
         { text: 'Texts', value: 'type.text' },
         { text: 'Organization', value: 'orgName' },
         { text: 'Space', value: 'spaceName' },
-        { text: 'Time', value: 'times' },
+        { text: 'Send Time(s)', value: 'times' },
         { text: 'Delete', value: 'actions', sortable: false },
       ],
       days: [

@@ -222,7 +222,7 @@
             <v-col>
               <v-dialog
                 v-model="dialogAddNotif"
-                width="500px"
+                width="550px"
                 persistent
               >
                 <template v-slot:activator="{ on, attrs }">
@@ -232,12 +232,12 @@
                     width="220px"
                     v-on="on"
                   >
-                    Add Notification
+                    Add Text Notification
                   </v-btn>
                 </template>
                 <v-card>
                   <v-card-title>
-                    <span class="text-h5">Add Notification</span>
+                    <span class="text-h5">Add Text Notification</span>
                   </v-card-title>
                   <v-card-text>
                     <v-form
@@ -254,6 +254,8 @@
                         :filter="onOrgFilter"
                         required
                         :rules="requiredRule"
+                        hint="The organization that you can select a space from"
+                        persistent-hint
                       >
                         <template v-slot:selection="{ item }">
                           <span>{{ item.name }}</span>
@@ -276,6 +278,8 @@
                         :filter="onSpaceFilter"
                         required
                         :rules="requiredRule"
+                        hint="The space your operable window is in"
+                        persistent-hint
                       >
                         <template v-slot:selection="{ item }">
                           <span>{{ item.name }}</span>
@@ -286,7 +290,93 @@
                           </v-list-item-content>
                         </template>
                       </v-autocomplete>
-                      <v-row />
+                      <v-row>
+                        <v-col>
+                          <v-text-field
+                            v-model="notification.sendTime"
+                            type="time"
+                            hint="The time you'll be notified"
+                            persistent-hint
+                          />
+                        </v-col>
+                        <v-col>
+                          <v-select
+                            v-model="notification.repeatDays"
+                            label="Repeats on"
+                            :items="days"
+                            multiple
+                            hint="Days the notification will be sent"
+                            persistent-hint
+                          >
+                            <template
+                              v-slot:selection="{ item, index }"
+                            >
+                              <span v-if="index === 0">{{ item }} </span>
+                              <span
+                                v-if="index === 1"
+                                class="grey--text text-caption"
+                              >(+{{ notification.repeatDays.length - 1 }} others)
+                              </span>
+                            </template>
+                          </v-select>
+                        </v-col>
+                        <v-row>
+                          <v-col>
+                            <v-menu
+                              v-model="startDateMenu"
+                              :close-on-content-click="false"
+                              :nudge-right="40"
+                              transition="scale-transition"
+                              offset-y
+                              min-width="auto"
+                            >
+                              <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                  v-model="notification.startDate"
+                                  label="Start Date"
+                                  prepend-icon="mdi-calendar"
+                                  readonly
+                                  v-bind="attrs"
+                                  hint="The first day the notification will be sent"
+                                  persistent-hint
+                                  v-on="on"
+                                />
+                              </template>
+                              <v-date-picker
+                                v-model="notification.startDate"
+                                @input="startDateMenu = false"
+                              />
+                            </v-menu>
+                          </v-col>
+                          <v-col>
+                            <v-menu
+                              v-model="endDateMenu"
+                              :close-on-content-click="false"
+                              :nudge-right="40"
+                              transition="scale-transition"
+                              offset-y
+                              min-width="auto"
+                            >
+                              <template v-slot:activator="{ on, attrs }">
+                                <v-text-field
+                                  v-model="notification.endDate"
+                                  label="End Date"
+                                  prepend-icon="mdi-calendar"
+                                  readonly
+                                  v-bind="attrs"
+                                  hint="The last day the notification will be sent"
+                                  persistent-hint
+                                  v-on="on"
+                                />
+                              </template>
+                              <v-date-picker
+                                v-model="notification.endDate"
+                                @input="endDateMenu = false"
+                              />
+                            </v-menu>
+                          </v-col>
+                        </v-row>
+                      </v-row>
                     </v-form>
                   </v-card-text>
                   <v-card-actions>
@@ -406,7 +496,8 @@ import {
 } from 'firebase/auth';
 import AlertBanner from '@/components/AlertBanner.vue';
 import {
-  getUser, getOrg, getAllOrgs, writeOrg, deleteUser, getAllSpaces, addNotification, getUserNotifications,
+  getUser, getOrg, getAllOrgs, writeOrg, deleteUser, getAllSpaces, getAllNotifications,
+  addNotification, getUserNotifications,
   writeUserSettings, writeNotifications,
 } from '@/API/firestoreAPI';
 
@@ -423,6 +514,8 @@ export default {
       dialogManageNotif: false,
       notificationFormValid: false,
       dialog: false,
+      startDateMenu: false,
+      endDateMenu: false,
       orgSelect: null,
       spaceSelect: null,
       registerOrgObj: {
@@ -454,13 +547,24 @@ export default {
         { text: 'Enabled', value: 'enabled' },
         { text: 'Organization', value: 'orgName' },
         { text: 'Space', value: 'spaceName' },
+        { text: 'Start Date', value: 'startDate' },
+        { text: 'End Date', value: 'endDate' },
+        { text: 'Send Time', value: 'sendTime' },
+
         { text: 'Delete', value: 'actions', sortable: false },
       ],
       notifications: [],
+      days: [
+        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+      ],
       notification: {
         orgName: '',
         spaceName: '',
         enabled: false,
+        sendTime: '',
+        startDate: '',
+        endDate: '',
+        repeatDays: [],
       },
     };
   },
@@ -517,6 +621,7 @@ export default {
         try {
           const userObj = await getUser(user.uid);
           this.notifications = await getUserNotifications(user.uid);
+          await getAllNotifications();
           if (userObj) {
             const { ownedOrgName } = userObj;
             const { orgName, spaceName } = userObj.favorite;
@@ -556,10 +661,14 @@ export default {
           .then(async (weather) => {
             const { main } = weather;
             if (main) {
-              await writeOrg(this.registerOrgObj, this.auth.currentUser.uid);
-              this.settings.ownedOrgName = name;
-              this.orgBtnText = 'Manage Organization';
-              this.setAlert('success', 'Successfully registered organization.');
+              try {
+                await writeOrg(this.registerOrgObj, this.auth.currentUser.uid);
+                this.settings.ownedOrgName = name;
+                this.orgBtnText = 'Manage Organization';
+                this.setAlert('success', 'Successfully registered organization.');
+              } catch {
+                this.setAlert('error', 'An error has occurred, please try again later.');
+              }
             } else {
               this.setAlert('error', weather.message);
             }
@@ -592,7 +701,7 @@ export default {
           await addNotification(notifCopy, this.auth.currentUser.uid);
           this.setAlert('success', 'Successfully added notification.');
           this.notifications.push(notifCopy);
-        } catch {
+        } catch (e) {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
         this.$refs.form.reset();

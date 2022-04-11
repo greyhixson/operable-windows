@@ -29,11 +29,13 @@ async function getUser(uid) {
 async function getUserNotifications(uid) {
   const notificationRef = doc(db, 'notifications', uid);
   const notificationDoc = await getDoc(notificationRef);
-  const notificationsObj = notificationDoc.data();
-  if (notificationsObj.notifications) {
-    return notificationsObj.notifications;
+  if (notificationDoc.exists()) {
+    const notificationsObj = notificationDoc.data();
+    if (notificationsObj.notifications) {
+      return notificationsObj.notifications;
+    }
   }
-  return null;
+  return [];
 }
 
 async function getAllSpaces(orgName) {
@@ -55,10 +57,21 @@ async function getAllOrgs() {
   return orgs;
 }
 
+async function getAllNotifications() {
+  const notifications = [];
+  const querySnapshot = await getDocs(collection(db, 'notifications'));
+  querySnapshot.forEach((document) => {
+    if (document.data().notifications) {
+      notifications.push(document.data().notifications);
+    }
+  });
+  console.log(notifications);
+}
+
 async function writeOrg(org, uid) {
   const { city, state, name } = org;
   const orgKey = getInputKey(name);
-  const orgReg = doc(doc(db, 'organizations', orgKey));
+  const orgReg = doc(db, 'organizations', orgKey);
   await setDoc(orgReg, {
     name,
     city,
@@ -90,19 +103,20 @@ async function writeSpace(orgName, space) {
 async function addNotification(notification, uid) {
   const notificationRef = doc(db, 'notifications', uid);
   const notificationDoc = await getDoc(notificationRef);
-  const notificationsObj = notificationDoc.data();
-
-  if (notificationsObj.notifications) {
-    notificationsObj.notifications.push(notification);
-    await setDoc(notificationRef, {
-      notifications: notificationsObj.notifications,
-    });
-  } else {
-    const defaultNotification = [];
-    defaultNotification.push(notification);
-    await setDoc(notificationRef, {
-      notifications: defaultNotification,
-    });
+  if (notificationDoc.exists()) {
+    const notificationsObj = notificationDoc.data();
+    if (notificationsObj.notifications) {
+      notificationsObj.notifications.push(notification);
+      await setDoc(notificationRef, {
+        notifications: notificationsObj.notifications,
+      });
+    } else {
+      const defaultNotification = [];
+      defaultNotification.push(notification);
+      await setDoc(notificationRef, {
+        notifications: defaultNotification,
+      });
+    }
   }
 }
 
@@ -167,7 +181,7 @@ async function deleteUser(currentUser, userOwnedOrgName) {
 }
 
 export {
-  getOrg, getUser, getAllOrgs, getAllSpaces, getUserNotifications,
+  getOrg, getUser, getAllOrgs, getAllSpaces, getAllNotifications, getUserNotifications,
   deleteOrg, deleteSpace, deleteUser,
   writeSpace, writeUserSettings, writeOrg, writeNotifications, addNotification,
 };

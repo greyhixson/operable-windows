@@ -1,3 +1,7 @@
+import { firestore } from 'firebase-admin';
+import { db } from '@/store/store';
+import { collection, getDocs } from 'firebase/firestore';
+
 const functions = require('firebase-functions');
 
 // Create and Deploy Your First Cloud Functions
@@ -9,8 +13,3 @@ const functions = require('firebase-functions');
 
 // Create a function that will get the user's organization space thresholds and
 // weather API data and then email or text the user
-
-exports.helloWorld = functions.https.onRequest((request, response) => {
-  functions.logger.info('Hello logs!', { structuredData: true });
-  response.send('Hello from Firebase!');
-});

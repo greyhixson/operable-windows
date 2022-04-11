@@ -325,8 +325,8 @@
                       <v-row class="mt-n8">
                         <v-list>
                           <v-list-item
-                            v-for="item in notification.times"
-                            :key="item.day"
+                            v-for="(item, index) in notification.times"
+                            :key="index"
                           >
                             <v-text-field
                               class="mt-n4"
@@ -397,6 +397,40 @@
                           :ripple="false"
                         />
                       </template>
+                      <template v-slot:item.times="{ item }">
+                        <v-menu
+                          offset-y
+                          open-on-hover
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-btn
+                              v-bind="attrs"
+                              v-on="on"
+                            >
+                              View Times
+                            </v-btn>
+                          </template>
+                          <v-list>
+                            <v-list-item
+                              v-for="(time, index) in item.times"
+                              :key="index"
+                            >
+                              <v-list-item-title>{{ time.day + ' at ' + time.sendTime }}</v-list-item-title>
+                            </v-list-item>
+                          </v-list>
+                        </v-menu>
+                      </template>
+                    </v-data-table>
+                  </v-card-text>
+                </v-card>
+              </v-dialog>
+            </v-col>
+          </v-row>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-container>
+</template>
                       <template v-slot:item.actions="{ item }">
                         <v-icon
                           small
@@ -446,7 +480,7 @@ import {
 } from 'firebase/auth';
 import AlertBanner from '@/components/AlertBanner.vue';
 import {
-  getUser, getOrg, getAllOrgs, writeOrg, deleteUser, getAllSpaces, addNotification,
+  getUser, getOrg, getAllOrgs, writeOrg, deleteUser, getAllSpaces, addNotification, getUserNotifications,
 } from '@/API/firestoreAPI';
 
 export default {
@@ -494,12 +528,11 @@ export default {
       orgSearch: null,
       spaceSearch: null,
       headers: [
-        { text: 'Emails', value: 'emailNotification' },
-        { text: 'Texts', value: 'textNotification' },
-        { text: 'Organization', value: 'orgSelect.organization' },
-        { text: 'Space', value: 'spaceSelect.space' },
-        { text: 'Start Time', value: 'startTime' },
-        { text: 'End Time', value: 'endTime' },
+        { text: 'Emails', value: 'type.email' },
+        { text: 'Texts', value: 'type.text' },
+        { text: 'Organization', value: 'orgName' },
+        { text: 'Space', value: 'spaceName' },
+        { text: 'Time', value: 'times' },
         { text: 'Delete', value: 'actions', sortable: false },
       ],
       days: [
@@ -573,6 +606,8 @@ export default {
       if (user) {
         try {
           const userObj = await getUser(user.uid);
+          this.notifications = await getUserNotifications(user.uid);
+          console.log(this.notifications);
           if (userObj) {
             const { ownedOrgName } = userObj;
             const { orgName, spaceName } = userObj.favorite;

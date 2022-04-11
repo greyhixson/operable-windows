@@ -29,7 +29,10 @@
           class="text-center mx-auto"
           cols="12"
         >
-          <h5> To view more information on how air pollution is calculated, visit <a href="https://openweathermap.org/api/air-pollution"> OpenWeather Map </a></h5>
+          <h5>
+            To view more information on how air pollution is calculated, visit
+            <a href="https://openweathermap.org/api/air-pollution"> OpenWeather Map </a>
+          </h5>
         </v-col>
       </v-footer>
     </v-main>

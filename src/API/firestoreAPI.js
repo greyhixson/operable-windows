@@ -27,8 +27,13 @@ async function getUser(uid) {
 }
 
 async function getUserNotifications(uid) {
-  const notifRef = doc(db, 'notifications', uid);
-  return getDoc(notifRef);
+  const notificationRef = doc(db, 'notifications', uid);
+  const notificationDoc = await getDoc(notificationRef);
+  const notificationsObj = notificationDoc.data();
+  if (notificationsObj.notifications) {
+    return notificationsObj.notifications;
+  }
+  return null;
 }
 
 async function getAllSpaces(orgName) {
@@ -95,7 +100,6 @@ async function addNotification(notification, uid) {
   } else {
     const defaultNotification = [];
     defaultNotification.push(notification);
-    console.log(defaultNotification);
     await setDoc(notificationRef, {
       notifications: defaultNotification,
     });

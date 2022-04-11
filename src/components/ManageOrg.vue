@@ -1,5 +1,12 @@
 <template>
   <v-container>
+    <alert-banner
+      v-if="alert.msg && alert.type"
+      :alert-msg="alert.msg"
+      :alert-type="alert.type"
+      :show-alert-prop="alert.show"
+      @resetAlert="resetAlert"
+    />
     <v-card
       class="mb-4"
     >
@@ -15,7 +22,7 @@
       <v-data-table
         :search="search"
         :headers="headers"
-        :items="thresholds"
+        :items="spaces"
         :items-per-page="5"
         class="elevation-1"
         :loading="loading"
@@ -28,27 +35,29 @@
             flat
             class="mb-4"
           >
-            <v-row
-              justify="end"
-            >
-              <v-col cols="auto">
-                <v-toolbar-title>
+            <v-row align="center">
+              <v-col
+                cols="auto"
+                class="grow pl-4"
+              >
+                <v-toolbar-title style="font-size: 25px">
                   {{ orgName }}
                 </v-toolbar-title>
               </v-col>
-              <v-divider
-                vertical
-                height
-              />
-              <v-spacer />
-              <v-col cols="auto">
+              <v-col
+                cols="auto"
+                class="shrink"
+              >
                 <v-btn
                   to="/"
                 >
                   Home
                 </v-btn>
               </v-col>
-              <v-col>
+              <v-col
+                cols="auto"
+                class="shrink"
+              >
                 <v-dialog
                   v-model="dialog"
                   max-width="400px"
@@ -72,40 +81,46 @@
                       <v-container>
                         <v-form
                           ref="form"
-                          v-model="valid"
+                          v-model="formValid"
                         >
                           <v-row>
                             <v-col
                               cols="12"
                             >
                               <v-text-field
-                                v-model="editedItem.space"
-                                label="Space"
+                                v-if="!edittingExistingSpace"
+                                v-model="editedItem.name"
+                                label="Name"
                                 :rules="spaceRule"
+                                type="text"
                               />
 
                               <v-text-field
-                                v-model="editedItem.max_humidity"
+                                v-model="editedItem.maxHumidity"
                                 label="Maximum Humidity (%)"
                                 :rules="maxHumidityRules"
+                                type="number"
                               />
 
                               <v-text-field
-                                v-model="editedItem.min_temp"
+                                v-model="editedItem.minTemp"
                                 label="Minimum Temperature (F°)"
                                 :rules="tempRules"
+                                type="number"
                               />
 
                               <v-text-field
-                                v-model="editedItem.max_temp"
+                                v-model="editedItem.maxTemp"
                                 label="Maximum Temperature (F°)"
                                 :rules="tempRules"
+                                type="number"
                               />
 
                               <v-text-field
-                                v-model="editedItem.max_aqi"
+                                v-model="editedItem.maxAqi"
                                 label="Maximum Air Pollution"
                                 :rules="aqiRules"
+                                type="number"
                               />
                             </v-col>
                           </v-row>
@@ -232,47 +247,55 @@
 </template>
 
 <script>
-import {
-  getOrg, getAllSpaces, updateSpace, newSpace, deleteSpace, deleteOrg,
-} from '@/API/firestoreAPI';
 
-import { user } from '@/store/store';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import {
+  getAllSpaces, deleteOrg, deleteSpace, writeSpace, getUser,
+} from '@/API/firestoreAPI';
+import AlertBanner from '@/components/AlertBanner.vue';
 
 export default {
   name: 'ManageOrg',
+  components: {
+    AlertBanner,
+  },
   data() {
     return {
       dialogDeleteOrg: false,
       dialogDelete: false,
       dialog: false,
       headers: [
-        { text: 'Space', value: 'space' },
-        { text: 'Maximum Humidity (%)', value: 'max_humidity' },
-        { text: 'Minimum Temperature (F°)', value: 'min_temp' },
-        { text: 'Maximum Temperature (F°)', value: 'max_temp' },
-        { text: 'Maximum Air Pollution', value: 'max_aqi' },
+        { text: 'Space', value: 'name', align: 'center' },
+        { text: 'Maximum Humidity (%)', value: 'maxHumidity', align: 'center' },
+        { text: 'Minimum Temperature (F°)', value: 'minTemp', align: 'center' },
+        { text: 'Maximum Temperature (F°)', value: 'maxTemp', align: 'center' },
+        { text: 'Maximum Air Pollution', value: 'maxAqi', align: 'center' },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
-      thresholds: [],
-      location: Object,
+      spaces: [],
       orgName: '',
-      org: Object,
       search: '',
       editedIndex: -1,
+      edittingExistingSpace: false,
       loading: false,
+      alert: {
+        type: '',
+        msg: '',
+        show: false,
+      },
       editedItem: {
-        space: null,
-        max_humidity: null,
-        min_temp: null,
-        max_temp: null,
-        max_aqi: null,
+        name: null,
+        maxHumidity: null,
+        minTemp: null,
+        maxTemp: null,
+        maxAqi: null,
       },
       defaultItem: {
-        space: null,
-        max_humidity: null,
-        min_temp: null,
-        max_temp: null,
-        max_aqi: null,
+        name: null,
+        maxHumidity: null,
+        minTemp: null,
+        maxTemp: null,
+        maxAqi: null,
       },
       maxHumidityRules: [
         (v) => !!v || 'Max humidity is required',
@@ -293,12 +316,15 @@ export default {
         (v) => !!v || 'The name of the space is required',
         (v) => (v && v.length <= 30) || 'Only 30 characters in length are allowed',
       ],
-      valid: false,
+      formValid: false,
     };
   },
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? 'Add a new space' : 'Edit Space';
+      return this.editedIndex === -1 ? 'Add a new space' : `Edit ${this.editedItem.name}`;
+    },
+    auth() {
+      return getAuth();
     },
   },
   watch: {
@@ -317,49 +343,56 @@ export default {
       this.$refs.deleteOrgBtn.$el.blur();
     },
   },
-  created() {
-    if (!user.userCredential) {
-      this.$router.push('/');
-    }
-    if (user.settings) {
-      this.orgName = user.settings.organization_name;
-      this.getOrg();
-    }
-  },
-  methods: {
-    async getOrg() {
+  async mounted() {
+    const { auth } = this;
+    onAuthStateChanged(auth, async (user) => {
       this.loading = true;
-      try {
-        this.org = await getOrg(this.orgName);
-        this.thresholds = await getAllSpaces(this.orgName);
-      } catch {
-        console.log('An error has occurred');
+      if (user) {
+        try {
+          const userDoc = await getUser(user.uid);
+          if (userDoc.exists()) {
+            const userObj = userDoc.data();
+            const { ownedOrgName } = userObj;
+            if (userObj.ownedOrgName) {
+              this.orgName = ownedOrgName;
+              this.spaces = await getAllSpaces(this.orgName);
+            }
+          }
+        } catch (error) {
+          this.setAlert('error', 'An error has occurred, please try again later.');
+        }
+      } else {
+        await this.$router.push('/');
       }
       this.loading = false;
-    },
+    });
+  },
+  methods: {
     async deleteOrg() {
-      if (user.settings.organization_name) {
-        await deleteOrg(user.settings.organization_name);
+      if (this.auth.currentUser) {
+        await deleteOrg(this.auth.currentUser.uid, this.orgName);
         this.dialogDeleteOrg = false;
         await this.$router.push('/');
       }
     },
     editItem(item) {
-      this.editedIndex = this.thresholds.indexOf(item);
+      this.edittingExistingSpace = true;
+      this.editedIndex = this.spaces.indexOf(item);
       this.editedItem = { ...item };
       this.dialog = true;
     },
     deleteItem(item) {
-      this.editedIndex = this.thresholds.indexOf(item);
+      this.editedIndex = this.spaces.indexOf(item);
       this.editedItem = { ...item };
       this.dialogDelete = true;
     },
-    deleteItemConfirm() {
-      this.thresholds.splice(this.editedIndex, 1);
-      deleteSpace(this.orgName, this.editedItem);
+    async deleteItemConfirm() {
+      this.spaces.splice(this.editedIndex, 1);
+      await deleteSpace(this.orgName, this.editedItem);
       this.closeDelete();
     },
     close() {
+      this.edittingExistingSpace = false;
       this.dialog = false;
       this.$nextTick(() => {
         this.editedItem = { ...this.defaultItem };
@@ -374,19 +407,32 @@ export default {
         this.editedIndex = -1;
       });
     },
-    save() {
+    async save() {
+      this.edittingExistingSpace = false;
       this.$refs.form.validate();
-      if (this.valid) {
+      if (this.formValid) {
         if (this.editedIndex > -1) {
-          Object.assign(this.thresholds[this.editedIndex], this.editedItem);
-          updateSpace(this.orgName, this.editedItem);
+          Object.assign(this.spaces[this.editedIndex], this.editedItem);
         } else {
-          this.thresholds.push(this.editedItem);
-          newSpace(this.orgName, this.editedItem);
+          this.spaces.push(this.editedItem);
+        }
+        try {
+          await writeSpace(this.orgName, this.editedItem);
+        } catch {
+          this.setAlert('error', 'An error has occurred, please try again later.');
         }
         this.close();
-        this.$refs.form.reset();
       }
+    },
+    resetAlert() {
+      this.alert.show = false;
+      this.alert.msg = '';
+      this.alert.type = '';
+    },
+    setAlert(alertType, alertMsg) {
+      this.alert.show = true;
+      this.alert.msg = alertMsg;
+      this.alert.type = alertType;
     },
   },
 };

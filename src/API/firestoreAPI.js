@@ -106,6 +106,14 @@ async function addNotification(notification, uid) {
   }
 }
 
+async function writeUserSettings(settings, uid) {
+  const settingsRef = doc(db, 'users', uid);
+  await setDoc(settingsRef, {
+    favorite: settings.favorite,
+    ownedOrgName: settings.ownedOrgName,
+  });
+}
+
 async function writeNotifications(notifications, uid) {
   const notificationRef = doc(db, 'notifications', uid);
   await setDoc(notificationRef, {
@@ -161,5 +169,5 @@ async function deleteUser(currentUser, userOwnedOrgName) {
 export {
   getOrg, getUser, getAllOrgs, getAllSpaces, getUserNotifications,
   deleteOrg, deleteSpace, deleteUser,
-  writeSpace, writeOrg, writeNotifications, addNotification,
+  writeSpace, writeUserSettings, writeOrg, writeNotifications, addNotification,
 };

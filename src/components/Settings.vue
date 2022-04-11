@@ -33,10 +33,14 @@
         >
           <h2> Personal</h2>
           <v-text-field
+            v-model="auth.currentUser.phoneNumber"
+            class="readonlyField"
             label="Phone Number"
             readonly
           />
           <v-text-field
+            v-model="auth.currentUser.email"
+            class="readonlyField"
             label="Email Address"
             readonly
           />
@@ -52,13 +56,19 @@
           <v-text-field
             v-model="settings.favorite.orgName"
             readonly
+            append-outer-icon="mdi-close-circle"
             label="Favorite Organization"
+            class="readonlyField"
+            @click:append-outer="clearFavoriteOrg"
           />
 
           <v-text-field
             v-model="settings.favorite.spaceName"
             readonly
+            append-outer-icon="mdi-close-circle"
             label="Favorite Space"
+            class="readonlyField"
+            @click:append-outer="clearFavoriteSpace"
           />
         </v-col>
       </v-row>
@@ -380,8 +390,16 @@
   </v-container>
 </template>
 
-<script>
+<style>
+.readonlyField.v-text-field>.v-input__control>.v-input__slot:before {
+  border-style: none;
+}
+.readonlyField.v-text-field>.v-input__control>.v-input__slot:after {
+  border-style: none;
+}
+</style>
 
+<script>
 import { APIkey } from '@/store/store';
 import {
   getAuth, onAuthStateChanged, sendPasswordResetEmail,
@@ -389,7 +407,7 @@ import {
 import AlertBanner from '@/components/AlertBanner.vue';
 import {
   getUser, getOrg, getAllOrgs, writeOrg, deleteUser, getAllSpaces, addNotification, getUserNotifications,
-  writeNotifications,
+  writeUserSettings, writeNotifications,
 } from '@/API/firestoreAPI';
 
 export default {
@@ -502,20 +520,21 @@ export default {
           if (userObj) {
             const { ownedOrgName } = userObj;
             const { orgName, spaceName } = userObj.favorite;
+            if (orgName) {
+              this.settings.favorite.orgName = orgName;
+            }
+            if (spaceName) {
+              this.settings.favorite.spaceName = spaceName;
+            }
             if (ownedOrgName) {
               this.orgBtnText = 'Manage Organization';
-              this.settings = {
-                ownedOrgName,
-                favorite: {
-                  orgName,
-                  spaceName,
-                },
-              };
+              this.settings.ownedOrgName = ownedOrgName;
             } else {
               this.orgBtnText = 'Register Organization';
             }
           }
         } catch (error) {
+          console.log(error);
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
       }
@@ -559,8 +578,8 @@ export default {
     async deleteAccount() {
       try {
         await deleteUser(this.auth.currentUser, this.settings.ownedOrgName);
-      } catch (error) {
-        this.setAlert('error', error.message);
+      } catch {
+        this.setAlert('error', 'An error has occurred, please try again later.');
       }
     },
     async saveAddNotification() {
@@ -573,8 +592,7 @@ export default {
           await addNotification(notifCopy, this.auth.currentUser.uid);
           this.setAlert('success', 'Successfully added notification.');
           this.notifications.push(notifCopy);
-        } catch (error) {
-          console.log(error);
+        } catch {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
         this.$refs.form.reset();
@@ -594,8 +612,7 @@ export default {
       try {
         await writeNotifications(notifsCopy, this.auth.currentUser.uid);
         this.setAlert('success', 'Successfully saved your notifications.');
-      } catch (error) {
-        console.log(error);
+      } catch {
         this.setAlert('error', 'An error has occurred, please try again later.');
       }
     },
@@ -605,8 +622,29 @@ export default {
         try {
           const { uid } = this.auth.currentUser;
           this.notifications = await getUserNotifications(uid);
-        } catch (error) {
-          console.log(error);
+        } catch {
+          this.setAlert('error', 'An error has occurred, please try again later.');
+        }
+      }
+    },
+    clearFavoriteOrg() {
+      this.settings.favorite.orgName = '';
+      this.settings.favorite.spaceName = '';
+      this.writeSettings();
+    },
+    clearFavoriteSpace() {
+      this.settings.favorite.spaceName = '';
+      this.writeSettings();
+    },
+    async writeSettings() {
+      if (this.auth.currentUser) {
+        try {
+          const { uid } = this.auth.currentUser;
+          const settings = JSON.parse(JSON.stringify(this.settings));
+          console.log(settings);
+          await writeUserSettings(settings, uid);
+          this.setAlert('success', 'Successfully saved your settings.');
+        } catch {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
       }

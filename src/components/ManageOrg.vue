@@ -140,6 +140,7 @@
                       <v-btn
                         color="blue darken-1"
                         text
+                        :loading="loading"
                         @click="save"
                       >
                         Save
@@ -349,14 +350,11 @@ export default {
       this.loading = true;
       if (user) {
         try {
-          const userDoc = await getUser(user.uid);
-          if (userDoc.exists()) {
-            const userObj = userDoc.data();
+          const userObj = await getUser(user.uid);
+          if (userObj) {
             const { ownedOrgName } = userObj;
-            if (userObj.ownedOrgName) {
-              this.orgName = ownedOrgName;
-              this.spaces = await getAllSpaces(this.orgName);
-            }
+            this.orgName = ownedOrgName;
+            this.spaces = await getAllSpaces(this.orgName);
           }
         } catch (error) {
           this.setAlert('error', 'An error has occurred, please try again later.');
@@ -370,7 +368,7 @@ export default {
   methods: {
     async deleteOrg() {
       if (this.auth.currentUser) {
-        await deleteOrg(this.auth.currentUser.uid, this.orgName);
+        await deleteOrg(this.orgName, this.auth.currentUser.uid);
         this.dialogDeleteOrg = false;
         await this.$router.push('/');
       }
@@ -408,6 +406,7 @@ export default {
       });
     },
     async save() {
+      this.loading = true;
       this.edittingExistingSpace = false;
       this.$refs.form.validate();
       if (this.formValid) {
@@ -423,6 +422,7 @@ export default {
         }
         this.close();
       }
+      this.loading = false;
     },
     resetAlert() {
       this.alert.show = false;

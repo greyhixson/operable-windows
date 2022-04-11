@@ -105,11 +105,7 @@ export default {
     },
     async accountBtn() {
       if (this.auth.currentUser) {
-        try {
-          await signOut(this.auth);
-        } catch (error) {
-          console.log(error);
-        }
+        await signOut(this.auth);
       } else {
         await this.$router.push('/signin');
       }

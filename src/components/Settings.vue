@@ -523,7 +523,6 @@ export default {
       const orgKey = this.getInputKey(name);
       const orgRef = doc(db, 'organizations', orgKey);
       const orgDoc = await getDoc(orgRef);
-      console.log(orgDoc);
       if (!orgDoc.exists() && this.loggedIn) {
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},
         US&appid=${APIkey}&units=imperial`)
@@ -541,6 +540,8 @@ export default {
               await updateDoc(userRef, {
                 ownedOrgName: name,
               });
+              this.orgBtnText = 'Manage Organization';
+              this.ownsOrg = true;
               this.setAlert('success', 'Successfully registered organization.');
             } else {
               this.setAlert('error', weather.message);

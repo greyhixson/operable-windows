@@ -17,7 +17,11 @@ async function getOrg(orgName) {
 
 async function getUser(uid) {
   const userRef = doc(db, 'users', uid);
-  return getDoc(userRef);
+  const userDoc = await getDoc(userRef);
+  if (userDoc.exists()) {
+    return userDoc.data();
+  }
+  return null;
 }
 
 async function getUserNotifications(uid) {
@@ -64,10 +68,23 @@ async function writeSpace(orgName, space) {
 async function deleteOrg(orgName, uid) {
   const user = await getUser(uid);
   const { ownedOrgName } = user;
+  const orgKey = getInputKey(orgName);
+  // Delete all the spaces
+  const querySnapshot = await getDocs(collection(db, `organizations/${orgKey}/spaces`));
+  querySnapshot.forEach((document) => {
+    const spaceKey = getInputKey(document.data().name);
+    deleteDoc(doc(db, `organizations/${orgKey}/spaces`, spaceKey));
+  });
+  // Delete the org
   if (ownedOrgName === orgName) {
-    const orgKey = getInputKey(orgName);
     await deleteDoc(doc(db, 'organizations', orgKey));
   }
+  // Delete the user
+  const userRef = doc(db, 'users', uid);
+  await setDoc(userRef, {
+    ownedOrgName: '',
+  },
+  { merge: true });
 }
 
 async function deleteSpace(orgName, space) {

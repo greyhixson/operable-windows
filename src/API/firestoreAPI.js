@@ -106,6 +106,13 @@ async function addNotification(notification, uid) {
   }
 }
 
+async function writeNotifications(notifications, uid) {
+  const notificationRef = doc(db, 'notifications', uid);
+  await setDoc(notificationRef, {
+    notifications,
+  });
+}
+
 async function deleteOrg(orgName, uid) {
   const user = await getUser(uid);
   const { ownedOrgName } = user;
@@ -154,5 +161,5 @@ async function deleteUser(currentUser, userOwnedOrgName) {
 export {
   getOrg, getUser, getAllOrgs, getAllSpaces, getUserNotifications,
   deleteOrg, deleteSpace, deleteUser,
-  writeSpace, writeOrg, addNotification,
+  writeSpace, writeOrg, writeNotifications, addNotification,
 };

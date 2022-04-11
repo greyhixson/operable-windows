@@ -234,19 +234,6 @@
                       ref="form"
                       v-model="notificationFormValid"
                     >
-                      <v-row>
-                        <v-checkbox
-                          v-model="notification.type.text"
-                          label="Text Notification"
-                          :rules="contactRule"
-                        />
-                        <v-checkbox
-                          v-model="notification.type.email"
-                          class="pl-4"
-                          label="Email Notification"
-                          :rules="contactRule"
-                        />
-                      </v-row>
                       <v-autocomplete
                         v-model="orgSelect"
                         label="Select an organization"
@@ -290,66 +277,20 @@
                         </template>
                       </v-autocomplete>
                       <v-row />
-                      <v-row
-                        class="mx-auto pt-2 pb-4"
-                        align="center"
-                        dense
-                      >
-                        <v-col>
-                          <v-text-field
-                            v-model="time.sendTime"
-                            label="Send time"
-                            type="time"
-                          />
-                        </v-col>
-                        <v-col>
-                          <v-select
-                            v-model="time.day"
-                            :items="days"
-                            label="Day"
-                          />
-                        </v-col>
-                        <v-col
-                          class="mb-2"
-                        >
-                          <v-btn
-                            icon
-                            @click="addTime"
-                          >
-                            <v-icon large>
-                              mdi-plus
-                            </v-icon>
-                          </v-btn>
-                        </v-col>
-                      </v-row>
-                      <v-row class="mt-n8">
-                        <v-list>
-                          <v-list-item
-                            v-for="(item, index) in notification.times"
-                            :key="index"
-                          >
-                            <v-text-field
-                              class="mt-n4"
-                              readonly
-                              :value="item.day + ' at ' + item.sendTime"
-                            />
-                          </v-list-item>
-                        </v-list>
-                      </v-row>
                     </v-form>
                   </v-card-text>
                   <v-card-actions>
                     <v-btn
                       color="primary"
                       text
-                      @click="saveNotification"
+                      @click="saveAddNotification"
                     >
                       Save notification
                     </v-btn>
                     <v-btn
                       color="primary"
                       text
-                      @click="exitNotification"
+                      @click="exitAddNotification"
                     >
                       Exit
                     </v-btn>
@@ -385,40 +326,11 @@
                       :hide-default-footer="true"
                       class="elevation-1"
                     >
-                      <template v-slot:item.type.email="{ item }">
+                      <template v-slot:item.enabled="{ item }">
                         <v-simple-checkbox
-                          v-model="item.type.email"
+                          v-model="item.enabled"
                           :ripple="false"
                         />
-                      </template>
-                      <template v-slot:item.type.text="{ item }">
-                        <v-simple-checkbox
-                          v-model="item.type.text"
-                          :ripple="false"
-                        />
-                      </template>
-                      <template v-slot:item.times="{ item }">
-                        <v-menu
-                          offset-y
-                          open-on-hover
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-btn
-                              v-bind="attrs"
-                              v-on="on"
-                            >
-                              View Times
-                            </v-btn>
-                          </template>
-                          <v-list>
-                            <v-list-item
-                              v-for="(timeObj, index) in item.times"
-                              :key="index"
-                            >
-                              <v-list-item-title>{{ timeObj.day + ' at ' + timeObj.sendTime }}</v-list-item-title>
-                            </v-list-item>
-                          </v-list>
-                        </v-menu>
                       </template>
                       <template v-slot:item.actions="{ item }">
                         <v-icon
@@ -434,7 +346,14 @@
                     <v-btn
                       color="primary"
                       text
-                      @click="dialogManageNotif = false;"
+                      @click="saveNotificationManager"
+                    >
+                      Save
+                    </v-btn>
+                    <v-btn
+                      color="primary"
+                      text
+                      @click="exitNotificationManager"
                     >
                       Exit
                     </v-btn>
@@ -470,6 +389,7 @@ import {
 import AlertBanner from '@/components/AlertBanner.vue';
 import {
   getUser, getOrg, getAllOrgs, writeOrg, deleteUser, getAllSpaces, addNotification, getUserNotifications,
+  writeNotifications,
 } from '@/API/firestoreAPI';
 
 export default {
@@ -495,10 +415,6 @@ export default {
       requiredRule: [
         (v) => !!v || 'Required',
       ],
-      contactRule: [
-        (v) => ((v !== this.notification.type.text || v !== this.notification.type.email) || !!v)
-            || 'Either email or text is required',
-      ],
       orgBtnText: 'Register Organization',
       settings: {
         favorite: {
@@ -517,29 +433,16 @@ export default {
       orgSearch: null,
       spaceSearch: null,
       headers: [
-        { text: 'Emails', value: 'type.email' },
-        { text: 'Texts', value: 'type.text' },
+        { text: 'Enabled', value: 'enabled' },
         { text: 'Organization', value: 'orgName' },
         { text: 'Space', value: 'spaceName' },
-        { text: 'Send Time(s)', value: 'times' },
         { text: 'Delete', value: 'actions', sortable: false },
       ],
-      days: [
-        'Sunday', 'Monday', 'Tuesday', 'Wednesay', 'Thursday', 'Friday', 'Saturday',
-      ],
       notifications: [],
-      time: {
-        day: '',
-        sendTime: '',
-      },
       notification: {
         orgName: '',
         spaceName: '',
-        times: [],
-        type: {
-          email: false,
-          text: false,
-        },
+        enabled: false,
       },
     };
   },
@@ -596,7 +499,6 @@ export default {
         try {
           const userObj = await getUser(user.uid);
           this.notifications = await getUserNotifications(user.uid);
-          console.log(this.notifications);
           if (userObj) {
             const { ownedOrgName } = userObj;
             const { orgName, spaceName } = userObj.favorite;
@@ -661,30 +563,53 @@ export default {
         this.setAlert('error', error.message);
       }
     },
-    async saveNotification() {
+    async saveAddNotification() {
       await this.$refs.form.validate();
+      this.notification.enabled = true;
       const notifCopy = JSON.parse(JSON.stringify(this.notification));
-      if (this.notificationFormValid && this.notification.times.length > 0) {
+      if (this.notificationFormValid) {
         this.dialogAddNotif = false;
         try {
           await addNotification(notifCopy, this.auth.currentUser.uid);
           this.setAlert('success', 'Successfully added notification.');
+          this.notifications.push(notifCopy);
         } catch (error) {
           console.log(error);
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
-        this.notification.times = [];
         this.$refs.form.reset();
       }
     },
-    exitNotification() {
+    exitAddNotification() {
       this.dialogAddNotif = false;
       this.$refs.form.reset();
-      this.notification.times = [];
     },
     deleteNotification(item) {
       const deleteNotifIndex = this.notifications.indexOf(item);
       this.notifications.splice(deleteNotifIndex, 1);
+    },
+    async saveNotificationManager() {
+      this.dialogManageNotif = false;
+      const notifsCopy = JSON.parse(JSON.stringify(this.notifications));
+      try {
+        await writeNotifications(notifsCopy, this.auth.currentUser.uid);
+        this.setAlert('success', 'Successfully saved your notifications.');
+      } catch (error) {
+        console.log(error);
+        this.setAlert('error', 'An error has occurred, please try again later.');
+      }
+    },
+    async exitNotificationManager() {
+      this.dialogManageNotif = false;
+      if (this.auth.currentUser) {
+        try {
+          const { uid } = this.auth.currentUser;
+          this.notifications = await getUserNotifications(uid);
+        } catch (error) {
+          console.log(error);
+          this.setAlert('error', 'An error has occurred, please try again later.');
+        }
+      }
     },
     onOrgFilter(item, queryText) {
       const { organization, state, city } = item;
@@ -708,13 +633,6 @@ export default {
       this.alert.show = true;
       this.alert.msg = alertMsg;
       this.alert.type = alertType;
-    },
-    addTime() {
-      if (this.time.day && this.time.sendTime) {
-        this.notification.times.push(JSON.parse(JSON.stringify(this.time)));
-      }
-      this.time.sendTime = '';
-      this.time.day = '';
     },
   },
 };

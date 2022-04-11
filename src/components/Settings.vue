@@ -26,7 +26,7 @@
         justify="center"
       >
         <v-col
-          v-if="loggedIn"
+          v-if="auth.currentUser"
           cols="auto"
           xs="1"
           xl="3"
@@ -63,7 +63,7 @@
         </v-col>
       </v-row>
       <v-row
-        v-if="loggedIn"
+        v-if="auth.currentUser"
         justify="center"
         class="mb-8 mx-auto"
       >
@@ -208,7 +208,157 @@
           <h2 class="pb-2">
             Notification Settings
           </h2>
-          <v-row>
+          <v-row dense>
+            <v-col>
+              <v-dialog
+                v-model="dialogAddNotif"
+                width="500px"
+                persistent
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    ref="addNotifBtn"
+                    v-bind="attrs"
+                    width="220px"
+                    v-on="on"
+                  >
+                    Add Notification
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-card-title>
+                    <span class="text-h5">Add Notification</span>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-form
+                      ref="form"
+                      v-model="notificationFormValid"
+                    >
+                      <v-row>
+                        <v-checkbox
+                          v-model="notification.type.text"
+                          label="Text Notification"
+                          :rules="contactRule"
+                        />
+                        <v-checkbox
+                          v-model="notification.type.email"
+                          class="pl-4"
+                          label="Email Notification"
+                          :rules="contactRule"
+                        />
+                      </v-row>
+                      <v-autocomplete
+                        v-model="orgSelect"
+                        label="Select an organization"
+                        :items="orgs"
+                        clearable
+                        return-object
+                        :search-input.sync="orgSearch"
+                        :filter="onOrgFilter"
+                        required
+                        :rules="requiredRule"
+                      >
+                        <template v-slot:selection="{ item }">
+                          <span>{{ item.name }}</span>
+                        </template>
+                        <template v-slot:item="{ item }">
+                          <v-list-item-content>
+                            <v-list-item-title v-text="item.name" />
+                            <v-list-item-subtitle v-text="item.city" />
+                            <v-list-item-subtitle v-text="item.state" />
+                          </v-list-item-content>
+                        </template>
+                      </v-autocomplete>
+                      <v-autocomplete
+                        v-model="spaceSelect"
+                        label="Select a space"
+                        :items="spaces"
+                        clearable
+                        return-object
+                        :search-input.sync="spaceSearch"
+                        :filter="onSpaceFilter"
+                        required
+                        :rules="requiredRule"
+                      >
+                        <template v-slot:selection="{ item }">
+                          <span>{{ item.name }}</span>
+                        </template>
+                        <template v-slot:item="{ item }">
+                          <v-list-item-content>
+                            <v-list-item-title v-text="item.name" />
+                          </v-list-item-content>
+                        </template>
+                      </v-autocomplete>
+                      <v-row />
+                      <v-row
+                        class="mx-auto pt-2 pb-4"
+                        align="center"
+                        dense
+                      >
+                        <v-col>
+                          <v-text-field
+                            v-model="time.sendTime"
+                            label="Send time"
+                            type="time"
+                          />
+                        </v-col>
+                        <v-col>
+                          <v-select
+                            v-model="time.day"
+                            :items="days"
+                            label="Day"
+                          />
+                        </v-col>
+                        <v-col
+                          class="mb-2"
+                        >
+                          <v-btn
+                            icon
+                            @click="addTime"
+                          >
+                            <v-icon large>
+                              mdi-plus
+                            </v-icon>
+                          </v-btn>
+                        </v-col>
+                      </v-row>
+                      <v-row class="mt-n8">
+                        <v-list>
+                          <v-list-item
+                            v-for="item in notification.times"
+                            :key="item.day"
+                          >
+                            <v-text-field
+                              class="mt-n4"
+                              readonly
+                              :value="item.day + ' at ' + item.sendTime"
+                            />
+                          </v-list-item>
+                        </v-list>
+                      </v-row>
+                    </v-form>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-btn
+                      color="primary"
+                      text
+                      @click="saveNotification"
+                    >
+                      Save notification
+                    </v-btn>
+                    <v-btn
+                      color="primary"
+                      text
+                      @click="exitNotification"
+                    >
+                      Exit
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-col>
+          </v-row>
+          <v-row dense>
             <v-col>
               <v-dialog
                 v-model="dialogManageNotif"
@@ -216,6 +366,7 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
+                    ref="manageNotifBtn"
                     v-bind="attrs"
                     width="220px"
                     v-on="on"
@@ -269,110 +420,6 @@
               </v-dialog>
             </v-col>
           </v-row>
-          <v-row dense>
-            <v-col>
-              <v-dialog
-                v-model="dialogAddNotif"
-                width="500px"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    v-bind="attrs"
-                    width="220px"
-                    v-on="on"
-                  >
-                    Add Notification
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-card-title>
-                    <span class="text-h5">Add Notification</span>
-                  </v-card-title>
-                  <v-card-text>
-                    <v-form
-                      ref="form"
-                    >
-                      <v-row>
-                        <v-checkbox
-                          v-model="notification.type.text"
-                          label="Text Notification"
-                        />
-                        <v-checkbox
-                          v-model="notification.type.text"
-                          class="pl-4"
-                          label="Email Notification"
-                        />
-                      </v-row>
-                      <v-autocomplete
-                        v-model="notification.orgSelect"
-                        label="Select an organization"
-                        :items="orgs"
-                        clearable
-                        return-object
-                        :search-input.sync="orgSearch"
-                        :filter="onOrgFilter"
-                      >
-                        <template v-slot:selection="{ item }">
-                          <span>{{ item.name }}</span>
-                        </template>
-                        <template v-slot:item="{ item }">
-                          <v-list-item-content>
-                            <v-list-item-title v-text="item.name" />
-                            <v-list-item-subtitle v-text="item.city" />
-                            <v-list-item-subtitle v-text="item.state" />
-                          </v-list-item-content>
-                        </template>
-                      </v-autocomplete>
-                      <v-autocomplete
-                        v-model="notification.spaceSelect"
-                        label="Select a space"
-                        :items="spaces"
-                        clearable
-                        return-object
-                        :search-input.sync="spaceSearch"
-                        :filter="onSpaceFilter"
-                      >
-                        <template v-slot:selection="{ item }">
-                          <span>{{ item.name }}</span>
-                        </template>
-                        <template v-slot:item="{ item }">
-                          <v-list-item-content>
-                            <v-list-item-title v-text="item.name" />
-                          </v-list-item-content>
-                        </template>
-                      </v-autocomplete>
-                      <v-text-field
-                        v-model="notification.startTime"
-                        label="Start time"
-                        type="time"
-                      />
-                      <v-text-field
-                        v-model="notification.endTime"
-                        label="End time"
-                        type="time"
-                      />
-                    </v-form>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-btn
-                      color="primary"
-                      text
-                      @click="saveNotification"
-                    >
-                      Save notification
-                    </v-btn>
-                    <v-btn
-                      color="primary"
-                      text
-                      @click="exitNotification"
-                    >
-                      Exit
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </v-col>
-          </v-row>
         </v-col>
       </v-row>
       <v-row
@@ -399,7 +446,7 @@ import {
 } from 'firebase/auth';
 import AlertBanner from '@/components/AlertBanner.vue';
 import {
-  getUser, getOrg, getAllOrgs, writeOrg, deleteUser, writeNotifications,
+  getUser, getOrg, getAllOrgs, writeOrg, deleteUser, getAllSpaces, addNotification,
 } from '@/API/firestoreAPI';
 
 export default {
@@ -413,12 +460,22 @@ export default {
       dialogDeleteAcct: false,
       dialogAddNotif: false,
       dialogManageNotif: false,
+      notificationFormValid: false,
       dialog: false,
+      orgSelect: null,
+      spaceSelect: null,
       registerOrgObj: {
         name: '',
         city: '',
         state: '',
       },
+      requiredRule: [
+        (v) => !!v || 'Required',
+      ],
+      contactRule: [
+        (v) => ((v !== this.notification.type.text || v !== this.notification.type.email) || !!v)
+            || 'Either email or text is required',
+      ],
       orgBtnText: 'Register Organization',
       settings: {
         favorite: {
@@ -445,10 +502,17 @@ export default {
         { text: 'End Time', value: 'endTime' },
         { text: 'Delete', value: 'actions', sortable: false },
       ],
+      days: [
+        'Sunday', 'Monday', 'Tuesday', 'Wednesay', 'Thursday', 'Friday', 'Saturday',
+      ],
       notifications: [],
+      time: {
+        day: '',
+        sendTime: '',
+      },
       notification: {
         orgName: '',
-        orgSpace: '',
+        spaceName: '',
         times: [],
         type: {
           email: false,
@@ -471,6 +535,9 @@ export default {
       // Blur bug fix
       this.$refs.deleteAcctBtn.$el.blur();
     },
+    dialogManageNotif() {
+      this.$refs.manageNotifBtn.$el.blur();
+    },
     async dialogAddNotif() {
       if (this.orgs.length === 0) {
         try {
@@ -478,6 +545,25 @@ export default {
         } catch (error) {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
+      }
+      this.$refs.addNotifBtn.$el.blur();
+    },
+    async orgSelect() {
+      if (this.orgSelect) {
+        const { name } = this.orgSelect;
+        this.notification.orgName = name;
+        this.spaces = await getAllSpaces(name);
+      } else {
+        this.spaceSelect = null;
+        this.notification.spaceName = null;
+      }
+    },
+    async spaceSelect() {
+      if (this.spaceSelect) {
+        const { name } = this.spaceSelect;
+        this.notification.spaceName = name;
+      } else {
+        this.notification.spaceName = '';
       }
     },
   },
@@ -552,18 +638,25 @@ export default {
       }
     },
     async saveNotification() {
-      this.notifications.push(this.notification);
-      try {
-        await writeNotifications(this.notifications, this.auth.currentUser.uid);
-        this.setAlert('success', 'Successfully added notification.');
-      } catch (error) {
-        this.setAlert('error', error.message);
+      await this.$refs.form.validate();
+      const notifCopy = JSON.parse(JSON.stringify(this.notification));
+      if (this.notificationFormValid && this.notification.times.length > 0) {
+        this.dialogAddNotif = false;
+        try {
+          await addNotification(notifCopy, this.auth.currentUser.uid);
+          this.setAlert('success', 'Successfully added notification.');
+        } catch (error) {
+          console.log(error);
+          this.setAlert('error', 'An error has occurred, please try again later.');
+        }
+        this.notification.times = [];
+        this.$refs.form.reset();
       }
-      this.dialogAddNotif = false;
     },
     exitNotification() {
-      this.$refs.form.reset();
       this.dialogAddNotif = false;
+      this.$refs.form.reset();
+      this.notification.times = [];
     },
     deleteNotification(item) {
       const deleteNotifIndex = this.notifications.indexOf(item);
@@ -591,6 +684,13 @@ export default {
       this.alert.show = true;
       this.alert.msg = alertMsg;
       this.alert.type = alertType;
+    },
+    addTime() {
+      if (this.time.day && this.time.sendTime) {
+        this.notification.times.push(JSON.parse(JSON.stringify(this.time)));
+      }
+      this.time.sendTime = '';
+      this.time.day = '';
     },
   },
 };

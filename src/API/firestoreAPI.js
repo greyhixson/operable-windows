@@ -82,12 +82,24 @@ async function writeSpace(orgName, space) {
   { merge: true });
 }
 
-async function writeNotifications(notifications, uid) {
+async function addNotification(notification, uid) {
   const notificationRef = doc(db, 'notifications', uid);
-  await setDoc(notificationRef, {
-    notifications,
-  },
-  { merge: true });
+  const notificationDoc = await getDoc(notificationRef);
+  const notificationsObj = notificationDoc.data();
+
+  if (notificationsObj.notifications) {
+    notificationsObj.notifications.push(notification);
+    await setDoc(notificationRef, {
+      notifications: notificationsObj.notifications,
+    });
+  } else {
+    const defaultNotification = [];
+    defaultNotification.push(notification);
+    console.log(defaultNotification);
+    await setDoc(notificationRef, {
+      notifications: defaultNotification,
+    });
+  }
 }
 
 async function deleteOrg(orgName, uid) {
@@ -138,5 +150,5 @@ async function deleteUser(currentUser, userOwnedOrgName) {
 export {
   getOrg, getUser, getAllOrgs, getAllSpaces, getUserNotifications,
   deleteOrg, deleteSpace, deleteUser,
-  writeSpace, writeOrg, writeNotifications,
+  writeSpace, writeOrg, addNotification,
 };

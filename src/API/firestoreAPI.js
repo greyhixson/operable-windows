@@ -1,7 +1,9 @@
 import {
   collection, deleteDoc,
-  doc, getDoc, getDocs, setDoc,
+  doc, getDoc, getDocs, setDoc, updateDoc,
 } from 'firebase/firestore';
+
+import { deleteUser as deleteUserAuth } from 'firebase/auth';
 
 import { db } from '@/store/store';
 
@@ -48,6 +50,21 @@ async function getAllOrgs() {
   return orgs;
 }
 
+async function writeOrg(org, uid) {
+  const { city, state, name } = org;
+  const orgKey = getInputKey(name);
+  const orgReg = doc(doc(db, 'organizations', orgKey));
+  await setDoc(orgReg, {
+    name,
+    city,
+    state,
+  }, { merge: true });
+  const userRef = doc(db, 'users', uid);
+  await updateDoc(userRef, {
+    ownedOrgName: name,
+  });
+}
+
 async function writeSpace(orgName, space) {
   const {
     name, maxAqi, maxHumidity, maxTemp, minTemp,
@@ -61,6 +78,14 @@ async function writeSpace(orgName, space) {
     maxTemp,
     minTemp,
     name,
+  },
+  { merge: true });
+}
+
+async function writeNotifications(notifications, uid) {
+  const notificationRef = doc(db, 'notifications', uid);
+  await setDoc(notificationRef, {
+    notifications,
   },
   { merge: true });
 }
@@ -93,6 +118,25 @@ async function deleteSpace(orgName, space) {
   await deleteDoc(doc(db, `organizations/${orgKey}/spaces`, spaceKey));
 }
 
+async function deleteUser(currentUser, userOwnedOrgName) {
+  const { uid } = currentUser;
+  const userRef = doc(db, 'users', uid);
+  if (userOwnedOrgName) {
+    const userDoc = await getDoc(userRef);
+    if (userDoc.exists()) {
+      const { ownedOrgName } = userDoc.data();
+      if (ownedOrgName === userOwnedOrgName) {
+        const orgKey = this.getInputKey(ownedOrgName);
+        await deleteDoc(doc(db, 'organizations', orgKey));
+      }
+    }
+  }
+  await deleteDoc(userRef);
+  await deleteUserAuth(currentUser);
+}
+
 export {
-  getOrg, getAllOrgs, getUser, getAllSpaces, getUserNotifications, deleteOrg, deleteSpace, writeSpace,
+  getOrg, getUser, getAllOrgs, getAllSpaces, getUserNotifications,
+  deleteOrg, deleteSpace, deleteUser,
+  writeSpace, writeOrg, writeNotifications,
 };

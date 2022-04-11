@@ -393,14 +393,14 @@
 
 <script>
 
-import { APIkey, db } from '@/store/store';
+import { APIkey } from '@/store/store';
 import {
-  getAuth, onAuthStateChanged, sendPasswordResetEmail, deleteUser,
+  getAuth, onAuthStateChanged, sendPasswordResetEmail,
 } from 'firebase/auth';
-import {
-  doc, getDoc, setDoc, deleteDoc, getDocs, collection, updateDoc,
-} from 'firebase/firestore';
 import AlertBanner from '@/components/AlertBanner.vue';
+import {
+  getUser, getOrg, getAllOrgs, writeOrg, deleteUser, writeNotifications,
+} from '@/API/firestoreAPI';
 
 export default {
   name: 'Settings',
@@ -455,8 +455,6 @@ export default {
           text: false,
         },
       },
-      ownsOrg: false,
-      loggedIn: false,
     };
   },
   computed: {
@@ -476,10 +474,7 @@ export default {
     async dialogAddNotif() {
       if (this.orgs.length === 0) {
         try {
-          const querySnapshot = await getDocs(collection(db, 'organizations'));
-          querySnapshot.forEach((document) => {
-            this.orgs.push(document.data());
-          });
+          this.orgs = await getAllOrgs();
         } catch (error) {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
@@ -490,15 +485,20 @@ export default {
     const { auth } = this;
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        this.loggedIn = true;
         try {
-          const userRef = doc(db, 'users', user.uid);
-          const userDoc = await getDoc(userRef);
-          if (userDoc.exists()) {
-            const userObj = userDoc.data();
-            if (userObj.ownedOrgName) {
+          const userObj = await getUser(user.uid);
+          if (userObj) {
+            const { ownedOrgName } = userObj;
+            const { orgName, spaceName } = userObj.favorite;
+            if (ownedOrgName) {
               this.orgBtnText = 'Manage Organization';
-              this.ownsOrg = true;
+              this.settings = {
+                ownedOrgName,
+                favorite: {
+                  orgName,
+                  spaceName,
+                },
+              };
             } else {
               this.orgBtnText = 'Register Organization';
             }
@@ -506,42 +506,28 @@ export default {
         } catch (error) {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
-      } else {
-        this.loggedIn = false;
-        this.ownsOrg = false;
       }
     });
   },
   methods: {
     checkRegistered() {
-      if (this.loggedIn && this.ownsOrg) {
+      if (this.auth.currentUser && this.settings.ownedOrgName) {
         this.$router.push('/manageorg');
       }
     },
     async registerOrg() {
       const { city, state, name } = this.registerOrgObj;
-      const orgKey = this.getInputKey(name);
-      const orgRef = doc(db, 'organizations', orgKey);
-      const orgDoc = await getDoc(orgRef);
-      if (!orgDoc.exists() && this.loggedIn) {
+      const orgDoc = await getOrg(name);
+      if (!orgDoc.exists() && this.auth.currentUser) {
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},
         US&appid=${APIkey}&units=imperial`)
           .then((response) => response.json())
           .then(async (weather) => {
             const { main } = weather;
             if (main) {
-              await setDoc(doc(db, 'organizations', orgKey), {
-                name,
-                city,
-                state,
-              });
+              await writeOrg(this.registerOrgObj, this.auth.currentUser.uid);
               this.settings.ownedOrgName = name;
-              const userRef = doc(db, 'users', this.auth.currentUser.uid);
-              await updateDoc(userRef, {
-                ownedOrgName: name,
-              });
               this.orgBtnText = 'Manage Organization';
-              this.ownsOrg = true;
               this.setAlert('success', 'Successfully registered organization.');
             } else {
               this.setAlert('error', weather.message);
@@ -553,40 +539,22 @@ export default {
       this.dialogManageOrg = false;
     },
     async resetPassword() {
-      if (this.loggedIn) {
+      if (this.auth.currentUser) {
         this.setAlert('info', 'Check your inbox for an email to reset your password');
         await sendPasswordResetEmail(this.auth, this.auth.currentUser.email);
       }
     },
     async deleteAccount() {
-      if (this.loggedIn) {
-        try {
-          if (this.settings.ownedOrgName) {
-            const userRef = doc(db, 'users', this.auth.currentUser.uid);
-            const userDoc = await getDoc(userRef);
-            if (userDoc.exists()) {
-              const { ownedOrgName } = userDoc.data();
-              if (ownedOrgName) {
-                const orgKey = this.getInputKey(ownedOrgName);
-                await deleteDoc(doc(db, 'organizations', orgKey));
-              }
-            }
-          }
-          await deleteDoc(doc(db, 'users', this.auth.currentUser.uid));
-        } catch (error) {
-          this.setAlert('error', error.message);
-        }
-        await deleteUser(this.auth.currentUser);
+      try {
+        await deleteUser(this.auth.currentUser, this.settings.ownedOrgName);
+      } catch (error) {
+        this.setAlert('error', error.message);
       }
     },
     async saveNotification() {
+      this.notifications.push(this.notification);
       try {
-        await setDoc(doc(db, 'notifications', this.auth.currentUser.uid), {
-          orgName: this.notification.orgName,
-          orgSpace: this.notification.orgSpace,
-          times: this.times,
-          type: this.type,
-        });
+        await writeNotifications(this.notifications, this.auth.currentUser.uid);
         this.setAlert('success', 'Successfully added notification.');
       } catch (error) {
         this.setAlert('error', error.message);

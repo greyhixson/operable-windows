@@ -26,14 +26,19 @@
         justify="center"
       >
         <v-col
+          v-if="loggedIn"
           cols="auto"
           xs="1"
           xl="3"
         >
-          <h2> Personal Details</h2>
+          <h2> Personal</h2>
           <v-text-field
-            v-model="settings.phone_number"
             label="Phone Number"
+            readonly
+          />
+          <v-text-field
+            label="Email Address"
+            readonly
           />
         </v-col>
         <v-col
@@ -58,6 +63,7 @@
         </v-col>
       </v-row>
       <v-row
+        v-if="loggedIn"
         justify="center"
         class="mb-8 mx-auto"
       >
@@ -67,10 +73,9 @@
           xl="3"
         >
           <h2 class="pb-2">
-            {{ loggedIn ? 'Account Settings' : 'General Settings' }}
+            Account Settings
           </h2>
           <v-row
-            v-if="loggedIn"
             dense
           >
             <v-col>
@@ -83,7 +88,6 @@
             </v-col>
           </v-row>
           <v-row
-            v-if="loggedIn"
             dense
           >
             <v-col>
@@ -143,7 +147,6 @@
             </v-col>
           </v-row>
           <v-row
-            v-if="loggedIn"
             dense
           >
             <v-col>
@@ -227,19 +230,19 @@
                   <v-card-text>
                     <v-data-table
                       :headers="headers"
-                      :items="settings.notifications"
+                      :items="notifications"
                       :hide-default-footer="true"
                       class="elevation-1"
                     >
-                      <template v-slot:item.emailNotification="{ item }">
+                      <template v-slot:item.type.email="{ item }">
                         <v-simple-checkbox
-                          v-model="item.emailNotification"
+                          v-model="item.type.email"
                           :ripple="false"
                         />
                       </template>
-                      <template v-slot:item.textNotification="{ item }">
+                      <template v-slot:item.type.text="{ item }">
                         <v-simple-checkbox
-                          v-model="item.textNotification"
+                          v-model="item.type.text"
                           :ripple="false"
                         />
                       </template>
@@ -257,14 +260,7 @@
                     <v-btn
                       color="primary"
                       text
-                      @click="saveNotificationManager"
-                    >
-                      Save changes
-                    </v-btn>
-                    <v-btn
-                      color="primary"
-                      text
-                      @click="exitNotificationManager"
+                      @click="dialogManageNotif = false;"
                     >
                       Exit
                     </v-btn>
@@ -298,11 +294,11 @@
                     >
                       <v-row>
                         <v-checkbox
-                          v-model="notification.textNotification"
+                          v-model="notification.type.text"
                           label="Text Notification"
                         />
                         <v-checkbox
-                          v-model="notification.emailNotification"
+                          v-model="notification.type.text"
                           class="pl-4"
                           label="Email Notification"
                         />
@@ -382,45 +378,14 @@
       <v-row
         justify="center"
       >
-        <v-dialog
-          max-width="400px"
+        <v-btn
+          dark
+          width="200px"
+          height="50px"
+          to="/"
         >
-          <template
-            v-slot:activator="{ on, attrs }"
-          >
-            <v-btn
-              dark
-              v-bind="attrs"
-              width="300px"
-              height="60px"
-              v-on="on"
-            >
-              Exit
-            </v-btn>
-          </template>
-          <v-card
-            class="mx-auto"
-          >
-            <v-card-title class="text-h5">
-              Save your Settings?
-            </v-card-title>
-            <v-card-actions
-              class="pb-2"
-            >
-              <v-btn
-                :loading="loadSaveSettings"
-                @click="saveSettings"
-              >
-                Yes
-              </v-btn>
-              <v-btn
-                to="/"
-              >
-                No
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+          Exit
+        </v-btn>
       </v-row>
     </v-container>
   </v-container>
@@ -433,7 +398,7 @@ import {
   getAuth, onAuthStateChanged, sendPasswordResetEmail, deleteUser,
 } from 'firebase/auth';
 import {
-  doc, getDoc, setDoc, deleteDoc,
+  doc, getDoc, setDoc, deleteDoc, getDocs, collection, updateDoc,
 } from 'firebase/firestore';
 import AlertBanner from '@/components/AlertBanner.vue';
 
@@ -455,7 +420,6 @@ export default {
         state: '',
       },
       orgBtnText: 'Register Organization',
-      loadSaveSettings: false,
       settings: {
         favorite: {
           orgName: '',
@@ -481,6 +445,7 @@ export default {
         { text: 'End Time', value: 'endTime' },
         { text: 'Delete', value: 'actions', sortable: false },
       ],
+      notifications: [],
       notification: {
         orgName: '',
         orgSpace: '',
@@ -500,23 +465,6 @@ export default {
     },
   },
   watch: {
-    'user.settings': {
-      handler(settings) {
-        this.settings = JSON.parse(JSON.stringify(settings));
-        if (settings.organization_name) {
-          this.orgBtnText = 'Manage Organization';
-        } else {
-          this.orgBtnText = 'Register Organization';
-        }
-      },
-      deep: true,
-    },
-    'notification.orgSelect': async function watchOrgSelect(orgSelect) {
-      if (orgSelect) {
-        const { organization } = orgSelect;
-        this.spaces = await getAllSpaces(organization);
-      }
-    },
     dialogManageOrg() {
       // Blur bug fix
       this.$refs.orgBtn.$el.blur();
@@ -527,7 +475,14 @@ export default {
     },
     async dialogAddNotif() {
       if (this.orgs.length === 0) {
-        this.orgs = await getAllOrgs();
+        try {
+          const querySnapshot = await getDocs(collection(db, 'organizations'));
+          querySnapshot.forEach((document) => {
+            this.orgs.push(document.data());
+          });
+        } catch (error) {
+          this.setAlert('error', 'An error has occurred, please try again later.');
+        }
       }
     },
   },
@@ -567,7 +522,9 @@ export default {
       const { city, state, name } = this.registerOrgObj;
       const orgKey = this.getInputKey(name);
       const orgRef = doc(db, 'organizations', orgKey);
-      if (!orgRef && this.loggedIn) {
+      const orgDoc = await getDoc(orgRef);
+      console.log(orgDoc);
+      if (!orgDoc.exists() && this.loggedIn) {
         fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},
         US&appid=${APIkey}&units=imperial`)
           .then((response) => response.json())
@@ -580,7 +537,10 @@ export default {
                 state,
               });
               this.settings.ownedOrgName = name;
-              await this.saveUserSettings(this.settings);
+              const userRef = doc(db, 'users', this.auth.currentUser.uid);
+              await updateDoc(userRef, {
+                ownedOrgName: name,
+              });
               this.setAlert('success', 'Successfully registered organization.');
             } else {
               this.setAlert('error', weather.message);
@@ -590,15 +550,6 @@ export default {
         this.setAlert('error', 'Organization already exists.');
       }
       this.dialogManageOrg = false;
-    },
-    async saveUserSettings(settings) {
-      this.loadSaveSettings = true;
-      const userRef = doc(db, 'users', this.auth.currentUser.uid);
-      await setDoc(userRef, {
-        favorites: settings.favorites,
-        ownedOrgName: settings.ownedOrgName,
-      });
-      this.loadSaveSettings = false;
     },
     async resetPassword() {
       if (this.loggedIn) {
@@ -646,16 +597,8 @@ export default {
       this.dialogAddNotif = false;
     },
     deleteNotification(item) {
-      const deleteNotifIndex = this.settings.notifications.indexOf(item);
-      this.settings.notifications.splice(deleteNotifIndex, 1);
-    },
-    async saveNotificationManager() {
-      user.settings.notifications = JSON.parse(JSON.stringify(this.settings.notifications));
-      this.dialogManageNotif = false;
-    },
-    exitNotificationManager() {
-      this.settings.notifications = JSON.parse(JSON.stringify(user.settings.notifications));
-      this.dialogManageNotif = false;
+      const deleteNotifIndex = this.notifications.indexOf(item);
+      this.notifications.splice(deleteNotifIndex, 1);
     },
     onOrgFilter(item, queryText) {
       const { organization, state, city } = item;

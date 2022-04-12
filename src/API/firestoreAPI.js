@@ -57,33 +57,6 @@ async function getAllOrgs() {
   return orgs;
 }
 
-async function getAllNotificationsToSend() {
-  const currentDate = new Date();
-  const currentTime = currentDate.getTime();
-  const notifications = [];
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const currentDay = days[currentDate.getDay()];
-  const querySnapshot = await getDocs(collection(db, 'notifications'));
-  querySnapshot.forEach((document) => {
-    if (document.data().notifications) {
-      document.data().notifications.forEach((notification) => {
-        const {
-          enabled, startDate, endDate, repeatDays, sendTime,
-        } = notification;
-        const repeatsToday = repeatDays.some((day) => day === currentDay);
-        if (enabled && startDate && endDate && repeatsToday && sendTime) {
-          const startTime = new Date(startDate).getTime();
-          const endTime = new Date(endDate).getTime();
-          if (startTime < currentTime && endTime > currentTime) {
-            notifications.push(notification);
-          }
-        }
-      });
-    }
-  });
-  console.log(notifications);
-}
-
 async function writeOrg(org, uid) {
   const { city, state, name } = org;
   const orgKey = getInputKey(name);
@@ -127,12 +100,16 @@ async function addNotification(notification, uid) {
         notifications: notificationsObj.notifications,
       });
     } else {
-      const defaultNotification = [];
-      defaultNotification.push(notification);
+      const notifications = [notification];
       await setDoc(notificationRef, {
-        notifications: defaultNotification,
+        notifications,
       });
     }
+  } else {
+    const notifications = [notification];
+    await setDoc(notificationRef, {
+      notifications,
+    });
   }
 }
 
@@ -188,7 +165,7 @@ async function deleteUser(currentUser, userOwnedOrgName) {
     if (userDoc.exists()) {
       const { ownedOrgName } = userDoc.data();
       if (ownedOrgName === userOwnedOrgName) {
-        const orgKey = this.getInputKey(ownedOrgName);
+        const orgKey = getInputKey(ownedOrgName);
         await deleteDoc(doc(db, 'organizations', orgKey));
       }
     }
@@ -197,7 +174,7 @@ async function deleteUser(currentUser, userOwnedOrgName) {
 }
 
 export {
-  getOrg, getUser, getAllOrgs, getAllSpaces, getAllNotificationsToSend, getUserNotifications,
+  getOrg, getUser, getAllOrgs, getAllSpaces, getUserNotifications,
   deleteOrg, deleteSpace, deleteUser,
   writeSpace, writeUserSettings, writeOrg, writeNotifications, addNotification,
 };

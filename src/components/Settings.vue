@@ -395,6 +395,8 @@
                               </template>
                               <v-date-picker
                                 v-model="notification.startDate"
+                                show-current
+                                :min="new Date().toISOString().slice(0, 10)"
                                 @input="startDateMenu = false"
                               />
                             </v-menu>

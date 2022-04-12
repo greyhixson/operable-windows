@@ -13,13 +13,27 @@ const db = admin.firestore();
 
 // Create a function that will get the user's organization space thresholds and
 // weather API data and then email or text the user
+function padTo2Digits(num) {
+  return String(num).padStart(2, '0');
+}
 
-exports.sendNotifications = functions.runWith({ memory: '2GB' }).pubsub
+function sendNotification(notification) {
+  db.collection('notificationMessages').add({
+    channelId: '97f5ec10529c4982b18d3a92c09efbf3',
+    type: 'text',
+    content: {
+      text: 'TEST MESSAGE',
+    },
+    to: notification.phoneNumber,
+  });
+}
+
+exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
   .schedule('* * * * *')
   .onRun(async () => {
-    const phoneNumber = null;
     const currentDate = new Date();
-    const currentTime = currentDate.getTime();
+    const timestamp = currentDate.getTime();
+    const hoursAndMinutes = `${padTo2Digits(currentDate.getHours())}:${padTo2Digits(currentDate.getMinutes())}`;
     const notifications = [];
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     const currentDay = days[currentDate.getDay()];
@@ -29,13 +43,23 @@ exports.sendNotifications = functions.runWith({ memory: '2GB' }).pubsub
       if (document.data().notifications) {
         document.data().notifications.forEach((notification) => {
           const {
-            enabled, startDate, endDate, repeatDays, sendTime,
+            enabled, startDate, endDate, repeatDays, sendTime, phoneNumber,
           } = notification;
           const repeatsToday = repeatDays.some((day) => day === currentDay);
-          if (enabled && startDate && endDate && repeatsToday && sendTime) {
+          functions.logger.log('Enabled', enabled);
+          functions.logger.log('startDate', startDate);
+          functions.logger.log('endDate', endDate);
+          functions.logger.log('repeatsToday', repeatsToday);
+          functions.logger.log('phoneNumber', phoneNumber);
+          functions.logger.log('sendTime', sendTime);
+          functions.logger.log('hoursAndMinutes', hoursAndMinutes);
+          if (enabled && startDate && endDate && repeatsToday && phoneNumber && sendTime === hoursAndMinutes) {
             const startTime = new Date(startDate).getTime();
             const endTime = new Date(endDate).getTime();
-            if (startTime < currentTime && endTime > currentTime) {
+            new Date(sendTime).getTime();
+            console.log(sendTime);
+            if (startTime < timestamp && endTime > timestamp) {
+              sendNotification(notification);
               notifications.push(notification);
             }
           }

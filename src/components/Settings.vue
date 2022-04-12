@@ -736,7 +736,7 @@ export default {
     },
     async deleteAccount() {
       try {
-        await deleteUser(this.auth.currentUser, this.settings.ownedOrgName);
+        await deleteUser(this.auth.currentUser);
       } catch (e) {
         this.setAlert('error', e);
       }

@@ -368,7 +368,7 @@ export default {
   methods: {
     async deleteOrg() {
       if (this.auth.currentUser) {
-        await deleteOrg(this.orgName, this.auth.currentUser.uid);
+        await deleteOrg(this.auth.currentUser.uid);
         this.dialogDeleteOrg = false;
         await this.$router.push('/').catch(() => {});
       }

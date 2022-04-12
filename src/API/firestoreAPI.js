@@ -129,10 +129,10 @@ async function writeNotifications(notifications, uid) {
   });
 }
 
-async function deleteOrg(orgName, uid) {
+async function deleteOrg(uid) {
   const user = await getUser(uid);
   const { ownedOrgName } = user;
-  const orgKey = getInputKey(orgName);
+  const orgKey = getInputKey(ownedOrgName);
   // Delete all the spaces
   const querySnapshot = await getDocs(collection(db, `organizations/${orgKey}/spaces`));
   querySnapshot.forEach((document) => {
@@ -140,10 +140,9 @@ async function deleteOrg(orgName, uid) {
     deleteDoc(doc(db, `organizations/${orgKey}/spaces`, spaceKey));
   });
   // Delete the org
-  if (ownedOrgName === orgName) {
-    await deleteDoc(doc(db, 'organizations', orgKey));
-  }
-  // Delete the user
+  await deleteDoc(doc(db, 'organizations', orgKey));
+
+  // Remove the org ownership from the user
   const userRef = doc(db, 'users', uid);
   await setDoc(userRef, {
     ownedOrgName: '',
@@ -157,18 +156,13 @@ async function deleteSpace(orgName, space) {
   await deleteDoc(doc(db, `organizations/${orgKey}/spaces`, spaceKey));
 }
 
-async function deleteUser(currentUser, userOwnedOrgName) {
+async function deleteUser(currentUser) {
   const { uid } = currentUser;
   const userRef = doc(db, 'users', uid);
-  if (userOwnedOrgName) {
-    const userDoc = await getDoc(userRef);
-    if (userDoc.exists()) {
-      const { ownedOrgName } = userDoc.data();
-      if (ownedOrgName === userOwnedOrgName) {
-        const orgKey = getInputKey(ownedOrgName);
-        await deleteDoc(doc(db, 'organizations', orgKey));
-      }
-    }
+  const userDoc = await getDoc(userRef);
+  const { ownedOrgName } = userDoc.data();
+  if (ownedOrgName) {
+    await deleteOrg(uid);
   }
   await deleteUserAuth(currentUser);
 }

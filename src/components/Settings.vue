@@ -695,14 +695,14 @@ export default {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
       } else {
-        await this.$router.push('/');
+        await this.$router.push('/').catch(() => {});
       }
     });
   },
   methods: {
     checkRegistered() {
       if (this.auth.currentUser && this.settings.ownedOrgName) {
-        this.$router.push('/manageorg');
+        this.$router.push('/manageorg').catch(() => {});
       }
     },
     async registerOrg() {
@@ -741,8 +741,8 @@ export default {
     async deleteAccount() {
       try {
         await deleteUser(this.auth.currentUser, this.settings.ownedOrgName);
-      } catch {
-        this.setAlert('error', 'An error has occurred, please try again later.');
+      } catch (e) {
+        this.setAlert('error', e);
       }
     },
     async saveAddNotification() {

@@ -360,7 +360,7 @@ export default {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
       } else {
-        await this.$router.push('/');
+        await this.$router.push('/').catch(() => {});
       }
       this.loading = false;
     });
@@ -370,7 +370,7 @@ export default {
       if (this.auth.currentUser) {
         await deleteOrg(this.orgName, this.auth.currentUser.uid);
         this.dialogDeleteOrg = false;
-        await this.$router.push('/');
+        await this.$router.push('/').catch(() => {});
       }
     },
     editItem(item) {

@@ -110,7 +110,7 @@ export default {
       if (this.auth.currentUser) {
         await signOut(this.auth);
       } else {
-        await this.$router.push('/signin');
+        await this.$router.push('/signin').catch(() => {});
       }
     },
   },

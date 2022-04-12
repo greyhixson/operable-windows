@@ -193,7 +193,6 @@ async function deleteUser(currentUser, userOwnedOrgName) {
       }
     }
   }
-  await deleteDoc(userRef);
   await deleteUserAuth(currentUser);
 }
 

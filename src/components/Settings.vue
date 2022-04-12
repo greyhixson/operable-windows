@@ -816,7 +816,6 @@ export default {
         try {
           const { uid } = this.auth.currentUser;
           const settings = JSON.parse(JSON.stringify(this.settings));
-          console.log(settings);
           await writeUserSettings(settings, uid);
           this.setAlert('success', 'Successfully saved your settings.');
         } catch {

@@ -278,9 +278,9 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    v-bind="attrs"
+                    v-bind="settings.phoneNumber ? attrs : null"
                     width="220px"
-                    v-on="on"
+                    v-on="settings.phoneNumber ? on : null"
                     @click="checkIfPhoneNumber"
                   >
                     Add Text Notification
@@ -639,9 +639,6 @@ export default {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
       }
-      if (!this.settings.phoneNumber) {
-        this.dialogAddNotif = false;
-      }
     },
     async orgSelect() {
       if (this.orgSelect) {
@@ -691,7 +688,6 @@ export default {
             }
           }
         } catch (error) {
-          console.log(error);
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
       } else {
@@ -742,7 +738,7 @@ export default {
     },
     async deleteAccount() {
       try {
-        await deleteUser(this.auth.currentUser, this.settings.ownedOrgName);
+        await deleteUser(this.auth.currentUser);
       } catch (e) {
         this.setAlert('error', e);
       }

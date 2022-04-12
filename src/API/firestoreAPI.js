@@ -57,33 +57,6 @@ async function getAllOrgs() {
   return orgs;
 }
 
-async function getAllNotificationsToSend() {
-  const currentDate = new Date();
-  const currentTime = currentDate.getTime();
-  const notifications = [];
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const currentDay = days[currentDate.getDay()];
-  const querySnapshot = await getDocs(collection(db, 'notifications'));
-  querySnapshot.forEach((document) => {
-    if (document.data().notifications) {
-      document.data().notifications.forEach((notification) => {
-        const {
-          enabled, startDate, endDate, repeatDays, sendTime,
-        } = notification;
-        const repeatsToday = repeatDays.some((day) => day === currentDay);
-        if (enabled && startDate && endDate && repeatsToday && sendTime) {
-          const startTime = new Date(startDate).getTime();
-          const endTime = new Date(endDate).getTime();
-          if (startTime < currentTime && endTime > currentTime) {
-            notifications.push(notification);
-          }
-        }
-      });
-    }
-  });
-  console.log(notifications);
-}
-
 async function writeOrg(org, uid) {
   const { city, state, name } = org;
   const orgKey = getInputKey(name);
@@ -127,12 +100,16 @@ async function addNotification(notification, uid) {
         notifications: notificationsObj.notifications,
       });
     } else {
-      const defaultNotification = [];
-      defaultNotification.push(notification);
+      const notifications = [notification];
       await setDoc(notificationRef, {
-        notifications: defaultNotification,
+        notifications,
       });
     }
+  } else {
+    const notifications = [notification];
+    await setDoc(notificationRef, {
+      notifications,
+    });
   }
 }
 
@@ -152,10 +129,10 @@ async function writeNotifications(notifications, uid) {
   });
 }
 
-async function deleteOrg(orgName, uid) {
+async function deleteOrg(uid) {
   const user = await getUser(uid);
   const { ownedOrgName } = user;
-  const orgKey = getInputKey(orgName);
+  const orgKey = getInputKey(ownedOrgName);
   // Delete all the spaces
   const querySnapshot = await getDocs(collection(db, `organizations/${orgKey}/spaces`));
   querySnapshot.forEach((document) => {
@@ -163,10 +140,9 @@ async function deleteOrg(orgName, uid) {
     deleteDoc(doc(db, `organizations/${orgKey}/spaces`, spaceKey));
   });
   // Delete the org
-  if (ownedOrgName === orgName) {
-    await deleteDoc(doc(db, 'organizations', orgKey));
-  }
-  // Delete the user
+  await deleteDoc(doc(db, 'organizations', orgKey));
+
+  // Remove the org ownership from the user
   const userRef = doc(db, 'users', uid);
   await setDoc(userRef, {
     ownedOrgName: '',
@@ -180,24 +156,19 @@ async function deleteSpace(orgName, space) {
   await deleteDoc(doc(db, `organizations/${orgKey}/spaces`, spaceKey));
 }
 
-async function deleteUser(currentUser, userOwnedOrgName) {
+async function deleteUser(currentUser) {
   const { uid } = currentUser;
   const userRef = doc(db, 'users', uid);
-  if (userOwnedOrgName) {
-    const userDoc = await getDoc(userRef);
-    if (userDoc.exists()) {
-      const { ownedOrgName } = userDoc.data();
-      if (ownedOrgName === userOwnedOrgName) {
-        const orgKey = this.getInputKey(ownedOrgName);
-        await deleteDoc(doc(db, 'organizations', orgKey));
-      }
-    }
+  const userDoc = await getDoc(userRef);
+  const { ownedOrgName } = userDoc.data();
+  if (ownedOrgName) {
+    await deleteOrg(uid);
   }
   await deleteUserAuth(currentUser);
 }
 
 export {
-  getOrg, getUser, getAllOrgs, getAllSpaces, getAllNotificationsToSend, getUserNotifications,
+  getOrg, getUser, getAllOrgs, getAllSpaces, getUserNotifications,
   deleteOrg, deleteSpace, deleteUser,
   writeSpace, writeUserSettings, writeOrg, writeNotifications, addNotification,
 };

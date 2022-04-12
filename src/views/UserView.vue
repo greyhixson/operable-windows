@@ -41,11 +41,10 @@
           {{ accountBtnText }}
         </v-btn>
         <v-btn
-          v-if="auth.currentUser"
           class="mx-auto"
           width="165"
           height="50"
-          to="/settings"
+          @click="settings"
         >
           Settings
         </v-btn>
@@ -111,6 +110,14 @@ export default {
         await signOut(this.auth);
       } else {
         await this.$router.push('/signin').catch(() => {});
+      }
+    },
+    settings() {
+      const { currentUser } = this.auth;
+      if (currentUser) {
+        this.$router.push('/settings').catch(() => {});
+      } else {
+        this.$router.push('/signup').catch(() => {});
       }
     },
   },

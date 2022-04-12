@@ -747,7 +747,6 @@ export default {
       const notifCopy = JSON.parse(JSON.stringify(this.notification));
       const { phoneNumber } = this.settings;
       notifCopy.phoneNumber = phoneNumber;
-      console.log(notifCopy);
       if (this.notificationFormValid) {
         this.dialogAddNotif = false;
         try {

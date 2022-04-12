@@ -32,14 +32,14 @@
         >
           <h2> Personal</h2>
           <v-text-field
-            v-model="settings.phoneNumber"
+            :value="settings.phoneNumber"
             class="readonlyField"
             label="Phone Number"
             readonly
             type="number"
           />
           <v-text-field
-            v-model="auth.currentUser.email"
+            :value="email"
             class="readonlyField"
             label="Email Address"
             readonly
@@ -281,6 +281,7 @@
                     v-bind="attrs"
                     width="220px"
                     v-on="on"
+                    @click="checkIfPhoneNumber"
                   >
                     Add Text Notification
                   </v-btn>
@@ -602,7 +603,6 @@ export default {
         { text: 'Start Date', value: 'startDate' },
         { text: 'End Date', value: 'endDate' },
         { text: 'Send Time', value: 'sendTime' },
-
         { text: 'Delete', value: 'actions', sortable: false },
       ],
       notifications: [],
@@ -617,12 +617,19 @@ export default {
         startDate: '',
         endDate: '',
         repeatDays: [],
+        phoneNumber: '',
       },
     };
   },
   computed: {
     auth() {
       return getAuth();
+    },
+    email() {
+      if (this.auth.currentUser) {
+        return this.auth.currentUser.email;
+      }
+      return '';
     },
   },
   watch: {
@@ -633,6 +640,9 @@ export default {
         } catch (error) {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
+      }
+      if (!this.settings.phoneNumber) {
+        this.dialogAddNotif = false;
       }
     },
     async orgSelect() {
@@ -795,6 +805,11 @@ export default {
       this.writeSettings();
       this.phoneNumber = '';
       this.phoneNumberDialog = false;
+    },
+    checkIfPhoneNumber() {
+      if (!this.settings.phoneNumber) {
+        this.setAlert('error', 'Please update your phone number before adding notifications');
+      }
     },
     async writeSettings() {
       if (this.auth.currentUser) {

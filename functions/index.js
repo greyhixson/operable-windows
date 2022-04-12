@@ -17,6 +17,7 @@ const db = admin.firestore();
 exports.sendNotifications = functions.runWith({ memory: '2GB' }).pubsub
   .schedule('* * * * *')
   .onRun(async () => {
+    const phoneNumber = null;
     const currentDate = new Date();
     const currentTime = currentDate.getTime();
     const notifications = [];

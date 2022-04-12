@@ -548,7 +548,7 @@ import AlertBanner from '@/components/AlertBanner.vue';
 import {
   getUser, getOrg, getAllOrgs, writeOrg, deleteUser, getAllSpaces,
   addNotification, getUserNotifications,
-  writeUserSettings, writeNotifications, getAllNotificationsToSend,
+  writeUserSettings, writeNotifications,
 } from '@/API/firestoreAPI';
 
 export default {
@@ -575,6 +575,7 @@ export default {
         city: '',
         state: '',
       },
+      email: '',
       requiredRule: [
         (v) => !!v || 'Required',
       ],
@@ -625,12 +626,6 @@ export default {
     auth() {
       return getAuth();
     },
-    email() {
-      if (this.auth.currentUser) {
-        return this.auth.currentUser.email;
-      }
-      return '';
-    },
   },
   watch: {
     async dialogAddNotif() {
@@ -670,8 +665,8 @@ export default {
       if (user) {
         try {
           const userObj = await getUser(user.uid);
+          this.email = user.email;
           this.notifications = await getUserNotifications(user.uid);
-          await getAllNotificationsToSend();
           if (userObj) {
             const { ownedOrgName, phoneNumber } = userObj;
             const { orgName, spaceName } = userObj.favorite;
@@ -750,6 +745,9 @@ export default {
       await this.$refs.form.validate();
       this.notification.enabled = true;
       const notifCopy = JSON.parse(JSON.stringify(this.notification));
+      const { phoneNumber } = this.settings;
+      notifCopy.phoneNumber = phoneNumber;
+      console.log(notifCopy);
       if (this.notificationFormValid) {
         this.dialogAddNotif = false;
         try {

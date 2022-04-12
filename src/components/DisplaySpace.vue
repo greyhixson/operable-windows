@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-card
-      max-width="400"
+      max-width="350"
       class="mx-auto"
     >
       <v-list-item>
@@ -93,6 +93,7 @@
 
       <v-card-actions>
         <v-btn
+          v-if="auth.currentUser"
           text
           @click="saveSelection"
         >

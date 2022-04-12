@@ -1,5 +1,7 @@
 <template>
-  <v-container class="text-center">
+  <v-container
+    class="text-center"
+  >
     <v-row no-gutters>
       <v-col>
         <select-space
@@ -39,6 +41,7 @@
           {{ accountBtnText }}
         </v-btn>
         <v-btn
+          v-if="auth.currentUser"
           class="mx-auto"
           width="165"
           height="50"

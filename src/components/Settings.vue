@@ -26,17 +26,17 @@
         justify="center"
       >
         <v-col
-          v-if="auth.currentUser"
           cols="auto"
           xs="1"
           xl="3"
         >
           <h2> Personal</h2>
           <v-text-field
-            v-model="auth.currentUser.phoneNumber"
+            v-model="settings.phoneNumber"
             class="readonlyField"
             label="Phone Number"
             readonly
+            type="number"
           />
           <v-text-field
             v-model="auth.currentUser.email"
@@ -73,7 +73,6 @@
         </v-col>
       </v-row>
       <v-row
-        v-if="auth.currentUser"
         justify="center"
         class="mb-8 mx-auto"
       >
@@ -89,18 +88,6 @@
             dense
           >
             <v-col>
-              <v-btn
-                width="220px"
-                @click="resetPassword"
-              >
-                Reset Password
-              </v-btn>
-            </v-col>
-          </v-row>
-          <v-row
-            dense
-          >
-            <v-col>
               <v-dialog
                 v-model="dialogManageOrg"
                 persistent
@@ -108,7 +95,6 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    ref="orgBtn"
                     v-bind="attrs"
                     width="220px"
                     v-on="on"
@@ -160,13 +146,78 @@
             dense
           >
             <v-col>
+              <v-btn
+                color="primary"
+                width="220px"
+                @click="resetPassword"
+              >
+                Reset Password
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-row
+            dense
+          >
+            <v-col>
+              <v-dialog
+                v-model="phoneNumberDialog"
+                width="500"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    color="primary"
+                    dark
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    Update Phone Number
+                  </v-btn>
+                </template>
+
+                <v-card>
+                  <v-card-title>
+                    <span class="text-h5">Please enter your phone number</span>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-text-field
+                      v-model="phoneNumber"
+                      label="Phone Number"
+                      type="number"
+                      hint="This will be the phone number that will receive any saved text notifications"
+                      persistent-hint
+                    />
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer />
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="phoneNumberDialog = false;"
+                    >
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="savePhoneNumber"
+                    >
+                      Save
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-col>
+          </v-row>
+          <v-row
+            dense
+          >
+            <v-col>
               <v-dialog
                 v-model="dialogDeleteAcct"
                 width="500"
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    ref="deleteAcctBtn"
                     color="red lighten-2"
                     dark
                     v-bind="attrs"
@@ -227,7 +278,6 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    ref="addNotifBtn"
                     v-bind="attrs"
                     width="220px"
                     v-on="on"
@@ -407,7 +457,6 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    ref="manageNotifBtn"
                     v-bind="attrs"
                     width="220px"
                     v-on="on"
@@ -513,11 +562,13 @@ export default {
       dialogAddNotif: false,
       dialogManageNotif: false,
       notificationFormValid: false,
+      phoneNumberDialog: false,
       dialog: false,
       startDateMenu: false,
       endDateMenu: false,
       orgSelect: null,
       spaceSelect: null,
+      phoneNumber: null,
       registerOrgObj: {
         name: '',
         city: '',
@@ -533,6 +584,7 @@ export default {
           spaceName: '',
         },
         ownedOrgName: '',
+        phoneNumber: '',
       },
       alert: {
         type: '',
@@ -574,17 +626,6 @@ export default {
     },
   },
   watch: {
-    dialogManageOrg() {
-      // Blur bug fix
-      this.$refs.orgBtn.$el.blur();
-    },
-    dialogDeleteAcct() {
-      // Blur bug fix
-      this.$refs.deleteAcctBtn.$el.blur();
-    },
-    dialogManageNotif() {
-      this.$refs.manageNotifBtn.$el.blur();
-    },
     async dialogAddNotif() {
       if (this.orgs.length === 0) {
         try {
@@ -593,7 +634,6 @@ export default {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
       }
-      this.$refs.addNotifBtn.$el.blur();
     },
     async orgSelect() {
       if (this.orgSelect) {
@@ -623,13 +663,16 @@ export default {
           this.notifications = await getUserNotifications(user.uid);
           await getAllNotificationsToSend();
           if (userObj) {
-            const { ownedOrgName } = userObj;
+            const { ownedOrgName, phoneNumber } = userObj;
             const { orgName, spaceName } = userObj.favorite;
             if (orgName) {
               this.settings.favorite.orgName = orgName;
             }
             if (spaceName) {
               this.settings.favorite.spaceName = spaceName;
+            }
+            if (phoneNumber) {
+              this.settings.phoneNumber = phoneNumber;
             }
             if (ownedOrgName) {
               this.orgBtnText = 'Manage Organization';
@@ -642,6 +685,8 @@ export default {
           console.log(error);
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
+      } else {
+        await this.$router.push('/');
       }
     });
   },
@@ -744,6 +789,12 @@ export default {
     clearFavoriteSpace() {
       this.settings.favorite.spaceName = '';
       this.writeSettings();
+    },
+    savePhoneNumber() {
+      this.settings.phoneNumber = this.phoneNumber;
+      this.writeSettings();
+      this.phoneNumber = '';
+      this.phoneNumberDialog = false;
     },
     async writeSettings() {
       if (this.auth.currentUser) {

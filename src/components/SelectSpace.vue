@@ -51,8 +51,23 @@
   </v-container>
 </template>
 
-<script>
+<style scoped>
+.search {
+  min-width: 350px;
+}
+.search >>> label {
+  padding-bottom: 30px;
+}
+</style>
 
+<style>
+/* Vuetify bug fix */
+.v-select__selections input {
+  width: 0 !important;
+}
+</style>
+
+<script>
 import { APIkey, db } from '@/store/store';
 import {
   doc, getDocs, getDoc, collection,

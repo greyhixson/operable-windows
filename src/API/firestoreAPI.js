@@ -141,6 +141,7 @@ async function writeUserSettings(settings, uid) {
   await setDoc(settingsRef, {
     favorite: settings.favorite,
     ownedOrgName: settings.ownedOrgName,
+    phoneNumber: settings.phoneNumber,
   });
 }
 

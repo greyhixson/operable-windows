@@ -496,9 +496,9 @@ import {
 } from 'firebase/auth';
 import AlertBanner from '@/components/AlertBanner.vue';
 import {
-  getUser, getOrg, getAllOrgs, writeOrg, deleteUser, getAllSpaces, getAllNotifications,
+  getUser, getOrg, getAllOrgs, writeOrg, deleteUser, getAllSpaces,
   addNotification, getUserNotifications,
-  writeUserSettings, writeNotifications,
+  writeUserSettings, writeNotifications, getAllNotificationsToSend,
 } from '@/API/firestoreAPI';
 
 export default {
@@ -621,7 +621,7 @@ export default {
         try {
           const userObj = await getUser(user.uid);
           this.notifications = await getUserNotifications(user.uid);
-          await getAllNotifications();
+          await getAllNotificationsToSend();
           if (userObj) {
             const { ownedOrgName } = userObj;
             const { orgName, spaceName } = userObj.favorite;

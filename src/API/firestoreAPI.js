@@ -57,12 +57,28 @@ async function getAllOrgs() {
   return orgs;
 }
 
-async function getAllNotifications() {
+async function getAllNotificationsToSend() {
+  const currentDate = new Date();
+  const currentTime = currentDate.getTime();
   const notifications = [];
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const currentDay = days[currentDate.getDay()];
   const querySnapshot = await getDocs(collection(db, 'notifications'));
   querySnapshot.forEach((document) => {
     if (document.data().notifications) {
-      notifications.push(document.data().notifications);
+      document.data().notifications.forEach((notification) => {
+        const {
+          enabled, startDate, endDate, repeatDays, sendTime,
+        } = notification;
+        const repeatsToday = repeatDays.some((day) => day === currentDay);
+        if (enabled && startDate && endDate && repeatsToday && sendTime) {
+          const startTime = new Date(startDate).getTime();
+          const endTime = new Date(endDate).getTime();
+          if (startTime < currentTime && endTime > currentTime) {
+            notifications.push(notification);
+          }
+        }
+      });
     }
   });
   console.log(notifications);
@@ -181,7 +197,7 @@ async function deleteUser(currentUser, userOwnedOrgName) {
 }
 
 export {
-  getOrg, getUser, getAllOrgs, getAllSpaces, getAllNotifications, getUserNotifications,
+  getOrg, getUser, getAllOrgs, getAllSpaces, getAllNotificationsToSend, getUserNotifications,
   deleteOrg, deleteSpace, deleteUser,
   writeSpace, writeUserSettings, writeOrg, writeNotifications, addNotification,
 };

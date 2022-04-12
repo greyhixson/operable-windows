@@ -68,10 +68,11 @@
 </style>
 
 <script>
-import { APIkey, db } from '@/store/store';
+import { db } from '@/store/store';
 import {
   doc, getDocs, getDoc, collection,
 } from 'firebase/firestore';
+import { getWeather, getAirPollution } from '@/API/weatherAPI';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import AlertBanner from '@/components/AlertBanner.vue';
 
@@ -110,7 +111,6 @@ export default {
         const { name, city, state } = this.orgSelect;
         const { spaceName } = this.userFavorite;
         try {
-          this.getCurrentWeatherAndAirPollution(city, state);
           const orgKey = this.getInputKey(name);
           const querySnapshot = await getDocs(collection(db, `organizations/${orgKey}/spaces`));
           querySnapshot.forEach((document) => {
@@ -120,6 +120,15 @@ export default {
             const matchedSpace = this.spaces.find((space) => space.name === spaceName);
             if (matchedSpace) {
               this.spaceSelect = matchedSpace;
+            }
+            try {
+              const weather = getWeather(city, state);
+              this.$emit('submitWeather', weather);
+              const { coord: { lat, lon } } = weather;
+              const airPollution = getAirPollution(lat, lon);
+              this.$emit('submitAirPollution', airPollution);
+            } catch {
+              this.setAlert('error', 'An error has occurred, please try again later.');
             }
           }
         } catch (error) {
@@ -169,7 +178,7 @@ export default {
             this.userFavorite.orgName = userObj.favorite.orgName;
             this.userFavorite.spaceName = userObj.favorite.spaceName;
           }
-        } catch (error) {
+        } catch {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
       }
@@ -181,24 +190,11 @@ export default {
       querySnapshot.forEach((document) => {
         this.orgs.push(document.data());
       });
-    } catch (error) {
+    } catch {
       this.setAlert('error', 'An error has occurred, please try again later.');
     }
   },
   methods: {
-    getCurrentWeatherAndAirPollution(city, state) {
-      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},US&appid=${APIkey}&units=imperial`)
-        .then((response) => response.json())
-        .then((weather) => {
-          const { coord: { lat, lon } } = weather;
-          this.$emit('submitWeather', weather);
-          fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${APIkey}`)
-            .then((response) => response.json())
-            .then((airPollution) => {
-              this.$emit('submitAirPollution', airPollution);
-            });
-        });
-    },
     onOrgFilter(item, queryText) {
       const { name, state, city } = item;
       return name.toLocaleLowerCase().includes(queryText.toLocaleLowerCase())

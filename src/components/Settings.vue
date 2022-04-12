@@ -542,16 +542,16 @@
 </style>
 
 <script>
-import { APIkey } from '@/store/store';
 import {
   getAuth, onAuthStateChanged, sendPasswordResetEmail,
 } from 'firebase/auth';
 import AlertBanner from '@/components/AlertBanner.vue';
 import {
-  getUser, getOrg, getAllOrgs, writeOrg, deleteUser, getAllSpaces,
-  addNotification, getUserNotifications,
-  writeUserSettings, writeNotifications,
+  getUser, getOrg, getAllOrgs, getAllSpaces, getUserNotifications,
+  addNotification, writeUserSettings, writeNotifications, writeOrg,
+  deleteUser,
 } from '@/API/firestoreAPI';
+import { getWeather } from '@/API/weatherAPI';
 
 export default {
   name: 'Settings',
@@ -709,10 +709,9 @@ export default {
       const { city, state, name } = this.registerOrgObj;
       const orgDoc = await getOrg(name);
       if (!orgDoc.exists() && this.auth.currentUser) {
-        fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},
-        US&appid=${APIkey}&units=imperial`)
-          .then((response) => response.json())
-          .then(async (weather) => {
+        try {
+          const weather = getWeather(city, state);
+          if (weather) {
             const { main } = weather;
             if (main) {
               try {
@@ -726,7 +725,10 @@ export default {
             } else {
               this.setAlert('error', weather.message);
             }
-          });
+          }
+        } catch {
+          this.setAlert('error', 'An error has occurred, please try again later.');
+        }
       } else {
         this.setAlert('error', 'Organization already exists.');
       }

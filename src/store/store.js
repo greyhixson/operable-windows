@@ -1,8 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
-const APIkey = 'fb3f8c4acaba36f086776e594b64a68c';
-
 const app = initializeApp({
   apiKey: 'AIzaSyCBg6Qdq-gOWa3yA_9zP62mzXRv8yDi7sI',
   authDomain: 'operable-windows.firebaseapp.com',
@@ -16,5 +14,5 @@ const app = initializeApp({
 const db = getFirestore(app);
 
 export {
-  APIkey, app, db,
+  app, db,
 };

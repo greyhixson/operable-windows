@@ -17,10 +17,10 @@
       <v-list-item two-line>
         <v-list-item-avatar>
           <v-icon
-            :class="okTemp ? 'green': 'red'"
+            :class="tempOk ? 'green': 'red'"
             dark
           >
-            {{ okTemp ? 'mdi-check' : 'mdi-close' }}
+            {{ tempOk ? 'mdi-check' : 'mdi-close' }}
           </v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
@@ -37,10 +37,10 @@
       <v-list-item two-line>
         <v-list-item-avatar>
           <v-icon
-            :class="okHumidity ? 'green': 'red'"
+            :class="humidityOk ? 'green': 'red'"
             dark
           >
-            {{ okHumidity ? 'mdi-check' : 'mdi-close' }}
+            {{ humidityOk ? 'mdi-check' : 'mdi-close' }}
           </v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
@@ -58,10 +58,10 @@
       <v-list-item two-line>
         <v-list-item-avatar>
           <v-icon
-            :class="okAirPollution ? 'green': 'red'"
+            :class="airPollutionOk ? 'green': 'red'"
             dark
           >
-            {{ okAirPollution ? 'mdi-check' : 'mdi-close' }}
+            {{ airPollutionOk ? 'mdi-check' : 'mdi-close' }}
           </v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
@@ -78,7 +78,7 @@
 
       <v-list-item
         two-line
-        :style="openWindow ? 'background-color:#68ad53;': 'background-color:#c42741;'"
+        :style="openable ? 'background-color:#68ad53;': 'background-color:#c42741;'"
       >
         <v-list-item-content>
           <v-list-item-title
@@ -167,11 +167,6 @@ export default {
   },
   data() {
     return {
-      openWindow: Boolean,
-      okTemp: Boolean,
-      okHumidity: Boolean,
-      okAirPollution: Boolean,
-      windowMessage: '',
       alert: {
         type: '',
         msg: '',
@@ -183,38 +178,32 @@ export default {
     auth() {
       return getAuth();
     },
-  },
-  created() {
-    this.checkTemp();
-    this.checkHumidity();
-    this.checkAirPollution();
-    this.decideWindow();
-  },
-  methods: {
-    checkTemp() {
+    tempOk() {
       const { main: { temp } } = this.weather;
       const { minTemp, maxTemp } = this.space;
-      this.okTemp = (temp > minTemp) && (temp < maxTemp);
+      return (temp > minTemp) && (temp < maxTemp);
     },
-    checkHumidity() {
+    humidityOk() {
       const { main: { humidity } } = this.weather;
       const { maxHumidity } = this.space;
-      this.okHumidity = humidity < maxHumidity;
+      return humidity < maxHumidity;
     },
-    checkAirPollution() {
+    airPollutionOk() {
       const { list: [{ main: { aqi } }] } = this.airPollution;
       const { maxAqi } = this.space;
-      this.okAirPollution = aqi < maxAqi;
+      return aqi < maxAqi;
     },
-    decideWindow() {
-      if (this.okAirPollution && this.okTemp && this.okHumidity) {
-        this.openWindow = true;
-        this.windowMessage = 'Openable';
-      } else {
-        this.openWindow = false;
-        this.windowMessage = 'Keep Closed';
+    openable() {
+      return this.tempOk && this.humidityOk && this.airPollutionOk;
+    },
+    windowMessage() {
+      if (this.openWindow) {
+        return 'Openable';
       }
+      return 'Keep Closed';
     },
+  },
+  methods: {
     async saveSelection() {
       const updatedFavorite = { orgName: this.orgName, spaceName: this.space.name };
       if (this.auth.currentUser) {

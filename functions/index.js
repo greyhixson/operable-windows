@@ -73,7 +73,6 @@ function checkAirPollution(airPollution, space) {
 }
 
 async function checkIfOpenable(notification) {
-  functions.logger.log('In check if openable: ', notification);
   const { orgName, spaceName } = notification;
   const { city, state } = await getOrg(orgName);
   const spaces = await getAllSpaces(orgName);
@@ -116,9 +115,10 @@ function getCurrentDay(sendTime, timezoneOffset, date) {
 async function sendNotification(notification) {
   const openable = await checkIfOpenable(notification);
   if (openable) {
-    await db.collection('notificationMessages').doc('exampleNotif').set({
+    await db.collection('notificationMessages').add({
       message: 'Your window can be opened',
       phoneNumber: notification.phoneNumber,
+      notification,
     });
   }
 }

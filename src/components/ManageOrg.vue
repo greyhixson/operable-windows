@@ -181,7 +181,7 @@
             </v-dialog>
           </v-toolbar>
         </template>
-        <template v-slot:item.actions="{ item }">
+        <template v-slot[`item.actions`]="{ item }">
           <v-icon
             small
             class="mr-2"
@@ -251,7 +251,7 @@
 
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import {
-  getAllSpaces, deleteOrg, deleteSpace, writeSpace, getUser,
+  deleteOrg, deleteSpace, getAllSpaces, getUser, writeSpace,
 } from '@/API/firestoreAPI';
 import AlertBanner from '@/components/AlertBanner.vue';
 

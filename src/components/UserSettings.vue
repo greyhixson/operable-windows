@@ -478,13 +478,13 @@
                       :hide-default-footer="true"
                       class="elevation-1"
                     >
-                      <template v-slot:item.enabled="{ item }">
+                      <template v-slot:[`item.enabled`]="{ item }">
                         <v-simple-checkbox
                           v-model="item.enabled"
                           :ripple="false"
                         />
                       </template>
-                      <template v-slot:item.actions="{ item }">
+                      <template v-slot:[`item.actions`]="{ item }">
                         <v-icon
                           small
                           @click="deleteNotification(item)"
@@ -542,19 +542,24 @@
 </style>
 
 <script>
-import {
-  getAuth, onAuthStateChanged, sendPasswordResetEmail,
-} from 'firebase/auth';
+import { getAuth, onAuthStateChanged, sendPasswordResetEmail } from 'firebase/auth';
 import AlertBanner from '@/components/AlertBanner.vue';
 import {
-  getUser, getOrg, getAllOrgs, getAllSpaces, getUserNotifications,
-  addNotification, writeUserSettings, writeNotifications, writeOrg,
+  addNotification,
   deleteUser,
+  getAllOrgs,
+  getAllSpaces,
+  getOrg,
+  getUser,
+  getUserNotifications,
+  writeNotifications,
+  writeOrg,
+  writeUserSettings,
 } from '@/API/firestoreAPI';
 import { getWeather } from '@/API/weatherAPI';
 
 export default {
-  name: 'Settings',
+  name: 'UserSettings',
   components: {
     AlertBanner,
   },

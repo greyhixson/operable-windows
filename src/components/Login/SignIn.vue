@@ -34,7 +34,8 @@
         required
       />
       <h5 v-if="!passwordReset">
-        Forgot your password? <a @click="passwordReset = true; alert.msg = false;"> Reset it here </a>
+        Forgot your password? <router-link @click="passwordReset = true; alert.msg = false;" to="">
+        Reset it here </router-link>
       </h5>
       <v-row class="pt-6">
         <v-btn
@@ -72,7 +73,11 @@
 
 <script>
 import {
-  getAuth, signOut, signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail,
+  getAuth,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
 } from 'firebase/auth';
 import AlertBanner from '../AlertBanner.vue';
 

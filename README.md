@@ -1,15 +1,4 @@
-# operable-windows
-Project for my honor's thesis at the University of Arkansas.
-The project entails working with the Department of Sustainability to create an application that allows for an admin to manage and register an organization that can setup spaces with various parameters. Users can then search for organizations and spaces and get notified whether their operable window should be opened or closed. 
-
-### Tech Stack
-Vue.js 2 \
-Vuetify 2 \
-Google Firebase 
-
-### IDE
-JetBrains WebStorm \
-Eslint + Airbnb Code Style
+# operable-windows-notifier
 
 ## Project setup
 ```

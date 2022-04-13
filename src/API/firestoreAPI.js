@@ -1,6 +1,5 @@
 import {
-  collection, deleteDoc,
-  doc, getDoc, getDocs, setDoc, updateDoc,
+  collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc,
 } from 'firebase/firestore';
 
 import { deleteUser as deleteUserAuth } from 'firebase/auth';
@@ -79,14 +78,17 @@ async function writeSpace(orgName, space) {
   const orgKey = getInputKey(orgName);
   const spaceKey = getInputKey(name);
   const spaceRef = doc(db, `organizations/${orgKey}/spaces`, spaceKey);
-  await setDoc(spaceRef, {
-    maxAqi,
-    maxHumidity,
-    maxTemp,
-    minTemp,
-    name,
-  },
-  { merge: true });
+  await setDoc(
+    spaceRef,
+    {
+      maxAqi,
+      maxHumidity,
+      maxTemp,
+      minTemp,
+      name,
+    },
+    { merge: true },
+  );
 }
 
 async function addNotification(notification, uid) {
@@ -144,10 +146,13 @@ async function deleteOrg(uid) {
 
   // Remove the org ownership from the user
   const userRef = doc(db, 'users', uid);
-  await setDoc(userRef, {
-    ownedOrgName: '',
-  },
-  { merge: true });
+  await setDoc(
+    userRef,
+    {
+      ownedOrgName: '',
+    },
+    { merge: true },
+  );
 }
 
 async function deleteSpace(orgName, space) {

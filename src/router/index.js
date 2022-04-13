@@ -3,7 +3,7 @@ import VueRouter from 'vue-router';
 import UserView from '../views/UserView.vue';
 import SignUp from '../components/Login/SignUp.vue';
 import SignIn from '../components/Login/SignIn.vue';
-import Settings from '../components/Settings.vue';
+import UserSettings from '../components/UserSettings.vue';
 import ManageOrg from '../components/ManageOrg.vue';
 
 Vue.use(VueRouter);
@@ -26,8 +26,8 @@ const routes = [
   },
   {
     path: '/settings',
-    name: 'Settings',
-    component: Settings,
+    name: 'UserSettings',
+    component: UserSettings,
   },
   {
     path: '/manageorg',

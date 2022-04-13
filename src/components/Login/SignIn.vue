@@ -74,6 +74,8 @@
 import {
   getAuth, signOut, signInWithEmailAndPassword, onAuthStateChanged,
 } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '@/store/store';
 import AlertBanner from '../AlertBanner.vue';
 
 export default {
@@ -147,7 +149,10 @@ export default {
         }
       }
       if (this.passwordReset) {
-        console.log('Yet to be implemented');
+        const resetRequestRef = doc(db, 'passwordResetRequests', this.email);
+        await setDoc(resetRequestRef, {
+          email: this.email,
+        });
       }
     },
     resetAlert() {

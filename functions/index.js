@@ -1,8 +1,5 @@
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
-const {
-  doc, getDoc, getDocs, collection,
-} = require('firebase/firestore');
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -12,18 +9,26 @@ function getInputKey(input) {
 }
 
 async function getOrg(orgName) {
+  functions.logger.log('Start getOrg ');
   const orgKey = getInputKey(orgName);
   const orgRef = doc(db, 'organizations', orgKey);
-  return getDoc(orgRef);
+  const orgDoc = await getDoc(orgRef);
+  if (orgDoc.exists()) {
+    functions.logger.log('End getOrg ', orgDoc.data());
+    return orgDoc.data();
+  }
+  return null;
 }
 
 async function getAllSpaces(orgName) {
+  functions.logger.log('In getAllSpaces: ');
   const spaces = [];
   const orgKey = getInputKey(orgName);
   const querySnapshot = await getDocs(collection(db, `organizations/${orgKey}/spaces`));
   querySnapshot.forEach((document) => {
     spaces.push(document.data());
   });
+  functions.logger.log('End getAllSpaces ', spaces);
   return spaces;
 }
 
@@ -79,8 +84,8 @@ function checkAirPollution(airPollution) {
 async function checkIfOpenable(notification) {
   functions.logger.log('In check if openable: ', notification);
   const { orgName, spaceName } = notification;
-  const { city, state } = await getOrg(getInputKey(orgName));
-  const spaces = await getAllSpaces(getInputKey(orgName));
+  const { city, state } = await getOrg(orgName);
+  const spaces = await getAllSpaces(orgName);
   if (spaceName) {
     const matchedSpace = spaces.find((space) => space.name === spaceName);
     if (matchedSpace) {
@@ -104,24 +109,18 @@ async function checkIfOpenable(notification) {
 function sendTimeToUTC(sendTime, timezoneOffset) {
   const sendTimeSplit = sendTime.split(':');
   const newHours = (Number(sendTimeSplit[0]) + Number(timezoneOffset)) % 24;
-  return `${newHours}:${sendTimeSplit[1]}`;
+  return `${padTo2Digits(newHours)}:${padTo2Digits(sendTimeSplit[1])}`;
 }
 
-function getCurrentDay(sendTime, UTCSendTime, timezoneOffset, date) {
+function getCurrentDay(sendTime, timezoneOffset, date) {
   let currentDayIndex = date.getDay();
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const sendTimeSplit = sendTime.split(':');
-  const UTCTimeSplit = UTCSendTime.split(':');
   const sendTimeHours = sendTimeSplit[0];
-  const UTCTimeHours = UTCTimeSplit[0];
-  if (timezoneOffset > 0) {
-    if (sendTimeHours > UTCTimeHours) {
-      currentDayIndex -= 1;
-    }
-  } else if (timezoneOffset < 0) {
-    if (sendTimeHours < UTCTimeHours) {
-      currentDayIndex += 1;
-    }
+  if ((sendTimeHours + timezoneOffset) > 23) {
+    currentDayIndex -= 1;
+  } else if ((sendTimeHours + timezoneOffset) < 23) {
+    currentDayIndex += 1;
   }
   return days[currentDayIndex];
 }
@@ -145,7 +144,6 @@ exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
   .schedule('* * * * *')
   .onRun(async () => {
     const date = new Date();
-    functions.logger.log('date: ', date);
     const timestamp = date.getTime();
     const hoursAndMinutes = `${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}`;
     const query = db.collection('notifications');
@@ -157,13 +155,11 @@ exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
             enabled, startDate, endDate, repeatDays, sendTime, timezoneOffset, phoneNumber,
           } = notification;
           const UTCSendTime = sendTimeToUTC(sendTime, timezoneOffset);
-          functions.logger.log('UTCSendTime: ', UTCSendTime);
-          const currentDay = getCurrentDay(sendTime, UTCSendTime, timezoneOffset, date);
-          functions.logger.log('Current Day: ', currentDay);
+          const currentDay = getCurrentDay(sendTime, timezoneOffset, date);
           const repeatsToday = repeatDays.some((day) => day === currentDay);
           if (enabled && startDate && endDate && repeatsToday && phoneNumber && UTCSendTime === hoursAndMinutes) {
-            const startTime = new Date(startDate).getTime();
-            const endTime = new Date(endDate).getTime();
+            const startTime = new Date(startDate).getTime() + (timezoneOffset * 3600000);
+            const endTime = new Date(endDate).getTime() + (timezoneOffset * 3600000);
             if (startTime < timestamp && endTime > timestamp) {
               await sendNotification(notification);
             }
@@ -172,4 +168,18 @@ exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
       }
     });
     return null;
+  });
+
+exports.sendPasswordReset = functions.firestore
+  .document('passwordResetRequests/{email}')
+  .onWrite(async (change, context) => {
+    admin.app.auth()
+      .sendPasswordResetEmail(context.params.userId)
+      .then(() => {
+        console.log('email sent!');
+      })
+      .catch((error) => {
+        functions.logger.log(error);
+      });
+    await deleteDoc(doc(db, 'passwordResetRequests', context.params.userId));
   });

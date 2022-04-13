@@ -396,7 +396,7 @@
                               <v-date-picker
                                 v-model="notification.startDate"
                                 show-current
-                                :min="new Date().toISOString().slice(0, 10)"
+                                :min="new Date().toLocaleDateString('pt-br').split( '/' ).reverse( ).join( '-' )"
                                 @input="startDateMenu = false"
                               />
                             </v-menu>

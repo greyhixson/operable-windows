@@ -348,6 +348,7 @@ export default {
     const { auth } = this;
     onAuthStateChanged(auth, async (user) => {
       this.loading = true;
+      // Get the org they own and all spaces associated with it
       if (user) {
         try {
           const userObj = await getUser(user.uid);

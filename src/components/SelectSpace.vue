@@ -104,6 +104,7 @@ export default {
   },
   watch: {
     async orgSelect() {
+      // Load all spaces associated with an org, and the user's favorite space if they have one
       if (this.orgSelect) {
         const { name } = this.orgSelect;
         const { spaceName } = this.userFavorite;
@@ -125,6 +126,7 @@ export default {
       }
     },
     async spaceSelect() {
+      // Send the weather, air pollution, and space data up to the parent component UserView
       if (this.spaceSelect && this.orgSelect) {
         const { city, state } = this.orgSelect;
         try {

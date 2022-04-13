@@ -632,6 +632,7 @@ export default {
   },
   watch: {
     async dialogAddNotif() {
+      // Load orgs when 'Add Text Notification' is clicked
       if (this.orgs.length === 0) {
         try {
           this.orgs = await getAllOrgs();
@@ -640,6 +641,7 @@ export default {
         }
       }
     },
+    // Load spaces when an org is selected in the 'Add Text Notification' dialog
     async orgSelect() {
       if (this.orgSelect) {
         const { name } = this.orgSelect;
@@ -650,6 +652,7 @@ export default {
         this.notification.spaceName = null;
       }
     },
+    // Save space from the 'Add Text Notification' dialog in a notification obj
     async spaceSelect() {
       if (this.spaceSelect) {
         const { name } = this.spaceSelect;
@@ -662,6 +665,7 @@ export default {
   async mounted() {
     const { auth } = this;
     onAuthStateChanged(auth, async (user) => {
+      // Get the user's settings
       if (user) {
         try {
           const userObj = await getUser(user.uid);
@@ -703,6 +707,7 @@ export default {
     async registerOrg() {
       const { city, state, name } = this.registerOrgObj;
       const orgDoc = await getOrg(name);
+      // Check if an org isn't yet registered and then check if it is valid by getting the weather data
       if (!orgDoc.exists() && this.auth.currentUser) {
         try {
           const { weather } = await getWeather(city, state);

@@ -1,5 +1,6 @@
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
+const axios = require('axios');
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -9,36 +10,26 @@ function getInputKey(input) {
 }
 
 async function getOrg(orgName) {
-  functions.logger.log('Start getOrg ');
   const orgKey = getInputKey(orgName);
-  const orgRef = doc(db, 'organizations', orgKey);
-  const orgDoc = await getDoc(orgRef);
-  if (orgDoc.exists()) {
-    functions.logger.log('End getOrg ', orgDoc.data());
-    return orgDoc.data();
-  }
-  return null;
+  const orgRef = db.collection('organizations').doc(orgKey);
+  const orgDoc = await orgRef.get();
+  return orgDoc.data();
 }
 
 async function getAllSpaces(orgName) {
-  functions.logger.log('In getAllSpaces: ');
   const spaces = [];
   const orgKey = getInputKey(orgName);
-  const querySnapshot = await getDocs(collection(db, `organizations/${orgKey}/spaces`));
-  querySnapshot.forEach((document) => {
-    spaces.push(document.data());
+  const querySnapshot = await db.collection(`organizations/${orgKey}/spaces`).get();
+  querySnapshot.forEach((doc) => {
+    spaces.push(doc.data());
   });
-  functions.logger.log('End getAllSpaces ', spaces);
   return spaces;
 }
 
 async function getWeatherApiKey() {
-  const apiRef = doc(db, 'keys', 'openweathermap');
-  const apiDoc = await getDoc(apiRef);
-  if (apiDoc.exists()) {
-    return apiDoc.data().api;
-  }
-  return null;
+  const apiRef = db.collection('keys').doc('openweathermap');
+  const apiDoc = await apiRef.get();
+  return apiDoc.data().api;
 }
 
 async function getWeather(city, state) {
@@ -46,15 +37,15 @@ async function getWeather(city, state) {
   const trimState = state.trim();
   const APIkey = await getWeatherApiKey();
   // eslint-disable-next-line max-len
-  const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${trimCity},${trimState},US&appid=${APIkey}&units=imperial`);
-  return response.json();
+  const request = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${trimCity},${trimState},US&appid=${APIkey}&units=imperial`);
+  return request.data;
 }
 
 async function getAirPollution(lat, lon) {
   const APIkey = await getWeatherApiKey();
   // eslint-disable-next-line max-len
-  const response = await fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${APIkey}`);
-  return response.json();
+  const request = await axios.get(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${APIkey}`);
+  return request.data;
 }
 
 // Create a function that will get the user's organization space thresholds and
@@ -75,9 +66,9 @@ function checkHumidity(weather, space) {
   return humidity < maxHumidity;
 }
 
-function checkAirPollution(airPollution) {
+function checkAirPollution(airPollution, space) {
   const { list: [{ main: { aqi } }] } = airPollution;
-  const { maxAqi } = this.space;
+  const { maxAqi } = space;
   return aqi < maxAqi;
 }
 
@@ -94,10 +85,7 @@ async function checkIfOpenable(notification) {
       const airPollution = await getAirPollution(lat, lon);
       const okTemp = checkTemp(weather, matchedSpace);
       const okHumidity = checkHumidity(weather, matchedSpace);
-      const okAirPollution = checkAirPollution(airPollution);
-      functions.logger.log('okTemp: ', okTemp);
-      functions.logger.log('okHumidity: ', okHumidity);
-      functions.logger.log('okAirPollution: ', okAirPollution);
+      const okAirPollution = checkAirPollution(airPollution, matchedSpace);
       if (okTemp && okHumidity && okAirPollution) {
         return true;
       }
@@ -117,25 +105,20 @@ function getCurrentDay(sendTime, timezoneOffset, date) {
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const sendTimeSplit = sendTime.split(':');
   const sendTimeHours = sendTimeSplit[0];
-  if ((sendTimeHours + timezoneOffset) > 23) {
+  if ((parseInt(sendTimeHours, 10) + parseInt(timezoneOffset, 10)) > 23) {
     currentDayIndex -= 1;
-  } else if ((sendTimeHours + timezoneOffset) < 23) {
+  } else if ((parseInt(sendTimeHours, 10) + parseInt(timezoneOffset, 10)) < 0) {
     currentDayIndex += 1;
   }
   return days[currentDayIndex];
 }
 
 async function sendNotification(notification) {
-  functions.logger.log('In send notification: ', notification);
   const openable = await checkIfOpenable(notification);
   if (openable) {
-    db.collection('notificationMessages').add({
-      channelId: 'TEST_CHANNEL_ID',
-      type: 'text',
-      content: {
-        text: 'Your window may be opened',
-      },
-      to: notification.phoneNumber,
+    await db.collection('notificationMessages').doc('exampleNotif').set({
+      message: 'Your window can be opened',
+      phoneNumber: notification.phoneNumber,
     });
   }
 }
@@ -144,7 +127,7 @@ exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
   .schedule('* * * * *')
   .onRun(async () => {
     const date = new Date();
-    const timestamp = date.getTime();
+    let timestamp = date.getTime();
     const hoursAndMinutes = `${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}`;
     const query = db.collection('notifications');
     const notificationDocuments = await query.get();
@@ -158,8 +141,9 @@ exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
           const currentDay = getCurrentDay(sendTime, timezoneOffset, date);
           const repeatsToday = repeatDays.some((day) => day === currentDay);
           if (enabled && startDate && endDate && repeatsToday && phoneNumber && UTCSendTime === hoursAndMinutes) {
-            const startTime = new Date(startDate).getTime() + (timezoneOffset * 3600000);
-            const endTime = new Date(endDate).getTime() + (timezoneOffset * 3600000);
+            timestamp += timezoneOffset * 3600000;
+            const startTime = new Date(startDate).getTime();
+            const endTime = new Date(endDate).getTime();
             if (startTime < timestamp && endTime > timestamp) {
               await sendNotification(notification);
             }

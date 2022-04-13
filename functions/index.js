@@ -17,15 +17,22 @@ function padTo2Digits(num) {
   return String(num).padStart(2, '0');
 }
 
+function checkIfOpenable() {
+  return null;
+}
+
 function sendNotification(notification) {
-  db.collection('notificationMessages').add({
-    channelId: 'TEST_CHANNEL_ID',
-    type: 'text',
-    content: {
-      text: 'TEST MESSAGE',
-    },
-    to: notification.phoneNumber,
-  });
+  const openable = checkIfOpenable();
+  if (openable) {
+    db.collection('notificationMessages').add({
+      channelId: 'TEST_CHANNEL_ID',
+      type: 'text',
+      content: {
+        text: 'Your window may be opened',
+      },
+      to: notification.phoneNumber,
+    });
+  }
 }
 
 exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
@@ -55,6 +62,5 @@ exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
         });
       }
     });
-    functions.logger.log('Notifications', notifications);
     return null;
   });

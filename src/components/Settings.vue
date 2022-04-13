@@ -814,7 +814,7 @@ export default {
     sendTimeToUTC(sendTime) {
       const currentDate = new Date();
       const sendTimeSplit = sendTime.split(':');
-      const newHours = Number(sendTimeSplit[0]) + Number(currentDate.getTimezoneOffset() / 60);
+      const newHours = (Number(sendTimeSplit[0]) + Number(currentDate.getTimezoneOffset() / 60)) % 24;
       return `${newHours}:${sendTimeSplit[1]}`;
     },
     async writeSettings() {

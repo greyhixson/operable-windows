@@ -617,7 +617,7 @@ export default {
         spaceName: '',
         enabled: false,
         sendTime: '',
-        UTCSendTime: '',
+        timezoneOffset: '',
         startDate: '',
         endDate: '',
         repeatDays: [],
@@ -661,7 +661,6 @@ export default {
   },
   async mounted() {
     const { auth } = this;
-    this.sendTimeToUTC('14:00');
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
@@ -749,7 +748,7 @@ export default {
       const notifCopy = JSON.parse(JSON.stringify(this.notification));
       const { phoneNumber } = this.settings;
       notifCopy.phoneNumber = phoneNumber;
-      notifCopy.UTCSendTime = this.sendTimeToUTC(notifCopy.sendTime);
+      notifCopy.timezoneOffset = this.getTimezoneOffset();
       if (this.notificationFormValid) {
         this.dialogAddNotif = false;
         try {
@@ -811,11 +810,9 @@ export default {
         this.setAlert('error', 'Please update your phone number before adding notifications');
       }
     },
-    sendTimeToUTC(sendTime) {
+    getTimezoneOffset() {
       const currentDate = new Date();
-      const sendTimeSplit = sendTime.split(':');
-      const newHours = (Number(sendTimeSplit[0]) + Number(currentDate.getTimezoneOffset() / 60)) % 24;
-      return `${newHours}:${sendTimeSplit[1]}`;
+      return Number(currentDate.getTimezoneOffset() / 60);
     },
     async writeSettings() {
       if (this.auth.currentUser) {

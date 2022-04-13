@@ -97,6 +97,31 @@ async function checkIfOpenable(notification) {
   return false;
 }
 
+function sendTimeToUTC(sendTime, timezoneOffset) {
+  const sendTimeSplit = sendTime.split(':');
+  const newHours = (Number(sendTimeSplit[0]) + Number(timezoneOffset)) % 24;
+  return `${newHours}:${sendTimeSplit[1]}`;
+}
+
+function getCurrentDay(sendTime, UTCSendTime, timezoneOffset, date) {
+  let currentDayIndex = date.getDay();
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const sendTimeSplit = sendTime.split(':');
+  const UTCTimeSplit = UTCSendTime.split(':');
+  const sendTimeHours = sendTimeSplit[0];
+  const UTCTimeHours = UTCTimeSplit[0];
+  if (timezoneOffset > 0) {
+    if (sendTimeHours > UTCTimeHours) {
+      currentDayIndex -= 1;
+    }
+  } else if (timezoneOffset < 0) {
+    if (sendTimeHours < UTCTimeHours) {
+      currentDayIndex += 1;
+    }
+  }
+  return days[currentDayIndex];
+}
+
 async function sendNotification(notification) {
   const openable = await checkIfOpenable(notification);
   if (openable) {
@@ -114,19 +139,19 @@ async function sendNotification(notification) {
 exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
   .schedule('* * * * *')
   .onRun(async () => {
-    const currentDate = new Date();
-    const timestamp = currentDate.getTime();
-    const hoursAndMinutes = `${padTo2Digits(currentDate.getHours())}:${padTo2Digits(currentDate.getMinutes())}`;
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const currentDay = days[currentDate.getDay()];
+    const date = new Date();
+    const timestamp = date.getTime();
+    const hoursAndMinutes = `${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}`;
     const query = db.collection('notifications');
     const notificationDocuments = await query.get();
     notificationDocuments.forEach((document) => {
       if (document.data().notifications) {
         document.data().notifications.forEach(async (notification) => {
           const {
-            enabled, startDate, endDate, repeatDays, UTCSendTime, phoneNumber,
+            enabled, startDate, endDate, repeatDays, sendTime, timezoneOffset, phoneNumber,
           } = notification;
+          const UTCSendTime = sendTimeToUTC(sendTime, timezoneOffset);
+          const currentDay = getCurrentDay(sendTime, UTCSendTime, timezoneOffset, date);
           const repeatsToday = repeatDays.some((day) => day === currentDay);
           if (enabled && startDate && endDate && repeatsToday && phoneNumber && UTCSendTime === hoursAndMinutes) {
             const startTime = new Date(startDate).getTime();

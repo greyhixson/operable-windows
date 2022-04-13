@@ -77,6 +77,7 @@ function checkAirPollution(airPollution) {
 }
 
 async function checkIfOpenable(notification) {
+  functions.logger.log('In check if openable: ', notification);
   const { orgName, spaceName } = notification;
   const { city, state } = await getOrg(getInputKey(orgName));
   const spaces = await getAllSpaces(getInputKey(orgName));
@@ -89,6 +90,9 @@ async function checkIfOpenable(notification) {
       const okTemp = checkTemp(weather, matchedSpace);
       const okHumidity = checkHumidity(weather, matchedSpace);
       const okAirPollution = checkAirPollution(airPollution);
+      functions.logger.log('okTemp: ', okTemp);
+      functions.logger.log('okHumidity: ', okHumidity);
+      functions.logger.log('okAirPollution: ', okAirPollution);
       if (okTemp && okHumidity && okAirPollution) {
         return true;
       }
@@ -123,6 +127,7 @@ function getCurrentDay(sendTime, UTCSendTime, timezoneOffset, date) {
 }
 
 async function sendNotification(notification) {
+  functions.logger.log('In send notification: ', notification);
   const openable = await checkIfOpenable(notification);
   if (openable) {
     db.collection('notificationMessages').add({
@@ -140,6 +145,7 @@ exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
   .schedule('* * * * *')
   .onRun(async () => {
     const date = new Date();
+    functions.logger.log('date: ', date);
     const timestamp = date.getTime();
     const hoursAndMinutes = `${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}`;
     const query = db.collection('notifications');
@@ -151,7 +157,9 @@ exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
             enabled, startDate, endDate, repeatDays, sendTime, timezoneOffset, phoneNumber,
           } = notification;
           const UTCSendTime = sendTimeToUTC(sendTime, timezoneOffset);
+          functions.logger.log('UTCSendTime: ', UTCSendTime);
           const currentDay = getCurrentDay(sendTime, UTCSendTime, timezoneOffset, date);
+          functions.logger.log('Current Day: ', currentDay);
           const repeatsToday = repeatDays.some((day) => day === currentDay);
           if (enabled && startDate && endDate && repeatsToday && phoneNumber && UTCSendTime === hoursAndMinutes) {
             const startTime = new Date(startDate).getTime();

@@ -112,7 +112,7 @@ export default {
         const { name } = this.orgSelect;
         const { spaceName } = this.userFavorite;
         try {
-          this.spaces = getAllSpaces(name);
+          this.spaces = await getAllSpaces(name);
           if (spaceName) {
             const matchedSpace = this.spaces.find((space) => space.name === spaceName);
             if (matchedSpace) {

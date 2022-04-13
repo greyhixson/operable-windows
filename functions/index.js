@@ -1,15 +1,56 @@
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
+const {
+  doc, getDoc, getDocs, collection,
+} = require('firebase/firestore');
 
 admin.initializeApp();
 const db = admin.firestore();
 
-// Create and Deploy Your First Cloud Functions
-// https://firebase.google.com/docs/functions/write-firebase-functions
+function getInputKey(input) {
+  return input?.toLowerCase().replace(/\s+/g, '');
+}
 
-// Create a function that listens to the notification collection
-// This function will create a cronjob which will execute
-// computeThresholds at the specified starttime and days
+async function getOrg(orgName) {
+  const orgKey = getInputKey(orgName);
+  const orgRef = doc(db, 'organizations', orgKey);
+  return getDoc(orgRef);
+}
+
+async function getAllSpaces(orgName) {
+  const spaces = [];
+  const orgKey = getInputKey(orgName);
+  const querySnapshot = await getDocs(collection(db, `organizations/${orgKey}/spaces`));
+  querySnapshot.forEach((document) => {
+    spaces.push(document.data());
+  });
+  return spaces;
+}
+
+async function getWeatherApiKey() {
+  const apiRef = doc(db, 'keys', 'openweathermap');
+  const apiDoc = await getDoc(apiRef);
+  if (apiDoc.exists()) {
+    return apiDoc.data().api;
+  }
+  return null;
+}
+
+async function getWeather(city, state) {
+  const trimCity = city.trim();
+  const trimState = state.trim();
+  const APIkey = await getWeatherApiKey();
+  // eslint-disable-next-line max-len
+  const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${trimCity},${trimState},US&appid=${APIkey}&units=imperial`);
+  return response.json();
+}
+
+async function getAirPollution(lat, lon) {
+  const APIkey = await getWeatherApiKey();
+  // eslint-disable-next-line max-len
+  const response = await fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${APIkey}`);
+  return response.json();
+}
 
 // Create a function that will get the user's organization space thresholds and
 // weather API data and then email or text the user
@@ -17,12 +58,47 @@ function padTo2Digits(num) {
   return String(num).padStart(2, '0');
 }
 
-function checkIfOpenable() {
-  return null;
+function checkTemp(weather, space) {
+  const { main: { temp } } = weather;
+  const { minTemp, maxTemp } = space;
+  return (temp > minTemp) && (temp < maxTemp);
 }
 
-function sendNotification(notification) {
-  const openable = checkIfOpenable();
+function checkHumidity(weather, space) {
+  const { main: { humidity } } = weather;
+  const { maxHumidity } = space;
+  return humidity < maxHumidity;
+}
+
+function checkAirPollution(airPollution) {
+  const { list: [{ main: { aqi } }] } = airPollution;
+  const { maxAqi } = this.space;
+  return aqi < maxAqi;
+}
+
+async function checkIfOpenable(notification) {
+  const { orgName, spaceName } = notification;
+  const { city, state } = await getOrg(getInputKey(orgName));
+  const spaces = await getAllSpaces(getInputKey(orgName));
+  if (spaceName) {
+    const matchedSpace = spaces.find((space) => space.name === spaceName);
+    if (matchedSpace) {
+      const weather = await getWeather(city, state);
+      const { coord: { lat, lon } } = weather;
+      const airPollution = await getAirPollution(lat, lon);
+      const okTemp = checkTemp(weather, matchedSpace);
+      const okHumidity = checkHumidity(weather, matchedSpace);
+      const okAirPollution = checkAirPollution(airPollution);
+      if (okTemp && okHumidity && okAirPollution) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+async function sendNotification(notification) {
+  const openable = await checkIfOpenable(notification);
   if (openable) {
     db.collection('notificationMessages').add({
       channelId: 'TEST_CHANNEL_ID',
@@ -47,7 +123,7 @@ exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
     const notificationDocuments = await query.get();
     notificationDocuments.forEach((document) => {
       if (document.data().notifications) {
-        document.data().notifications.forEach((notification) => {
+        document.data().notifications.forEach(async (notification) => {
           const {
             enabled, startDate, endDate, repeatDays, UTCSendTime, phoneNumber,
           } = notification;
@@ -56,7 +132,7 @@ exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
             const startTime = new Date(startDate).getTime();
             const endTime = new Date(endDate).getTime();
             if (startTime < timestamp && endTime > timestamp) {
-              sendNotification(notification);
+              await sendNotification(notification);
             }
           }
         });

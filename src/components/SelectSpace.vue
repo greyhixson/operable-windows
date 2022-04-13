@@ -75,6 +75,7 @@ import {
 import { getWeather, getAirPollution } from '@/API/weatherAPI';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import AlertBanner from '@/components/AlertBanner.vue';
+import { getAllSpaces } from '@/API/firestoreAPI';
 
 export default {
   name: 'SelectSpace',
@@ -111,15 +112,10 @@ export default {
         const { name } = this.orgSelect;
         const { spaceName } = this.userFavorite;
         try {
-          const orgKey = this.getInputKey(name);
-          const querySnapshot = await getDocs(collection(db, `organizations/${orgKey}/spaces`));
-          querySnapshot.forEach((document) => {
-            this.spaces.push(document.data());
-          });
+          this.spaces = getAllSpaces(name);
           if (spaceName) {
             const matchedSpace = this.spaces.find((space) => space.name === spaceName);
             if (matchedSpace) {
-              console.log(matchedSpace);
               this.spaceSelect = matchedSpace;
             }
           }

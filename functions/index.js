@@ -181,5 +181,10 @@ exports.sendPasswordReset = functions.firestore
       .catch((error) => {
         functions.logger.log(error);
       });
-    await deleteDoc(doc(db, 'passwordResetRequests', context.params.userId));
+    db.collection('passwordResetRequests').doc(context.params.userId).delete().then(() => {
+      functions.logger.log('Document successfully deleted!');
+    })
+      .catch((error) => {
+        functions.logger.log('Error removing document: ', error);
+      });
   });

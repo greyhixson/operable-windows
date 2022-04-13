@@ -108,7 +108,7 @@ export default {
   watch: {
     async orgSelect() {
       if (this.orgSelect) {
-        const { name, city, state } = this.orgSelect;
+        const { name } = this.orgSelect;
         const { spaceName } = this.userFavorite;
         try {
           const orgKey = this.getInputKey(name);
@@ -119,16 +119,8 @@ export default {
           if (spaceName) {
             const matchedSpace = this.spaces.find((space) => space.name === spaceName);
             if (matchedSpace) {
+              console.log(matchedSpace);
               this.spaceSelect = matchedSpace;
-            }
-            try {
-              const weather = getWeather(city, state);
-              this.$emit('submitWeather', weather);
-              const { coord: { lat, lon } } = weather;
-              const airPollution = getAirPollution(lat, lon);
-              this.$emit('submitAirPollution', airPollution);
-            } catch {
-              this.setAlert('error', 'An error has occurred, please try again later.');
             }
           }
         } catch (error) {
@@ -142,6 +134,16 @@ export default {
     },
     async spaceSelect() {
       if (this.spaceSelect && this.orgSelect) {
+        const { city, state } = this.orgSelect;
+        try {
+          const weather = await getWeather(city, state);
+          this.$emit('submitWeather', weather);
+          const { coord: { lat, lon } } = weather;
+          const airPollution = await getAirPollution(lat, lon);
+          this.$emit('submitAirPollution', airPollution);
+        } catch {
+          this.setAlert('error', 'An error has occurred, please try again later.');
+        }
         this.$emit('closeCard', false);
         this.$emit('submitSpace', this.spaceSelect);
         this.$emit('submitOrgName', this.orgSelect.name);

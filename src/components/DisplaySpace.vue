@@ -71,7 +71,7 @@
             Air Quality Index: {{ airPollution.list[0].main.aqi }}
           </v-list-item-title>
           <v-list-item-subtitle>
-            Acceptable AQI: {{ space.maxAqi }}
+            Acceptable max AQI: {{ space.maxAqi }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -198,13 +198,13 @@ export default {
     },
     checkHumidity() {
       const { main: { humidity } } = this.weather;
-      const { humidityMax } = this.space;
-      this.okHumidity = humidity < humidityMax;
+      const { maxHumidity } = this.space;
+      this.okHumidity = humidity < maxHumidity;
     },
     checkAirPollution() {
       const { list: [{ main: { aqi } }] } = this.airPollution;
-      const { aqiMax } = this.space;
-      this.okAirPollution = aqi < aqiMax;
+      const { maxAqi } = this.space;
+      this.okAirPollution = aqi < maxAqi;
     },
     decideWindow() {
       if (this.okAirPollution && this.okTemp && this.okHumidity) {

@@ -10,18 +10,20 @@ async function getWeatherApiKey() {
   return null;
 }
 
-const APIkey = getWeatherApiKey();
-
 async function getWeather(city, state) {
-  fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},US&appid=${APIkey}&units=imperial`)
-    .then((response) => response.json())
-    .then((weather) => weather);
+  const trimCity = city.trim();
+  const trimState = state.trim();
+  const APIkey = await getWeatherApiKey();
+  // eslint-disable-next-line max-len
+  const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${trimCity},${trimState},US&appid=${APIkey}&units=imperial`);
+  return response.json();
 }
 
 async function getAirPollution(lat, lon) {
-  fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${APIkey}`)
-    .then((response) => response.json())
-    .then((airPollution) => airPollution);
+  const APIkey = await getWeatherApiKey();
+  // eslint-disable-next-line max-len
+  const response = await fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${APIkey}`);
+  return response.json();
 }
 
 export { getWeather, getAirPollution };

@@ -706,7 +706,7 @@ export default {
       const orgDoc = await getOrg(name);
       if (!orgDoc.exists() && this.auth.currentUser) {
         try {
-          const weather = getWeather(city, state);
+          const { weather } = await getWeather(city, state);
           if (weather) {
             const { main } = weather;
             if (main) {

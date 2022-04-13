@@ -33,8 +33,8 @@
         :rules="passwordRules"
         required
       />
-      <h5 v-if="!passwordReset && forgotPasswordPrompt">
-        Forgot your password? <a @click="passwordReset = true;"> Reset it here </a>
+      <h5 v-if="!passwordReset">
+        Forgot your password? <a @click="passwordReset = true; alert.msg = false;"> Reset it here </a>
       </h5>
       <v-row class="pt-6">
         <v-btn

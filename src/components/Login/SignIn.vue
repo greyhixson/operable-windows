@@ -135,8 +135,12 @@ export default {
             this.forgotPasswordPrompt = false;
             this.$refs.form.reset();
           } catch (error) {
-            this.setAlert('error', 'Incorrect password or email');
-            this.forgotPasswordPrompt = true;
+            if (!this.passwordReset) {
+              this.setAlert('error', 'Incorrect password or email');
+              this.forgotPasswordPrompt = true;
+            } else {
+              this.setAlert('success', `A password reset email has been sent to: ${this.email}`);
+            }
           }
         }
       } else if (this.auth.currentUser) {

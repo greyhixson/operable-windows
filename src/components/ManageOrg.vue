@@ -356,7 +356,7 @@ export default {
             this.orgName = ownedOrgName;
             this.spaces = await getAllSpaces(this.orgName);
           }
-        } catch (error) {
+        } catch {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
       } else {

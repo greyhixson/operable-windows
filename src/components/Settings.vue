@@ -635,7 +635,7 @@ export default {
       if (this.orgs.length === 0) {
         try {
           this.orgs = await getAllOrgs();
-        } catch (error) {
+        } catch {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
       }
@@ -686,7 +686,7 @@ export default {
               this.orgBtnText = 'Register Organization';
             }
           }
-        } catch (error) {
+        } catch {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
       } else {
@@ -738,8 +738,8 @@ export default {
     async deleteAccount() {
       try {
         await deleteUser(this.auth.currentUser);
-      } catch (e) {
-        this.setAlert('error', e);
+      } catch {
+        this.setAlert('error', 'An error has occurred, please try again later.');
       }
     },
     async saveAddNotification() {
@@ -755,7 +755,7 @@ export default {
           await addNotification(notifCopy, this.auth.currentUser.uid);
           this.setAlert('success', 'Successfully added notification.');
           this.notifications.push(notifCopy);
-        } catch (e) {
+        } catch {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
         this.$refs.form.reset();

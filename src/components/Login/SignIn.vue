@@ -124,6 +124,7 @@ export default {
   },
   methods: {
     async accountBtn() {
+      // Sign in a user if they're not signed in
       if (!this.auth.currentUser) {
         this.$refs.form.validate();
         if (this.validForm) {
@@ -132,7 +133,7 @@ export default {
             this.setAlert('success', 'You are now signed in');
             this.forgotPasswordPrompt = false;
             this.$refs.form.reset();
-          } catch (error) {
+          } catch {
             if (!this.passwordReset) {
               this.setAlert('error', 'Incorrect password or email');
               this.forgotPasswordPrompt = true;
@@ -141,15 +142,17 @@ export default {
             }
           }
         }
+        // Sign out a user
       } else if (this.auth.currentUser) {
         try {
           await signOut(this.auth);
           this.setAlert('success', "You've been signed out.");
           this.$refs.form.reset();
-        } catch (error) {
+        } catch {
           this.setAlert('error', 'An error has occurred, please try again later');
         }
       }
+      // Send a password reset email
       if (this.passwordReset) {
         try {
           await sendPasswordResetEmail(this.auth, this.email);

@@ -112,31 +112,6 @@
 </template>
 
 <script>
-/**
- * Weather Object from the OpenWeather Current Weather Data API
- * @typedef {Object} weather
- * @property main     - Primary weather conditions
- * @property temp     - Temperature (In celsius)
- * @property humidity - Humidity
- */
-/**
- * Air Pollution object from the OpenWeather Air Pollution API
- * @typedef {Object} airPollution
- * @property list - Contains the date time, main, and components
- * @property main - Contains the AQI
- * @property aqi  - AQI
- */
-
-/**
- * Window Thresholds object from the firestore
- * @typedef {Object} space
- * @property minTemp     - Min temp (C°) it needs to be for the window to be open
- * @property maxTemp     - Max temp (C°) it can be for the window to be open
- * @property maxHumidity - Max humidity it can be for the window to be open
- * @property maxAqi      - Max air pollution it can be for the window to be open
- * @property name         - The name of the space
- */
-
 import { getAuth } from 'firebase/auth';
 import { db } from '@/store/store';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -208,19 +183,26 @@ export default {
       const updatedFavorite = { orgName: this.orgName, spaceName: this.space.name };
       if (this.auth.currentUser) {
         const { uid } = this.auth.currentUser;
-        const userDocRef = doc(db, 'users', uid);
-        await updateDoc(userDocRef, {
-          favorite: updatedFavorite,
-        });
+        // Update user settings with their saved org and space
+        try {
+          await updateDoc(doc(db, 'users', uid), {
+            favorite: updatedFavorite,
+          });
+          this.setAlert('success', 'Preferences saved');
+        } catch {
+          this.setAlert('error', 'An error has occurred, please try again later');
+        }
       }
-      this.alert.show = true;
-      this.alert.msg = 'Preferences saved';
-      this.alert.type = 'success';
     },
     resetAlert() {
       this.alert.show = false;
       this.alert.msg = '';
       this.alert.type = '';
+    },
+    setAlert(alertType, alertMsg) {
+      this.alert.show = true;
+      this.alert.msg = alertMsg;
+      this.alert.type = alertType;
     },
   },
 };

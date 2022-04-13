@@ -68,14 +68,10 @@
 </style>
 
 <script>
-import { db } from '@/store/store';
-import {
-  doc, getDocs, getDoc, collection,
-} from 'firebase/firestore';
 import { getWeather, getAirPollution } from '@/API/weatherAPI';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import AlertBanner from '@/components/AlertBanner.vue';
-import { getAllSpaces } from '@/API/firestoreAPI';
+import { getAllSpaces, getAllOrgs, getUser } from '@/API/firestoreAPI';
 
 export default {
   name: 'SelectSpace',
@@ -119,7 +115,7 @@ export default {
               this.spaceSelect = matchedSpace;
             }
           }
-        } catch (error) {
+        } catch {
           this.setAlert('error', 'An error has occurred, please try again later.');
         }
       } else {
@@ -169,10 +165,8 @@ export default {
       if (user) {
         // Get the user's favorite org and space
         try {
-          const userRef = doc(db, 'users', user.uid);
-          const userDoc = await getDoc(userRef);
-          if (userDoc.exists()) {
-            const userObj = userDoc.data();
+          const userObj = await getUser(user.uid);
+          if (userObj) {
             this.userFavorite.orgName = userObj.favorite.orgName;
             this.userFavorite.spaceName = userObj.favorite.spaceName;
           }
@@ -184,10 +178,7 @@ export default {
   },
   async created() {
     try {
-      const querySnapshot = await getDocs(collection(db, 'organizations'));
-      querySnapshot.forEach((document) => {
-        this.orgs.push(document.data());
-      });
+      this.orgs = await getAllOrgs();
     } catch {
       this.setAlert('error', 'An error has occurred, please try again later.');
     }

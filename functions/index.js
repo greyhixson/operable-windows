@@ -169,11 +169,3 @@ exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
     });
     return null;
   });
-
-exports.sendPasswordReset = functions.firestore
-  .document('passwordResetRequests/{email}')
-  .onWrite(async (change, context) => {
-    db.collection('passwordResetRequests').doc(context.params.userId).delete().then(() => {
-      functions.logger.log('Document successfully deleted!');
-    });
-  });

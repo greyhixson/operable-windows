@@ -72,10 +72,8 @@
 
 <script>
 import {
-  getAuth, signOut, signInWithEmailAndPassword, onAuthStateChanged,
+  getAuth, signOut, signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail,
 } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { db } from '@/store/store';
 import AlertBanner from '../AlertBanner.vue';
 
 export default {
@@ -139,7 +137,7 @@ export default {
               this.setAlert('error', 'Incorrect password or email');
               this.forgotPasswordPrompt = true;
             } else {
-              this.setAlert('success', `A password reset email has been sent to: ${this.email}`);
+              this.setAlert('success', `Password reset email sent to: ${this.email}`);
             }
           }
         }
@@ -153,10 +151,11 @@ export default {
         }
       }
       if (this.passwordReset) {
-        const resetRequestRef = doc(db, 'passwordResetRequests', this.email);
-        await setDoc(resetRequestRef, {
-          email: this.email,
-        });
+        try {
+          await sendPasswordResetEmail(this.auth, this.email);
+        } catch {
+          this.setAlert('error', 'An error has occurred, please try again later');
+        }
       }
     },
     resetAlert() {

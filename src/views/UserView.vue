@@ -29,21 +29,24 @@
     </v-row>
     <v-row
       no-gutters
-      class="mx-auto"
     >
-      <v-col>
+      <v-col class="mr-2">
         <v-btn
+          block
           class="mr-8"
-          width="165"
-          height="50"
+          min-width="125"
+          min-height="50"
           @click="accountBtn"
         >
           {{ accountBtnText }}
         </v-btn>
+        </v-col>
+      <v-col class="ml-2">
         <v-btn
+          block
           class="mx-auto"
-          width="165"
-          height="50"
+          min-width="125"
+          min-height="50"
           @click="settings"
         >
           Settings

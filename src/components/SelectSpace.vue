@@ -7,63 +7,59 @@
       :show-alert-prop="alert.show"
       @resetAlert="resetAlert"
     />
-    <v-autocomplete
-      v-model="orgSelect"
-      class="search"
-      :items="orgs"
-      :search-input.sync="orgSearch"
-      :filter="onOrgFilter"
-      label="Search for your organization"
-      clearable
-      return-object
-    >
-      <template v-slot:selection="{ item }">
-        <span>{{ item.name }}</span>
-      </template>
-      <template v-slot:item="{ item }">
-        <v-list-item-content>
-          <v-list-item-title v-text="item.name" />
-          <v-list-item-subtitle v-text="item.city" />
-          <v-list-item-subtitle v-text="item.state" />
-        </v-list-item-content>
-      </template>
-    </v-autocomplete>
-    <v-autocomplete
-      v-model="spaceSelect"
-      class="search"
-      :items="spaces"
-      :search-input.sync="spaceSearch"
-      :filter="onSpaceFilter"
-      label="Search for your space"
-      no-data-text="Please select an organization first"
-      clearable
-      return-object
-    >
-      <template v-slot:selection="{ item }">
-        <span>{{ item.name }}</span>
-      </template>
-      <template v-slot:item="{ item }">
-        <v-list-item-content>
-          <v-list-item-title v-text="item.name" />
-        </v-list-item-content>
-      </template>
-    </v-autocomplete>
+    <v-row no-gutters>
+      <v-col>
+        <v-autocomplete
+          v-model="orgSelect"
+          class="search"
+          :items="orgs"
+          :search-input.sync="orgSearch"
+          :filter="onOrgFilter"
+          label="Search for your organization"
+          clearable
+          return-object
+        >
+          <template v-slot:selection="{ item }">
+            <span v-text="item.name"></span>
+          </template>
+          <template v-slot:item="{ item }">
+            <v-list-item-content>
+              <v-list-item-title v-text="item.name" />
+              <v-list-item-subtitle v-text="item.city" />
+              <v-list-item-subtitle v-text="item.state" />
+            </v-list-item-content>
+          </template>
+        </v-autocomplete>
+        <v-autocomplete
+          v-model="spaceSelect"
+          class="search"
+          :items="spaces"
+          :search-input.sync="spaceSearch"
+          :filter="onSpaceFilter"
+          label="Search for your space"
+          no-data-text="Please select an organization first"
+          clearable
+          return-object
+        >
+          <template v-slot:selection="{ item }">
+            <span v-text="item.name"></span>
+          </template>
+          <template v-slot:item="{ item }">
+            <v-list-item-content>
+              <v-list-item-title v-text="item.name" />
+            </v-list-item-content>
+          </template>
+        </v-autocomplete>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
 <style scoped>
 .search {
-  min-width: 350px;
-}
-.search >>> label {
-  padding-bottom: 30px;
-}
-</style>
-
-<style>
-/* Vuetify bug fix */
-.v-select__selections input {
-  width: 0 !important;
+  min-width: 300px;
+  max-width: 350px;
+  margin-right: -100px;
 }
 </style>
 

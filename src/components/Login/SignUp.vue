@@ -86,7 +86,7 @@ export default {
       password: '',
       passwordRules: [
         (v) => !!v || 'Password is required',
-        (v) => (v && v.length) >= 6 || 'Password must be atleast 6 characters long',
+        (v) => (v && v.length) >= 6 || 'Password must be at least 6 characters long',
       ],
       confirmPassword: '',
       comparePasswordsRules: [
@@ -120,7 +120,7 @@ export default {
         } catch (error) {
           this.setAlert('error', error.code);
         }
-        // If the user is signed out, create an accout
+        // If the user is signed out, create an account
       } else {
         this.$refs.form.validate();
         if (this.validForm) {

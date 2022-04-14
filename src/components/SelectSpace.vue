@@ -13,7 +13,7 @@
       :items="orgs"
       :search-input.sync="orgSearch"
       :filter="onOrgFilter"
-      label="Search for your organizaton"
+      label="Search for your organization"
       clearable
       return-object
     >

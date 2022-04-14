@@ -88,7 +88,7 @@
                               cols="12"
                             >
                               <v-text-field
-                                v-if="!edittingExistingSpace"
+                                v-if="!editingExistingSpace"
                                 v-model="editedItem.name"
                                 label="Name"
                                 :rules="spaceRule"
@@ -277,7 +277,7 @@ export default {
       orgName: '',
       search: '',
       editedIndex: -1,
-      edittingExistingSpace: false,
+      editingExistingSpace: false,
       loading: false,
       alert: {
         type: '',
@@ -375,7 +375,7 @@ export default {
       }
     },
     editItem(item) {
-      this.edittingExistingSpace = true;
+      this.editingExistingSpace = true;
       this.editedIndex = this.spaces.indexOf(item);
       this.editedItem = { ...item };
       this.dialog = true;
@@ -391,7 +391,7 @@ export default {
       this.closeDelete();
     },
     close() {
-      this.edittingExistingSpace = false;
+      this.editingExistingSpace = false;
       this.dialog = false;
       this.$nextTick(() => {
         this.editedItem = { ...this.defaultItem };
@@ -408,7 +408,7 @@ export default {
     },
     async save() {
       this.loading = true;
-      this.edittingExistingSpace = false;
+      this.editingExistingSpace = false;
       this.$refs.form.validate();
       if (this.formValid) {
         if (this.editedIndex > -1) {

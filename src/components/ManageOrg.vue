@@ -30,7 +30,7 @@
         no-data-text="Please add a new space."
         no-result-text="No space found."
       >
-        <template v-slot:top>
+        <template #top>
           <v-toolbar
             flat
             class="mb-4"
@@ -62,7 +62,7 @@
                   v-model="dialog"
                   max-width="400px"
                 >
-                  <template v-slot:activator="{ on, attrs }">
+                  <template #activator="{ on, attrs }">
                     <v-btn
                       color="primary"
                       dark
@@ -181,7 +181,7 @@
             </v-dialog>
           </v-toolbar>
         </template>
-        <template v-slot[`item.actions`]="{ item }">
+        <template #[`item.actions`]="{ item }">
           <v-icon
             small
             class="mr-2"
@@ -202,7 +202,7 @@
       v-model="dialogDeleteOrg"
       width="500"
     >
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-btn
           ref="deleteOrgBtn"
           color="red lighten-2"

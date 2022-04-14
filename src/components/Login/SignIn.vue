@@ -30,11 +30,16 @@
         required
       />
       <h5 v-if="!passwordReset">
-        Forgot your password? <a v-on:keyup.enter="passwordReset = true; alert.msg = false;"
-                                 @click.prevent="passwordReset = true; alert.msg = false;">
-        Reset it here </a>
+        Forgot your password? <a
+          @keyup.enter="passwordReset = true; alert.msg = false;"
+          @click.prevent="passwordReset = true; alert.msg = false;"
+        >
+          Reset it here </a>
       </h5>
-      <v-row no-gutters class="pt-4 mb-n4">
+      <v-row
+        no-gutters
+        class="pt-4 mb-n4"
+      >
         <v-col class="mr-2">
           <v-btn
             block

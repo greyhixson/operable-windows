@@ -39,12 +39,6 @@
   </v-app>
 </template>
 
-<style scoped>
-#appView {
-  padding-bottom: 240px;
-}
-</style>
-
 <script>
 
 export default {
@@ -54,3 +48,8 @@ export default {
   }),
 };
 </script>
+<style scoped>
+#appView {
+  padding-bottom: 240px;
+}
+</style>

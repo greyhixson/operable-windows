@@ -42,9 +42,9 @@
             append-outer-icon="mdi-close-circle"
             label="Favorite Organization"
             class="readonlyField"
-            @click:append-outer="clearFavoriteOrg"
             style="min-width: 260px;"
             readonly
+            @click:append-outer="clearFavoriteOrg"
           />
 
           <v-text-field
@@ -52,9 +52,9 @@
             append-outer-icon="mdi-close-circle"
             label="Favorite Space"
             class="readonlyField"
-            @click:append-outer="clearFavoriteSpace"
             style="min-width: 260px;"
             readonly
+            @click:append-outer="clearFavoriteSpace"
           />
         </v-col>
       </v-row>
@@ -73,7 +73,7 @@
                 persistent
                 max-width="500px"
               >
-                <template v-slot:activator="{ on, attrs }">
+                <template #activator="{ on, attrs }">
                   <v-btn
                     v-bind="attrs"
                     width="220px"
@@ -143,7 +143,7 @@
                 v-model="phoneNumberDialog"
                 width="500"
               >
-                <template v-slot:activator="{ on, attrs }">
+                <template #activator="{ on, attrs }">
                   <v-btn
                     color="primary"
                     dark
@@ -196,7 +196,7 @@
                 v-model="dialogDeleteAcct"
                 width="500"
               >
-                <template v-slot:activator="{ on, attrs }">
+                <template #activator="{ on, attrs }">
                   <v-btn
                     color="red lighten-2"
                     dark
@@ -252,7 +252,7 @@
                 width="550px"
                 persistent
               >
-                <template v-slot:activator="{ on, attrs }">
+                <template #activator="{ on, attrs }">
                   <v-btn
                     v-bind="settings.phoneNumber ? attrs : null"
                     width="220px"
@@ -284,10 +284,10 @@
                         hint="The organization that you can select a space from"
                         persistent-hint
                       >
-                        <template v-slot:selection="{ item }">
+                        <template #selection="{ item }">
                           <span>{{ item.name }}</span>
                         </template>
-                        <template v-slot:item="{ item }">
+                        <template #item="{ item }">
                           <v-list-item-content>
                             <v-list-item-title v-text="item.name" />
                             <v-list-item-subtitle v-text="item.city" />
@@ -308,10 +308,10 @@
                         hint="The space your operable window is in"
                         persistent-hint
                       >
-                        <template v-slot:selection="{ item }">
+                        <template #selection="{ item }">
                           <span>{{ item.name }}</span>
                         </template>
-                        <template v-slot:item="{ item }">
+                        <template #item="{ item }">
                           <v-list-item-content>
                             <v-list-item-title v-text="item.name" />
                           </v-list-item-content>
@@ -336,7 +336,7 @@
                             persistent-hint
                           >
                             <template
-                              v-slot:selection="{ item, index }"
+                              #selection="{ item, index }"
                             >
                               <span v-if="index === 0">{{ item }} </span>
                               <span
@@ -357,7 +357,7 @@
                               offset-y
                               min-width="auto"
                             >
-                              <template v-slot:activator="{ on, attrs }">
+                              <template #activator="{ on, attrs }">
                                 <v-text-field
                                   v-model="notification.startDate"
                                   label="Start Date"
@@ -386,7 +386,7 @@
                               offset-y
                               min-width="auto"
                             >
-                              <template v-slot:activator="{ on, attrs }">
+                              <template #activator="{ on, attrs }">
                                 <v-text-field
                                   v-model="notification.endDate"
                                   label="End Date"
@@ -434,7 +434,7 @@
                 v-model="dialogManageNotif"
                 width="900px"
               >
-                <template v-slot:activator="{ on, attrs }">
+                <template #activator="{ on, attrs }">
                   <v-btn
                     v-bind="attrs"
                     width="220px"
@@ -454,13 +454,13 @@
                       :hide-default-footer="true"
                       class="elevation-1"
                     >
-                      <template v-slot:[`item.enabled`]="{ item }">
+                      <template #[`item.enabled`]="{ item }">
                         <v-simple-checkbox
                           v-model="item.enabled"
                           :ripple="false"
                         />
                       </template>
-                      <template v-slot:[`item.actions`]="{ item }">
+                      <template #[`item.actions`]="{ item }">
                         <v-icon
                           small
                           @click="deleteNotification(item)"
@@ -485,7 +485,6 @@
                     >
                       Exit
                     </v-btn>
-
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -493,7 +492,7 @@
           </v-row>
         </v-col>
       </v-row>
-      <v-divider class="pb-8 mt-n6"></v-divider>
+      <v-divider class="pb-8 mt-n6" />
       <v-row
         justify="center"
       >
@@ -508,15 +507,6 @@
     </v-container>
   </v-container>
 </template>
-
-<style>
-.readonlyField.v-text-field>.v-input__control>.v-input__slot:before {
-  border-style: none;
-}
-.readonlyField.v-text-field>.v-input__control>.v-input__slot:after {
-  border-style: none;
-}
-</style>
 
 <script>
 import { getAuth, onAuthStateChanged, sendPasswordResetEmail } from 'firebase/auth';
@@ -839,3 +829,12 @@ export default {
   },
 };
 </script>
+
+<style>
+.readonlyField.v-text-field>.v-input__control>.v-input__slot:before {
+  border-style: none;
+}
+.readonlyField.v-text-field>.v-input__control>.v-input__slot:after {
+  border-style: none;
+}
+</style>

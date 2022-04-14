@@ -19,10 +19,10 @@
           clearable
           return-object
         >
-          <template v-slot:selection="{ item }">
-            <span v-text="item.name"></span>
+          <template #selection="{ item }">
+            <span v-text="item.name" />
           </template>
-          <template v-slot:item="{ item }">
+          <template #item="{ item }">
             <v-list-item-content>
               <v-list-item-title v-text="item.name" />
               <v-list-item-subtitle v-text="item.city" />
@@ -45,10 +45,10 @@
           clearable
           return-object
         >
-          <template v-slot:selection="{ item }">
-            <span v-text="item.name"></span>
+          <template #selection="{ item }">
+            <span v-text="item.name" />
           </template>
-          <template v-slot:item="{ item }">
+          <template #item="{ item }">
             <v-list-item-content>
               <v-list-item-title v-text="item.name" />
             </v-list-item-content>
@@ -58,20 +58,6 @@
     </v-row>
   </v-container>
 </template>
-
-<style scoped>
-.search {
-  margin-right: -15px;
-  margin-left: -15px;
-  min-width: 350px;
-  max-width: 350px;
-}
-
-.v-select__selections input {
-  width: 0 !important;
-  height: 0 !important;
-}
-</style>
 
 <script>
 import { getWeather, getAirPollution } from '@/API/weatherAPI';
@@ -218,3 +204,17 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.search {
+  margin-right: -15px;
+  margin-left: -15px;
+  min-width: 350px;
+  max-width: 350px;
+}
+
+.v-select__selections input {
+  width: 0 !important;
+  height: 0 !important;
+}
+</style>

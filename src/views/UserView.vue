@@ -39,7 +39,7 @@
         >
           {{ accountBtnText }}
         </v-btn>
-        </v-col>
+      </v-col>
       <v-col class="ml-2">
         <v-btn
           block

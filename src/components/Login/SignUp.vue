@@ -1,6 +1,7 @@
 <template>
   <v-container
-    style="min-width: 350px;">
+    style="min-width: 350px;"
+  >
     <alert-banner
       v-if="alert.msg && alert.type"
       :alert-msg="alert.msg"

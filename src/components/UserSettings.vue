@@ -682,21 +682,19 @@ export default {
       // Check if an org isn't yet registered and then check if it is valid by getting the weather data
       if (!orgDoc.exists() && this.auth.currentUser) {
         try {
-          const { weather } = await getWeather(city, state);
-          if (weather) {
-            const { main } = weather;
-            if (main) {
-              try {
-                await writeOrg(this.registerOrgObj, this.auth.currentUser.uid);
-                this.settings.ownedOrgName = name;
-                this.orgBtnText = 'Manage Organization';
-                this.setAlert('success', 'Successfully registered organization.');
-              } catch {
-                this.setAlert('error', 'An error has occurred, please try again later.');
-              }
-            } else {
-              this.setAlert('error', weather.message);
+          const weatherResponse = await getWeather(city, state);
+          const { main } = weatherResponse;
+          if (main) {
+            try {
+              await writeOrg(this.registerOrgObj, this.auth.currentUser.uid);
+              this.settings.ownedOrgName = name;
+              this.orgBtnText = 'Manage Organization';
+              this.setAlert('success', 'Successfully registered organization.');
+            } catch {
+              this.setAlert('error', 'An error has occurred, please try again later.');
             }
+          } else {
+            this.setAlert('error', weatherResponse.message);
           }
         } catch {
           this.setAlert('error', 'An error has occurred, please try again later.');

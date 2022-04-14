@@ -118,7 +118,7 @@ export default {
       if (currentUser) {
         this.$router.push('/settings').catch(() => {});
       } else {
-        this.$router.push('/signup').catch(() => {});
+        this.$router.push('/signin').catch(() => {});
       }
     },
   },

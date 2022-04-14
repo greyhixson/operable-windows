@@ -28,7 +28,7 @@
             Temperature: {{ weather.main.temp.toFixed(0) }}F
           </v-list-item-title>
           <v-list-item-subtitle>
-            Acceptable temperature range: {{ space.minTemp }}F
+            Temperature range: {{ space.minTemp }}F
             - {{ space.maxTemp }}F
           </v-list-item-subtitle>
         </v-list-item-content>
@@ -50,7 +50,7 @@
             Humidity: {{ weather.main.humidity }}
           </v-list-item-title>
           <v-list-item-subtitle>
-            Acceptable max humidity: {{ space.maxHumidity }}
+            Max humidity: {{ space.maxHumidity }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -71,7 +71,7 @@
             Air Quality Index: {{ airPollution.list[0].main.aqi }}
           </v-list-item-title>
           <v-list-item-subtitle>
-            Acceptable max AQI: {{ space.maxAqi }}
+            Max AQI: {{ space.maxAqi }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>

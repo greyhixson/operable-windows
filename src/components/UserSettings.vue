@@ -15,21 +15,21 @@
     </v-row>
     <v-container>
       <v-row>
-        <v-col class="pr-8">
-          <h2> Personal</h2>
+        <v-col>
+          <h2>Personal</h2>
           <v-text-field
             :value="settings.phoneNumber"
             class="readonlyField"
             label="Phone Number"
             type="number"
-            style="min-width: 175px;"
+            style="min-width: 260px;"
             readonly
           />
           <v-text-field
             :value="email"
             class="readonlyField"
             label="Email Address"
-            style="min-width: 175px;"
+            style="min-width: 260px;"
             readonly
           />
         </v-col>
@@ -39,20 +39,22 @@
           </h2>
           <v-text-field
             v-model="settings.favorite.orgName"
-            readonly
             append-outer-icon="mdi-close-circle"
             label="Favorite Organization"
             class="readonlyField"
             @click:append-outer="clearFavoriteOrg"
+            style="min-width: 260px;"
+            readonly
           />
 
           <v-text-field
             v-model="settings.favorite.spaceName"
-            readonly
             append-outer-icon="mdi-close-circle"
             label="Favorite Space"
             class="readonlyField"
             @click:append-outer="clearFavoriteSpace"
+            style="min-width: 260px;"
+            readonly
           />
         </v-col>
       </v-row>
@@ -65,7 +67,7 @@
             Account
           </h2>
           <v-row>
-            <v-col class="pr-8">
+            <v-col>
               <v-dialog
                 v-model="dialogManageOrg"
                 persistent

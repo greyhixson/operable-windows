@@ -33,7 +33,6 @@
       <v-col class="mr-2">
         <v-btn
           block
-          class="mr-8"
           min-width="125"
           min-height="50"
           @click="accountBtn"
@@ -44,7 +43,6 @@
       <v-col class="ml-2">
         <v-btn
           block
-          class="mx-auto"
           min-width="125"
           min-height="50"
           @click="settings"

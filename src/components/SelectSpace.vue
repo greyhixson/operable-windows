@@ -30,6 +30,10 @@
             </v-list-item-content>
           </template>
         </v-autocomplete>
+      </v-col>
+    </v-row>
+    <v-row no-gutters>
+      <v-col>
         <v-autocomplete
           v-model="spaceSelect"
           class="search"
@@ -57,9 +61,15 @@
 
 <style scoped>
 .search {
-  min-width: 300px;
+  margin-right: -15px;
+  margin-left: -15px;
+  min-width: 350px;
   max-width: 350px;
-  margin-right: -100px;
+}
+
+.v-select__selections input {
+  width: 0 !important;
+  height: 0 !important;
 }
 </style>
 

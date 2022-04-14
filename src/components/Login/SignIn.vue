@@ -1,7 +1,5 @@
 <template>
-  <v-container
-    style="width: 400px;"
-  >
+  <v-container style="min-width: 350px;">
     <alert-banner
       v-if="alert.msg && alert.type"
       :alert-msg="alert.msg"
@@ -16,7 +14,6 @@
     >
       <v-text-field
         v-model="email"
-        class="mx-auto"
         type="email"
         placeholder="Email"
         label="Please enter your email"
@@ -26,7 +23,6 @@
       <v-text-field
         v-if="!passwordReset"
         v-model="password"
-        class="mx-auto"
         type="password"
         placeholder="Password"
         label="Please enter your password"
@@ -34,26 +30,31 @@
         required
       />
       <h5 v-if="!passwordReset">
-        Forgot your password? <router-link @click="passwordReset = true; alert.msg = false;" to="">
-        Reset it here </router-link>
+        Forgot your password? <a v-on:keyup.enter="passwordReset = true; alert.msg = false;"
+                                 @click.prevent="passwordReset = true; alert.msg = false;">
+        Reset it here </a>
       </h5>
-      <v-row class="pt-6">
-        <v-btn
-          class="mx-auto"
-          width="180"
-          height="50"
-          @click="accountBtn"
-        >
-          {{ accountBtnText }}
-        </v-btn>
-        <v-btn
-          class="mx-auto pl-4"
-          width="180"
-          height="50"
-          to="/"
-        >
-          Home
-        </v-btn>
+      <v-row no-gutters class="pt-4 mb-n4">
+        <v-col class="mr-2">
+          <v-btn
+            block
+            min-width="125"
+            min-height="50"
+            @click="accountBtn"
+          >
+            {{ accountBtnText }}
+          </v-btn>
+        </v-col>
+        <v-col class="ml-2">
+          <v-btn
+            block
+            min-width="125"
+            min-height="50"
+            to="/"
+          >
+            Home
+          </v-btn>
+        </v-col>
       </v-row>
       <h3
         v-if="!passwordReset"

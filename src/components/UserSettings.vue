@@ -2,13 +2,8 @@
   <v-container>
     <v-row
       justify="center"
-      dense
     >
-      <v-col
-        cols="auto"
-        xs="2"
-        xl="6"
-      >
+      <v-col>
         <alert-banner
           v-if="alert.msg && alert.type"
           :alert-msg="alert.msg"
@@ -18,40 +13,29 @@
         />
       </v-col>
     </v-row>
-    <v-container
-      fill-height
-      fluid
-    >
-      <v-row
-        justify="center"
-      >
-        <v-col
-          cols="auto"
-          xs="1"
-          xl="3"
-        >
+    <v-container>
+      <v-row>
+        <v-col class="pr-8">
           <h2> Personal</h2>
           <v-text-field
             :value="settings.phoneNumber"
             class="readonlyField"
             label="Phone Number"
-            readonly
             type="number"
+            style="min-width: 175px;"
+            readonly
           />
           <v-text-field
             :value="email"
             class="readonlyField"
             label="Email Address"
+            style="min-width: 175px;"
             readonly
           />
         </v-col>
-        <v-col
-          cols="auto"
-          xs="1"
-          xl="3"
-        >
+        <v-col>
           <h2>
-            Organization Settings
+            Organization
           </h2>
           <v-text-field
             v-model="settings.favorite.orgName"
@@ -74,20 +58,14 @@
       </v-row>
       <v-row
         justify="center"
-        class="mb-8 mx-auto"
+        class="mb-8"
       >
-        <v-col
-          cols="auto"
-          xs="1"
-          xl="3"
-        >
+        <v-col>
           <h2 class="pb-2">
-            Account Settings
+            Account
           </h2>
-          <v-row
-            dense
-          >
-            <v-col>
+          <v-row>
+            <v-col class="pr-8">
               <v-dialog
                 v-model="dialogManageOrg"
                 persistent
@@ -261,15 +239,11 @@
             </v-col>
           </v-row>
         </v-col>
-        <v-col
-          cols="auto"
-          xs="1"
-          xl="3"
-        >
+        <v-col>
           <h2 class="pb-2">
-            Notification Settings
+            Notification
           </h2>
-          <v-row dense>
+          <v-row>
             <v-col>
               <v-dialog
                 v-model="dialogAddNotif"
@@ -509,6 +483,7 @@
                     >
                       Exit
                     </v-btn>
+
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -516,11 +491,11 @@
           </v-row>
         </v-col>
       </v-row>
+      <v-divider class="pb-8 mt-n6"></v-divider>
       <v-row
         justify="center"
       >
         <v-btn
-          dark
           width="200px"
           height="50px"
           to="/"

@@ -1,7 +1,6 @@
 <template>
   <v-container
-    style="width: 400px;"
-  >
+    style="min-width: 350px;">
     <alert-banner
       v-if="alert.msg && alert.type"
       :alert-msg="alert.msg"
@@ -35,23 +34,27 @@
         label="Please confirm your password"
         :rules="comparePasswordsRules"
       />
-      <v-row class="pt-6">
-        <v-btn
-          class="mx-auto"
-          width="180"
-          height="50"
-          @click="accountBtn"
-        >
-          {{ accountBtnText }}
-        </v-btn>
-        <v-btn
-          class="mx-auto pl-4"
-          width="180"
-          height="50"
-          to="/"
-        >
-          Home
-        </v-btn>
+      <v-row no-gutters>
+        <v-col class="mr-2">
+          <v-btn
+            block
+            min-width="125"
+            min-height="50"
+            @click="accountBtn"
+          >
+            {{ accountBtnText }}
+          </v-btn>
+        </v-col>
+        <v-col class="ml-2">
+          <v-btn
+            block
+            min-width="125"
+            height="50"
+            to="/"
+          >
+            Home
+          </v-btn>
+        </v-col>
       </v-row>
     </v-form>
   </v-container>

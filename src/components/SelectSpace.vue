@@ -15,7 +15,7 @@
     >
       <v-autocomplete
         v-model="orgSelect"
-        class="search"
+        class="search text-truncate"
         :items="orgs"
         :search-input.sync="orgSearch"
         :filter="onOrgFilter"
@@ -215,9 +215,12 @@ export default {
   min-width: 350px;
   max-width: 350px;
 }
+</style>
 
+<style>
+/* Vuetify bug fix */
 .v-select__selections input {
   width: 0 !important;
-  height: 0 !important;
+  min-width: 0 !important;
 }
 </style>

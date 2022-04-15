@@ -172,7 +172,7 @@ export default {
       return this.tempOk && this.humidityOk && this.airPollutionOk;
     },
     windowMessage() {
-      if (this.openWindow) {
+      if (this.openable) {
         return 'Openable';
       }
       return 'Keep Closed';

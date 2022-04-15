@@ -64,6 +64,7 @@ async function writeOrg(org, uid) {
     name,
     city,
     state,
+    owner: uid,
   }, { merge: true });
   const userRef = doc(db, 'users', uid);
   await updateDoc(userRef, {

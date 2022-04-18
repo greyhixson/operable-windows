@@ -173,9 +173,9 @@ export default {
     },
     windowMessage() {
       if (this.openable) {
-        return 'Openable';
+        return 'You may open your window';
       }
-      return 'Keep Closed';
+      return 'Keep your window closed';
     },
   },
   methods: {

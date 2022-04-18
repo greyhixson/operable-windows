@@ -105,14 +105,14 @@
                               <v-text-field
                                 v-model="editedItem.minTemp"
                                 label="Minimum Temperature (F°)"
-                                :rules="tempRules"
+                                :rules="minTempRules"
                                 type="number"
                               />
 
                               <v-text-field
                                 v-model="editedItem.maxTemp"
                                 label="Maximum Temperature (F°)"
-                                :rules="tempRules"
+                                :rules="maxTempRules"
                                 type="number"
                               />
 
@@ -303,10 +303,19 @@ export default {
         (v) => (v >= 0 && v <= 100) || 'Value must be in a range 0 to 100',
         (v) => (v && v.length <= 3) || 'Only 3 characters in length are allowed',
       ],
-      tempRules: [
-        (v) => !!v || 'Temperature is required',
+      minTempRules: [
+        (v) => !!v || 'Minimum Temp is required',
         (v) => (v >= -50 && v <= 150) || 'Value must be in a range -50 to 150',
         (v) => (v && v.length <= 3) || 'Only 3 characters in length are allowed',
+        (v) => ((!this.editedItem.maxTemp) || (v < this.editedItem.maxTemp))
+            || 'Minimum temperature must be less than Maximum temperature',
+      ],
+      maxTempRules: [
+        (v) => !!v || 'Maximum Temp is required',
+        (v) => (v >= -50 && v <= 150) || 'Value must be in a range -50 to 150',
+        (v) => (v && v.length <= 3) || 'Only 3 characters in length are allowed',
+        (v) => ((!this.editedItem.minTemp) || (v > this.editedItem.minTemp))
+            || 'Maximum temperature must be greater than Minimum temperature',
       ],
       aqiRules: [
         (v) => !!v || 'AQI is required',

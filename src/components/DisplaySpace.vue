@@ -156,17 +156,17 @@ export default {
     tempOk() {
       const { main: { temp } } = this.weather;
       const { minTemp, maxTemp } = this.space;
-      return (temp > minTemp) && (temp < maxTemp);
+      return (temp >= minTemp) && (temp <= maxTemp);
     },
     humidityOk() {
       const { main: { humidity } } = this.weather;
       const { maxHumidity } = this.space;
-      return humidity < maxHumidity;
+      return humidity <= maxHumidity;
     },
     airPollutionOk() {
       const { list: [{ main: { aqi } }] } = this.airPollution;
       const { maxAqi } = this.space;
-      return aqi < maxAqi;
+      return aqi <= maxAqi;
     },
     openable() {
       return this.tempOk && this.humidityOk && this.airPollutionOk;

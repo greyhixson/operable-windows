@@ -57,19 +57,19 @@ function padTo2Digits(num) {
 function checkTemp(weather, space) {
   const { main: { temp } } = weather;
   const { minTemp, maxTemp } = space;
-  return (temp > minTemp) && (temp < maxTemp);
+  return (temp >= minTemp) && (temp <= maxTemp);
 }
 
 function checkHumidity(weather, space) {
   const { main: { humidity } } = weather;
   const { maxHumidity } = space;
-  return humidity < maxHumidity;
+  return humidity <= maxHumidity;
 }
 
 function checkAirPollution(airPollution, space) {
   const { list: [{ main: { aqi } }] } = airPollution;
   const { maxAqi } = space;
-  return aqi < maxAqi;
+  return aqi <= maxAqi;
 }
 
 async function checkIfOpenable(notification) {

@@ -1,510 +1,517 @@
 <template>
   <v-container>
-    <v-row
-      justify="center"
-    >
-      <v-col>
-        <alert-banner
-          v-if="alert.msg && alert.type"
-          :alert-msg="alert.msg"
-          :alert-type="alert.type"
-          :show-alert-prop="alert.show"
-          @resetAlert="resetAlert"
-        />
-      </v-col>
-    </v-row>
-    <v-container>
-      <v-row>
-        <v-col>
-          <h2>Personal</h2>
-          <v-text-field
-            :value="settings.phoneNumber"
-            class="readonlyField"
-            label="Phone Number"
-            type="number"
-            style="min-width: 260px;"
-            readonly
-          />
-          <v-text-field
-            :value="email"
-            class="readonlyField"
-            label="Email Address"
-            style="min-width: 260px;"
-            readonly
-          />
-        </v-col>
-        <v-col>
-          <h2>
-            Organization
-          </h2>
-          <v-text-field
-            v-model="settings.favorite.orgName"
-            append-outer-icon="mdi-close-circle"
-            label="Favorite Organization"
-            class="readonlyField"
-            style="min-width: 260px;"
-            readonly
-            @click:append-outer="clearFavoriteOrg"
-          />
-
-          <v-text-field
-            v-model="settings.favorite.spaceName"
-            append-outer-icon="mdi-close-circle"
-            label="Favorite Space"
-            class="readonlyField"
-            style="min-width: 260px;"
-            readonly
-            @click:append-outer="clearFavoriteSpace"
-          />
-        </v-col>
-      </v-row>
-      <v-row
-        justify="center"
-        class="mb-8"
+    <v-row justify="center">
+      <v-col
+        xs="12"
+        sm="12"
+        md="8"
+        lg="6"
+        xl="4"
       >
-        <v-col>
-          <h2 class="pb-2">
-            Account
-          </h2>
+        <v-row
+          justify="center"
+        >
+          <v-col>
+            <alert-banner
+              v-if="alert.msg && alert.type"
+              :alert-msg="alert.msg"
+              :alert-type="alert.type"
+              :show-alert-prop="alert.show"
+              @resetAlert="resetAlert"
+            />
+          </v-col>
+        </v-row>
+        <v-container>
           <v-row>
             <v-col>
-              <v-dialog
-                v-model="dialogManageOrg"
-                persistent
-                max-width="500px"
-              >
-                <template #activator="{ on, attrs }">
-                  <v-btn
-                    v-bind="attrs"
-                    width="220px"
-                    v-on="on"
-                    @click="checkRegistered"
+              <h2>Personal</h2>
+              <v-text-field
+                :value="settings.phoneNumber"
+                class="readonlyField"
+                label="Phone Number"
+                type="number"
+                readonly
+              />
+              <v-text-field
+                :value="email"
+                class="readonlyField"
+                label="Email Address"
+                readonly
+              />
+            </v-col>
+            <v-col>
+              <h2>
+                Organization
+              </h2>
+              <v-text-field
+                v-model="settings.favorite.orgName"
+                append-outer-icon="mdi-close-circle"
+                label="Favorite Organization"
+                class="readonlyField"
+                readonly
+                @click:append-outer="clearFavoriteOrg"
+              />
+
+              <v-text-field
+                v-model="settings.favorite.spaceName"
+                append-outer-icon="mdi-close-circle"
+                label="Favorite Space"
+                class="readonlyField"
+                readonly
+                @click:append-outer="clearFavoriteSpace"
+              />
+            </v-col>
+          </v-row>
+          <v-row
+            justify="center"
+            class="mb-8"
+          >
+            <v-col>
+              <h2 class="pb-2">
+                Account
+              </h2>
+              <v-row>
+                <v-col>
+                  <v-dialog
+                    v-model="dialogManageOrg"
+                    persistent
+                    max-width="500px"
                   >
-                    {{ orgBtnText }}
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-card-title>
-                    <span class="text-h5">What is the name of your organization? </span>
-                  </v-card-title>
-                  <v-card-text>
-                    <v-text-field
-                      v-model="registerOrgObj.name"
-                      label="Organization Name"
-                    />
-                    <v-text-field
-                      v-model="registerOrgObj.city"
-                      label="Organization City"
-                    />
-                    <v-text-field
-                      v-model="registerOrgObj.state"
-                      label="Organization State"
-                    />
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-spacer />
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="dialogManageOrg = false;"
-                    >
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="registerOrg"
-                    >
-                      Register
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </v-col>
-          </v-row>
-          <v-row
-            dense
-          >
-            <v-col>
-              <v-btn
-                color="primary"
-                width="220px"
-                @click="resetPassword"
+                    <template #activator="{ on, attrs }">
+                      <v-btn
+                        v-bind="attrs"
+                        block
+                        v-on="on"
+                        @click="checkRegistered"
+                      >
+                        {{ orgBtnText }}
+                      </v-btn>
+                    </template>
+                    <v-card>
+                      <v-card-title>
+                        <span class="text-h5">What is the name of your organization? </span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-text-field
+                          v-model="registerOrgObj.name"
+                          label="Organization Name"
+                        />
+                        <v-text-field
+                          v-model="registerOrgObj.city"
+                          label="Organization City"
+                        />
+                        <v-text-field
+                          v-model="registerOrgObj.state"
+                          label="Organization State"
+                        />
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer />
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="dialogManageOrg = false;"
+                        >
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="registerOrg"
+                        >
+                          Register
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-col>
+              </v-row>
+              <v-row
+                dense
               >
-                Reset Password
-              </v-btn>
-            </v-col>
-          </v-row>
-          <v-row
-            dense
-          >
-            <v-col>
-              <v-dialog
-                v-model="phoneNumberDialog"
-                width="500"
-              >
-                <template #activator="{ on, attrs }">
+                <v-col>
                   <v-btn
                     color="primary"
-                    dark
-                    v-bind="attrs"
-                    v-on="on"
+                    block
+                    @click="resetPassword"
                   >
-                    Update Phone Number
+                    Reset Password
                   </v-btn>
-                </template>
-
-                <v-card>
-                  <v-card-title>
-                    <span class="text-h5">Please enter your phone number</span>
-                  </v-card-title>
-                  <v-card-text>
-                    <v-text-field
-                      v-model="phoneNumber"
-                      label="Phone Number"
-                      type="number"
-                      hint="This will be the phone number that will receive any saved text notifications"
-                      persistent-hint
-                    />
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-spacer />
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="phoneNumberDialog = false;"
-                    >
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="savePhoneNumber"
-                    >
-                      Save
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </v-col>
-          </v-row>
-          <v-row
-            dense
-          >
-            <v-col>
-              <v-dialog
-                v-model="dialogDeleteAcct"
-                width="500"
+                </v-col>
+              </v-row>
+              <v-row
+                dense
               >
-                <template #activator="{ on, attrs }">
-                  <v-btn
-                    color="red lighten-2"
-                    dark
-                    v-bind="attrs"
-                    width="220px"
-                    v-on="on"
+                <v-col>
+                  <v-dialog
+                    v-model="phoneNumberDialog"
+                    max-width="500px"
                   >
-                    Delete my account
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-card-title class="text-h5 grey lighten-2">
-                    Delete my account
-                  </v-card-title>
+                    <template #activator="{ on, attrs }">
+                      <v-btn
+                        color="primary"
+                        dark
+                        v-bind="attrs"
+                        block
+                        v-on="on"
+                      >
+                        Update Phone Number
+                      </v-btn>
+                    </template>
 
-                  <v-card-text class="pt-4">
-                    This operation can't be undone and will delete your account
-                    and all information associated with it.
-                  </v-card-text>
-
-                  <v-divider />
-
-                  <v-card-actions>
-                    <v-btn
-                      color="primary"
-                      text
-                      @click="dialogDeleteAcct = false"
-                    >
-                      Cancel
-                    </v-btn>
-                    <v-spacer />
-                    <v-btn
-                      color="primary"
-                      text
-                      @click="deleteAccount"
-                    >
-                      Delete my account
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col>
-          <h2 class="pb-2">
-            Notification
-          </h2>
-          <v-row>
-            <v-col>
-              <v-dialog
-                v-model="dialogAddNotif"
-                width="550px"
-                persistent
+                    <v-card>
+                      <v-card-title>
+                        <span class="text-h5">Please enter your phone number</span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-text-field
+                          v-model="phoneNumber"
+                          label="Phone Number"
+                          type="number"
+                          hint="This will be the phone number that will receive any saved text notifications"
+                          persistent-hint
+                        />
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer />
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="phoneNumberDialog = false;"
+                        >
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="savePhoneNumber"
+                        >
+                          Save
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-col>
+              </v-row>
+              <v-row
+                dense
               >
-                <template #activator="{ on, attrs }">
-                  <v-btn
-                    v-bind="settings.phoneNumber ? attrs : null"
-                    width="220px"
-                    v-on="settings.phoneNumber ? on : null"
-                    @click="checkIfPhoneNumber"
+                <v-col>
+                  <v-dialog
+                    v-model="dialogDeleteAcct"
+                    max-width="500px"
                   >
-                    Add Text Notification
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-card-title>
-                    <span class="text-h5">Add Text Notification</span>
-                  </v-card-title>
-                  <v-card-text>
-                    <v-form
-                      ref="form"
-                      v-model="notificationFormValid"
-                    >
-                      <v-autocomplete
-                        v-model="orgSelect"
-                        label="Select an organization"
-                        :items="orgs"
-                        clearable
-                        return-object
-                        :search-input.sync="orgSearch"
-                        :filter="onOrgFilter"
-                        required
-                        :rules="requiredRule"
-                        hint="The organization that you can select a space from"
-                        persistent-hint
+                    <template #activator="{ on, attrs }">
+                      <v-btn
+                        color="red lighten-2"
+                        dark
+                        v-bind="attrs"
+                        block
+                        v-on="on"
                       >
-                        <template #selection="{ item }">
-                          <span>{{ item.name }}</span>
-                        </template>
-                        <template #item="{ item }">
-                          <v-list-item-content>
-                            <v-list-item-title v-text="item.name" />
-                            <v-list-item-subtitle v-text="item.city" />
-                            <v-list-item-subtitle v-text="item.state" />
-                          </v-list-item-content>
-                        </template>
-                      </v-autocomplete>
-                      <v-autocomplete
-                        v-model="spaceSelect"
-                        label="Select a space"
-                        :items="spaces"
-                        clearable
-                        return-object
-                        :search-input.sync="spaceSearch"
-                        :filter="onSpaceFilter"
-                        required
-                        :rules="requiredRule"
-                        hint="The space your operable window is in"
-                        persistent-hint
+                        Delete my account
+                      </v-btn>
+                    </template>
+                    <v-card>
+                      <v-card-title class="text-h5 grey lighten-2">
+                        Delete my account
+                      </v-card-title>
+
+                      <v-card-text class="pt-4">
+                        This operation can't be undone and will delete your account
+                        and all information associated with it.
+                      </v-card-text>
+
+                      <v-divider />
+
+                      <v-card-actions>
+                        <v-btn
+                          color="primary"
+                          text
+                          @click="dialogDeleteAcct = false"
+                        >
+                          Cancel
+                        </v-btn>
+                        <v-spacer />
+                        <v-btn
+                          color="primary"
+                          text
+                          @click="deleteAccount"
+                        >
+                          Delete my account
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-col>
+              </v-row>
+            </v-col>
+            <v-col>
+              <h2 class="pb-2">
+                Notification
+              </h2>
+              <v-row>
+                <v-col>
+                  <v-dialog
+                    v-model="dialogAddNotif"
+                    max-width="500px"
+                    persistent
+                  >
+                    <template #activator="{ on, attrs }">
+                      <v-btn
+                        v-bind="settings.phoneNumber ? attrs : null"
+                        block
+                        v-on="settings.phoneNumber ? on : null"
+                        @click="checkIfPhoneNumber"
                       >
-                        <template #selection="{ item }">
-                          <span>{{ item.name }}</span>
-                        </template>
-                        <template #item="{ item }">
-                          <v-list-item-content>
-                            <v-list-item-title v-text="item.name" />
-                          </v-list-item-content>
-                        </template>
-                      </v-autocomplete>
-                      <v-row>
-                        <v-col>
-                          <v-text-field
-                            v-model="notification.sendTime"
-                            type="time"
-                            hint="The time you'll be notified"
-                            persistent-hint
-                          />
-                        </v-col>
-                        <v-col>
-                          <v-select
-                            v-model="notification.repeatDays"
-                            label="Repeats on"
-                            :items="days"
-                            multiple
-                            hint="Days the notification will be sent"
+                        Add Text Notification
+                      </v-btn>
+                    </template>
+                    <v-card>
+                      <v-card-title>
+                        <span class="text-h5">Add Text Notification</span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-form
+                          ref="form"
+                          v-model="notificationFormValid"
+                        >
+                          <v-autocomplete
+                            v-model="orgSelect"
+                            label="Select an organization"
+                            :items="orgs"
+                            clearable
+                            return-object
+                            :search-input.sync="orgSearch"
+                            :filter="onOrgFilter"
+                            required
+                            :rules="requiredRule"
+                            hint="The organization that you can select a space from"
                             persistent-hint
                           >
-                            <template
-                              #selection="{ item, index }"
-                            >
-                              <span v-if="index === 0">{{ item }} </span>
-                              <span
-                                v-if="index === 1"
-                                class="grey--text text-caption"
-                              >(+{{ notification.repeatDays.length - 1 }} others)
-                              </span>
+                            <template #selection="{ item }">
+                              <span>{{ item.name }}</span>
                             </template>
-                          </v-select>
-                        </v-col>
-                        <v-row>
-                          <v-col>
-                            <v-menu
-                              v-model="startDateMenu"
-                              :close-on-content-click="false"
-                              :nudge-right="40"
-                              transition="scale-transition"
-                              offset-y
-                              min-width="auto"
-                            >
-                              <template #activator="{ on, attrs }">
-                                <v-text-field
-                                  v-model="notification.startDate"
-                                  label="Start Date"
-                                  prepend-icon="mdi-calendar"
-                                  readonly
-                                  v-bind="attrs"
-                                  hint="The first day the notification will be sent"
-                                  persistent-hint
-                                  v-on="on"
-                                />
-                              </template>
-                              <v-date-picker
-                                v-model="notification.startDate"
-                                show-current
-                                :min="new Date().toLocaleDateString('pt-br').split( '/' ).reverse( ).join( '-' )"
-                                @input="startDateMenu = false"
+                            <template #item="{ item }">
+                              <v-list-item-content>
+                                <v-list-item-title v-text="item.name" />
+                                <v-list-item-subtitle v-text="item.city" />
+                                <v-list-item-subtitle v-text="item.state" />
+                              </v-list-item-content>
+                            </template>
+                          </v-autocomplete>
+                          <v-autocomplete
+                            v-model="spaceSelect"
+                            label="Select a space"
+                            :items="spaces"
+                            clearable
+                            return-object
+                            :search-input.sync="spaceSearch"
+                            :filter="onSpaceFilter"
+                            required
+                            :rules="requiredRule"
+                            hint="The space your operable window is in"
+                            persistent-hint
+                          >
+                            <template #selection="{ item }">
+                              <span>{{ item.name }}</span>
+                            </template>
+                            <template #item="{ item }">
+                              <v-list-item-content>
+                                <v-list-item-title v-text="item.name" />
+                              </v-list-item-content>
+                            </template>
+                          </v-autocomplete>
+                          <v-row>
+                            <v-col>
+                              <v-text-field
+                                v-model="notification.sendTime"
+                                type="time"
+                                hint="The time you'll be notified"
+                                persistent-hint
                               />
-                            </v-menu>
-                          </v-col>
-                          <v-col>
-                            <v-menu
-                              v-model="endDateMenu"
-                              :close-on-content-click="false"
-                              :nudge-right="40"
-                              transition="scale-transition"
-                              offset-y
-                              min-width="auto"
-                            >
-                              <template #activator="{ on, attrs }">
-                                <v-text-field
-                                  v-model="notification.endDate"
-                                  label="End Date"
-                                  prepend-icon="mdi-calendar"
-                                  readonly
-                                  v-bind="attrs"
-                                  hint="The last day the notification will be sent"
-                                  persistent-hint
-                                  v-on="on"
-                                />
-                              </template>
-                              <v-date-picker
-                                v-model="notification.endDate"
-                                @input="endDateMenu = false"
-                              />
-                            </v-menu>
-                          </v-col>
-                        </v-row>
-                      </v-row>
-                    </v-form>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-btn
-                      color="primary"
-                      text
-                      @click="saveAddNotification"
-                    >
-                      Save notification
-                    </v-btn>
-                    <v-btn
-                      color="primary"
-                      text
-                      @click="exitAddNotification"
-                    >
-                      Exit
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </v-col>
-          </v-row>
-          <v-row dense>
-            <v-col>
-              <v-dialog
-                v-model="dialogManageNotif"
-                width="900px"
-              >
-                <template #activator="{ on, attrs }">
-                  <v-btn
-                    v-bind="attrs"
-                    width="220px"
-                    v-on="on"
-                  >
-                    Manage Notifications
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-card-title>
-                    <span class="text-h5">Manage Notifications</span>
-                  </v-card-title>
-                  <v-card-text>
-                    <v-data-table
-                      :headers="headers"
-                      :items="notifications"
-                      :hide-default-footer="true"
-                      class="elevation-1"
-                    >
-                      <template #[`item.enabled`]="{ item }">
-                        <v-simple-checkbox
-                          v-model="item.enabled"
-                          :ripple="false"
-                        />
-                      </template>
-                      <template #[`item.actions`]="{ item }">
-                        <v-icon
-                          small
-                          @click="deleteNotification(item)"
+                            </v-col>
+                            <v-col>
+                              <v-select
+                                v-model="notification.repeatDays"
+                                label="Repeats on"
+                                :items="days"
+                                multiple
+                                hint="Days the notification will be sent"
+                                persistent-hint
+                              >
+                                <template
+                                  #selection="{ item, index }"
+                                >
+                                  <span v-if="index === 0">{{ item }} </span>
+                                  <span
+                                    v-if="index === 1"
+                                    class="grey--text text-caption"
+                                  >(+{{ notification.repeatDays.length - 1 }} others)
+                                  </span>
+                                </template>
+                              </v-select>
+                            </v-col>
+                            <v-row>
+                              <v-col>
+                                <v-menu
+                                  v-model="startDateMenu"
+                                  :close-on-content-click="false"
+                                  :nudge-right="40"
+                                  transition="scale-transition"
+                                  offset-y
+                                  min-width="auto"
+                                >
+                                  <template #activator="{ on, attrs }">
+                                    <v-text-field
+                                      v-model="notification.startDate"
+                                      label="Start Date"
+                                      prepend-icon="mdi-calendar"
+                                      readonly
+                                      v-bind="attrs"
+                                      hint="The first day the notification will be sent"
+                                      persistent-hint
+                                      v-on="on"
+                                    />
+                                  </template>
+                                  <v-date-picker
+                                    v-model="notification.startDate"
+                                    show-current
+                                    :min="new Date().toLocaleDateString('pt-br').split( '/' ).reverse( ).join( '-' )"
+                                    @input="startDateMenu = false"
+                                  />
+                                </v-menu>
+                              </v-col>
+                              <v-col>
+                                <v-menu
+                                  v-model="endDateMenu"
+                                  :close-on-content-click="false"
+                                  :nudge-right="40"
+                                  transition="scale-transition"
+                                  offset-y
+                                  min-width="auto"
+                                >
+                                  <template #activator="{ on, attrs }">
+                                    <v-text-field
+                                      v-model="notification.endDate"
+                                      label="End Date"
+                                      prepend-icon="mdi-calendar"
+                                      readonly
+                                      v-bind="attrs"
+                                      hint="The last day the notification will be sent"
+                                      persistent-hint
+                                      v-on="on"
+                                    />
+                                  </template>
+                                  <v-date-picker
+                                    v-model="notification.endDate"
+                                    @input="endDateMenu = false"
+                                  />
+                                </v-menu>
+                              </v-col>
+                            </v-row>
+                          </v-row>
+                        </v-form>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-btn
+                          color="primary"
+                          text
+                          @click="saveAddNotification"
                         >
-                          mdi-delete
-                        </v-icon>
-                      </template>
-                    </v-data-table>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-btn
-                      color="primary"
-                      text
-                      @click="saveNotificationManager"
-                    >
-                      Save
-                    </v-btn>
-                    <v-btn
-                      color="primary"
-                      text
-                      @click="exitNotificationManager"
-                    >
-                      Exit
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
+                          Save notification
+                        </v-btn>
+                        <v-btn
+                          color="primary"
+                          text
+                          @click="exitAddNotification"
+                        >
+                          Exit
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-col>
+              </v-row>
+              <v-row dense>
+                <v-col>
+                  <v-dialog
+                    v-model="dialogManageNotif"
+                    max-width="500px"
+                  >
+                    <template #activator="{ on, attrs }">
+                      <v-btn
+                        v-bind="attrs"
+                        block
+                        v-on="on"
+                      >
+                        Manage Notifications
+                      </v-btn>
+                    </template>
+                    <v-card>
+                      <v-card-title>
+                        <span class="text-h5">Manage Notifications</span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-data-table
+                          :headers="headers"
+                          :items="notifications"
+                          :hide-default-footer="true"
+                          class="elevation-1"
+                        >
+                          <template #[`item.enabled`]="{ item }">
+                            <v-simple-checkbox
+                              v-model="item.enabled"
+                              :ripple="false"
+                            />
+                          </template>
+                          <template #[`item.actions`]="{ item }">
+                            <v-icon
+                              small
+                              @click="deleteNotification(item)"
+                            >
+                              mdi-delete
+                            </v-icon>
+                          </template>
+                        </v-data-table>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-btn
+                          color="primary"
+                          text
+                          @click="saveNotificationManager"
+                        >
+                          Save
+                        </v-btn>
+                        <v-btn
+                          color="primary"
+                          text
+                          @click="exitNotificationManager"
+                        >
+                          Exit
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-col>
+              </v-row>
             </v-col>
           </v-row>
-        </v-col>
-      </v-row>
-      <v-divider class="pb-8 mt-n6" />
-      <v-row
-        justify="center"
-      >
-        <v-btn
-          width="200px"
-          height="50px"
-          to="/"
-        >
-          Exit
-        </v-btn>
-      </v-row>
-    </v-container>
+          <v-divider class="pb-8 mt-n6" />
+          <v-row
+            justify="center"
+          >
+            <v-btn
+              height="50px"
+              to="/"
+              width="250px"
+            >
+              Exit
+            </v-btn>
+          </v-row>
+        </v-container>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

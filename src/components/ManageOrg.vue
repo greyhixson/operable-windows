@@ -1,249 +1,259 @@
 <template>
   <v-container>
-    <alert-banner
-      v-if="alert.msg && alert.type"
-      :alert-msg="alert.msg"
-      :alert-type="alert.type"
-      :show-alert-prop="alert.show"
-      @resetAlert="resetAlert"
-    />
-    <v-card
-      class="mb-4"
-    >
-      <v-card-title>
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Search"
-          single-line
-          hide-details
-        />
-      </v-card-title>
-      <v-data-table
-        :search="search"
-        :headers="headers"
-        :items="spaces"
-        :items-per-page="5"
-        class="elevation-1"
-        :loading="loading"
-        loading-text="Loading... Please wait"
-        no-data-text="Please add a new space."
-        no-result-text="No space found."
+    <v-row justify="center">
+      <v-col
+        xs="12"
+        sm="12"
+        md="12"
+        lg="10"
+        xl="8"
       >
-        <template #top>
-          <v-toolbar
-            flat
-            class="mb-4"
+        <alert-banner
+          v-if="alert.msg && alert.type"
+          :alert-msg="alert.msg"
+          :alert-type="alert.type"
+          :show-alert-prop="alert.show"
+          @resetAlert="resetAlert"
+        />
+        <v-card
+          class="mb-4"
+        >
+          <v-card-title>
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              hide-details
+            />
+          </v-card-title>
+          <v-data-table
+            :search="search"
+            :headers="headers"
+            :items="spaces"
+            :items-per-page="5"
+            class="elevation-1"
+            :loading="loading"
+            loading-text="Loading... Please wait"
+            no-data-text="Please add a new space."
+            no-result-text="No space found."
           >
-            <v-row align="center">
-              <v-col
-                cols="auto"
-                class="grow pl-4"
+            <template #top>
+              <v-toolbar
+                flat
+                class="mb-4"
               >
-                <v-toolbar-title style="font-size: 25px">
-                  {{ orgName }}
-                </v-toolbar-title>
-              </v-col>
-              <v-col
-                cols="auto"
-                class="shrink"
-              >
-                <v-btn
-                  to="/"
-                >
-                  Home
-                </v-btn>
-              </v-col>
-              <v-col
-                cols="auto"
-                class="shrink"
-              >
-                <v-dialog
-                  v-model="dialog"
-                  max-width="400px"
-                >
-                  <template #activator="{ on, attrs }">
+                <v-row align="center">
+                  <v-col
+                    cols="auto"
+                    class="grow pl-4"
+                  >
+                    <v-toolbar-title style="font-size: 25px">
+                      {{ orgName }}
+                    </v-toolbar-title>
+                  </v-col>
+                  <v-col
+                    cols="auto"
+                    class="shrink"
+                  >
                     <v-btn
-                      color="primary"
-                      dark
-                      v-bind="attrs"
-                      v-on="on"
+                      to="/"
                     >
-                      New Space
+                      Home
                     </v-btn>
-                  </template>
-                  <v-card>
-                    <v-card-title>
-                      <span class="text-h5">{{ formTitle }}</span>
-                    </v-card-title>
-
-                    <v-card-text>
-                      <v-container>
-                        <v-form
-                          ref="form"
-                          v-model="formValid"
+                  </v-col>
+                  <v-col
+                    cols="auto"
+                    class="shrink"
+                  >
+                    <v-dialog
+                      v-model="dialog"
+                      max-width="400px"
+                    >
+                      <template #activator="{ on, attrs }">
+                        <v-btn
+                          color="primary"
+                          dark
+                          v-bind="attrs"
+                          v-on="on"
                         >
-                          <v-row>
-                            <v-col
-                              cols="12"
+                          New Space
+                        </v-btn>
+                      </template>
+                      <v-card>
+                        <v-card-title>
+                          <span class="text-h5">{{ formTitle }}</span>
+                        </v-card-title>
+
+                        <v-card-text>
+                          <v-container>
+                            <v-form
+                              ref="form"
+                              v-model="formValid"
                             >
-                              <v-text-field
-                                v-if="!editingExistingSpace"
-                                v-model="editedItem.name"
-                                label="Name"
-                                :rules="spaceRule"
-                                type="text"
-                              />
+                              <v-row>
+                                <v-col
+                                  cols="12"
+                                >
+                                  <v-text-field
+                                    v-if="!editingExistingSpace"
+                                    v-model="editedItem.name"
+                                    label="Name"
+                                    :rules="spaceRule"
+                                    type="text"
+                                  />
 
-                              <v-text-field
-                                v-model="editedItem.maxHumidity"
-                                label="Maximum Humidity (%)"
-                                :rules="maxHumidityRules"
-                                type="number"
-                              />
+                                  <v-text-field
+                                    v-model="editedItem.maxHumidity"
+                                    label="Maximum Humidity (%)"
+                                    :rules="maxHumidityRules"
+                                    type="number"
+                                  />
 
-                              <v-text-field
-                                v-model="editedItem.minTemp"
-                                label="Minimum Temperature (F°)"
-                                :rules="minTempRules"
-                                type="number"
-                              />
+                                  <v-text-field
+                                    v-model="editedItem.minTemp"
+                                    label="Minimum Temperature (F°)"
+                                    :rules="minTempRules"
+                                    type="number"
+                                  />
 
-                              <v-text-field
-                                v-model="editedItem.maxTemp"
-                                label="Maximum Temperature (F°)"
-                                :rules="maxTempRules"
-                                type="number"
-                              />
+                                  <v-text-field
+                                    v-model="editedItem.maxTemp"
+                                    label="Maximum Temperature (F°)"
+                                    :rules="maxTempRules"
+                                    type="number"
+                                  />
 
-                              <v-text-field
-                                v-model="editedItem.maxAqi"
-                                label="Maximum Air Pollution"
-                                :rules="aqiRules"
-                                type="number"
-                              />
-                            </v-col>
-                          </v-row>
-                        </v-form>
-                      </v-container>
-                    </v-card-text>
+                                  <v-text-field
+                                    v-model="editedItem.maxAqi"
+                                    label="Maximum Air Pollution"
+                                    :rules="aqiRules"
+                                    type="number"
+                                  />
+                                </v-col>
+                              </v-row>
+                            </v-form>
+                          </v-container>
+                        </v-card-text>
 
+                        <v-card-actions>
+                          <v-spacer />
+                          <v-btn
+                            color="blue darken-1"
+                            text
+                            @click="close"
+                          >
+                            Cancel
+                          </v-btn>
+                          <v-btn
+                            color="blue darken-1"
+                            text
+                            :loading="loading"
+                            @click="save"
+                          >
+                            Save
+                          </v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-dialog>
+                  </v-col>
+                </v-row>
+
+                <v-dialog
+                  v-model="dialogDelete"
+                  max-width="500px"
+                >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Are you sure you want to delete this item?
+                    </v-card-title>
                     <v-card-actions>
                       <v-spacer />
                       <v-btn
                         color="blue darken-1"
                         text
-                        @click="close"
+                        @click="closeDelete"
                       >
                         Cancel
                       </v-btn>
                       <v-btn
                         color="blue darken-1"
                         text
-                        :loading="loading"
-                        @click="save"
+                        @click="deleteItemConfirm"
                       >
-                        Save
+                        OK
                       </v-btn>
+                      <v-spacer />
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
-              </v-col>
-            </v-row>
-
-            <v-dialog
-              v-model="dialogDelete"
-              max-width="500px"
-            >
-              <v-card>
-                <v-card-title class="text-h5">
-                  Are you sure you want to delete this item?
-                </v-card-title>
-                <v-card-actions>
-                  <v-spacer />
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="closeDelete"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="deleteItemConfirm"
-                  >
-                    OK
-                  </v-btn>
-                  <v-spacer />
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </v-toolbar>
-        </template>
-        <template #[`item.actions`]="{ item }">
-          <v-icon
-            small
-            class="mr-2"
-            @click="editItem(item)"
-          >
-            mdi-pencil
-          </v-icon>
-          <v-icon
-            small
-            @click="deleteItem(item)"
-          >
-            mdi-delete
-          </v-icon>
-        </template>
-      </v-data-table>
-    </v-card>
-    <v-dialog
-      v-model="dialogDeleteOrg"
-      width="500"
-    >
-      <template #activator="{ on, attrs }">
-        <v-btn
-          ref="deleteOrgBtn"
-          color="red lighten-2"
-          dark
-          v-bind="attrs"
-          v-on="on"
+              </v-toolbar>
+            </template>
+            <template #[`item.actions`]="{ item }">
+              <v-icon
+                small
+                class="mr-2"
+                @click="editItem(item)"
+              >
+                mdi-pencil
+              </v-icon>
+              <v-icon
+                small
+                @click="deleteItem(item)"
+              >
+                mdi-delete
+              </v-icon>
+            </template>
+          </v-data-table>
+        </v-card>
+        <v-dialog
+          v-model="dialogDeleteOrg"
+          width="500"
         >
-          Delete {{ orgName }}
-        </v-btn>
-      </template>
-      <v-card>
-        <v-card-title class="text-h5 grey lighten-2">
-          Delete {{ orgName }}
-        </v-card-title>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              ref="deleteOrgBtn"
+              color="red lighten-2"
+              dark
+              v-bind="attrs"
+              v-on="on"
+            >
+              Delete {{ orgName }}
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title class="text-h5 grey lighten-2">
+              Delete {{ orgName }}
+            </v-card-title>
 
-        <v-card-text class="pt-4">
-          This operation can't be undone and will delete your organization
-          and all spaces associated with it.
-        </v-card-text>
+            <v-card-text class="pt-4">
+              This operation can't be undone and will delete your organization
+              and all spaces associated with it.
+            </v-card-text>
 
-        <v-divider />
+            <v-divider />
 
-        <v-card-actions>
-          <v-btn
-            color="primary"
-            text
-            @click="dialogDeleteOrg = false"
-          >
-            Cancel
-          </v-btn>
-          <v-spacer />
-          <v-btn
-            color="primary"
-            text
-            @click="deleteOrg"
-          >
-            Delete {{ orgName }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+            <v-card-actions>
+              <v-btn
+                color="primary"
+                text
+                @click="dialogDeleteOrg = false"
+              >
+                Cancel
+              </v-btn>
+              <v-spacer />
+              <v-btn
+                color="primary"
+                text
+                @click="deleteOrg"
+              >
+                Delete {{ orgName }}
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

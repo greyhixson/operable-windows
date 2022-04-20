@@ -14,15 +14,7 @@
         id="appView"
         fill-height
       >
-        <v-row
-          justify="center"
-        >
-          <v-col
-            cols="auto"
-          >
-            <router-view />
-          </v-col>
-        </v-row>
+        <router-view />
       </v-container>
       <v-footer>
         <v-col

@@ -1,9 +1,6 @@
 <template>
   <v-container>
-    <v-card
-      max-width="350"
-      class="mx-auto"
-    >
+    <v-card class="mx-auto">
       <v-list-item>
         <v-list-item-content>
           <v-list-item-title class="text-h4 black--text">

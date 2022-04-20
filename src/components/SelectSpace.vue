@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-row style="max-width: 350px;">
+    <v-row>
       <alert-banner
         v-if="alert.msg && alert.type"
         :alert-msg="alert.msg"
@@ -212,13 +212,6 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.search {
-  width: 350px;
-  max-width: 350px;
-}
-</style>
 
 <style>
 /* Vuetify bug fix */

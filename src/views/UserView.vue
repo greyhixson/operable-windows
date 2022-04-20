@@ -1,54 +1,62 @@
 <template>
-  <v-container
-    class="text-center"
-  >
-    <v-row no-gutters>
-      <v-col>
-        <select-space
-          @submitWeather="getWeather"
-          @submitSpace="getSpace"
-          @submitOrgName="getOrgName"
-          @submitAirPollution="getAirPollution"
-          @closeCard="closeCard"
-        />
-      </v-col>
-    </v-row>
-    <v-row
-      no-gutters
-    >
-      <v-col>
-        <display-space
-          v-if="submittedSpace && submittedWeather && submittedAirPollution && submittedOrgName && !cardClosed"
-          class="pb-4"
-          :weather="submittedWeather"
-          :space="submittedSpace"
-          :org-name="submittedOrgName"
-          :air-pollution="submittedAirPollution"
-        />
-      </v-col>
-    </v-row>
-    <v-row
-      no-gutters
-    >
-      <v-col class="mr-2">
-        <v-btn
-          block
-          min-width="125"
-          min-height="50"
-          @click="accountBtn"
+  <v-container class="text-center">
+    <v-row justify="center">
+      <v-col
+        xs="1"
+        sm="2"
+        md="3"
+        lg="3"
+        xl="3"
+      >
+        <v-row no-gutters>
+          <v-col>
+            <select-space
+              @submitWeather="getWeather"
+              @submitSpace="getSpace"
+              @submitOrgName="getOrgName"
+              @submitAirPollution="getAirPollution"
+              @closeCard="closeCard"
+            />
+          </v-col>
+        </v-row>
+        <v-row
+          no-gutters
         >
-          {{ accountBtnText }}
-        </v-btn>
-      </v-col>
-      <v-col class="ml-2">
-        <v-btn
-          block
-          min-width="125"
-          min-height="50"
-          @click="settings"
+          <v-col>
+            <display-space
+              v-if="submittedSpace && submittedWeather && submittedAirPollution && submittedOrgName && !cardClosed"
+              class="pb-4"
+              :weather="submittedWeather"
+              :space="submittedSpace"
+              :org-name="submittedOrgName"
+              :air-pollution="submittedAirPollution"
+            />
+          </v-col>
+        </v-row>
+        <v-row
+          no-gutters
         >
-          Settings
-        </v-btn>
+          <v-col class="mr-2">
+            <v-btn
+              block
+              min-width="125"
+              min-height="50"
+              @click="accountBtn"
+            >
+              {{ accountBtnText }}
+            </v-btn>
+          </v-col>
+          <v-col class="ml-2">
+            <v-btn
+              block
+              min-width="125"
+              min-height="50"
+              @click="settings"
+            >
+              Settings
+            </v-btn>
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
   </v-container>

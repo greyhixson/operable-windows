@@ -1,79 +1,91 @@
 <template>
-  <v-container style="min-width: 350px;">
-    <alert-banner
-      v-if="alert.msg && alert.type"
-      :alert-msg="alert.msg"
-      :alert-type="alert.type"
-      :show-alert-prop="alert.show"
-      @resetAlert="resetAlert"
-    />
-    <v-form
-      ref="form"
-      v-model="validForm"
-      @submit.prevent="accountBtn"
-    >
-      <v-text-field
-        v-model="email"
-        type="email"
-        placeholder="Email"
-        label="Please enter your email"
-        :rules="emailRules"
-        required
-      />
-      <v-text-field
-        v-if="!passwordReset"
-        v-model="password"
-        type="password"
-        placeholder="Password"
-        label="Please enter your password"
-        :rules="passwordRules"
-        required
-      />
-      <h5 v-if="!passwordReset">
-        Forgot your password? <a
-          @keyup.enter="passwordReset = true; alert.msg = false;"
-          @click.prevent="passwordReset = true; alert.msg = false;"
-        >
-          Reset it here </a>
-      </h5>
-      <v-row
-        no-gutters
-        class="pt-4 mb-n4"
+  <v-container>
+    <v-row justify="center">
+      <v-col
+        xs="1"
+        sm="2"
+        md="3"
+        lg="3"
+        xl="3"
       >
-        <v-col class="mr-2">
-          <v-btn
-            block
-            min-width="125"
-            min-height="50"
-            @click="accountBtn"
-          >
-            {{ accountBtnText }}
-          </v-btn>
-        </v-col>
-        <v-col class="ml-2">
-          <v-btn
-            block
-            min-width="125"
-            min-height="50"
-            to="/"
-          >
-            Home
-          </v-btn>
-        </v-col>
-      </v-row>
-      <h3
-        v-if="!passwordReset"
-        class="mx-auto pt-8"
-      >
-        Need an account?
-        <router-link
-          :to="{ path: '/signup' }"
-          class="text-decoration-underline"
+        <alert-banner
+          v-if="alert.msg && alert.type"
+          :alert-msg="alert.msg"
+          :alert-type="alert.type"
+          :show-alert-prop="alert.show"
+          @resetAlert="resetAlert"
+        />
+        <v-form
+          ref="form"
+          v-model="validForm"
+          @submit.prevent="accountBtn"
         >
-          Sign up now
-        </router-link>
-      </h3>
-    </v-form>
+          <v-text-field
+            v-model="email"
+            type="email"
+            placeholder="Email"
+            label="Please enter your email"
+            :rules="emailRules"
+            required
+            style="display: block"
+          />
+          <v-text-field
+            v-if="!passwordReset"
+            v-model="password"
+            type="password"
+            placeholder="Password"
+            label="Please enter your password"
+            :rules="passwordRules"
+            required
+            style="display: block"
+          />
+          <h5 v-if="!passwordReset">
+            Forgot your password? <a
+              @keyup.enter="passwordReset = true; alert.msg = false;"
+              @click.prevent="passwordReset = true; alert.msg = false;"
+            >
+              Reset it here </a>
+          </h5>
+        </v-form>
+        <v-row
+          no-gutters
+          class="pt-4 mb-n4"
+        >
+          <v-col>
+            <v-btn
+              class="mr-2"
+              min-height="50"
+              block
+              @click="accountBtn"
+            >
+              {{ accountBtnText }}
+            </v-btn>
+          </v-col>
+          <v-col>
+            <v-btn
+              class="ml-2"
+              min-height="50"
+              to="/"
+              block
+            >
+              Home
+            </v-btn>
+          </v-col>
+        </v-row>
+        <h3
+          v-if="!passwordReset"
+          class="mx-auto pt-8"
+        >
+          Need an account?
+          <router-link
+            :to="{ path: '/signup' }"
+            class="text-decoration-underline"
+          >
+            Sign up now
+          </router-link>
+        </h3>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -141,7 +153,7 @@ export default {
         if (this.validForm) {
           try {
             await signInWithEmailAndPassword(this.auth, this.email, this.password);
-            this.setAlert('success', 'You are now signed in');
+            this.setAlert('success', "You've been signed in");
             this.forgotPasswordPrompt = false;
             this.$refs.form.reset();
           } catch {

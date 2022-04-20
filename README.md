@@ -5,7 +5,8 @@ The project entails working with the Department of Sustainability to create an a
 ### Tech Stack
 Vue.js 2 \
 Vuetify 2 \
-Google Firebase 
+Google Firebase \
+Node.js
 
 ### IDE
 JetBrains WebStorm \

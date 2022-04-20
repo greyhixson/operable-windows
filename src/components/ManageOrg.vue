@@ -48,7 +48,7 @@
                     cols="auto"
                     class="grow pl-4"
                   >
-                    <v-toolbar-title style="font-size: 25px">
+                    <v-toolbar-title>
                       {{ orgName }}
                     </v-toolbar-title>
                   </v-col>
@@ -218,7 +218,7 @@
               v-bind="attrs"
               v-on="on"
             >
-              Delete {{ orgName }}
+              Delete organization
             </v-btn>
           </template>
           <v-card>
@@ -247,7 +247,7 @@
                 text
                 @click="deleteOrg"
               >
-                Delete {{ orgName }}
+                Delete organization
               </v-btn>
             </v-card-actions>
           </v-card>

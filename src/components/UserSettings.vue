@@ -846,4 +846,7 @@ export default {
 .readonlyField.v-text-field>.v-input__control>.v-input__slot:after {
   border-style: none;
 }
+.v-card__text, .v-card__title {
+  word-break: normal !important;
+}
 </style>

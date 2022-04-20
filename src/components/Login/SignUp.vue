@@ -26,6 +26,7 @@
             placeholder="Email"
             label="Please enter your email"
             :rules="emailRules"
+            outlined
           />
           <v-text-field
             v-model="password"
@@ -33,6 +34,7 @@
             placeholder="Password"
             label="Please enter your password"
             :rules="passwordRules"
+            outlined
           />
           <v-text-field
             v-model="confirmPassword"
@@ -40,13 +42,15 @@
             placeholder="Confirm Password"
             label="Please confirm your password"
             :rules="comparePasswordsRules"
+            outlined
           />
         </v-form>
         <v-row no-gutters>
           <v-col>
             <v-btn
               class="mr-2"
-              min-height="50"
+              min-height="45"
+              elevation="1"
               block
               @click="accountBtn"
             >
@@ -56,7 +60,8 @@
           <v-col>
             <v-btn
               class="ml-2"
-              min-height="50"
+              min-height="45"
+              elevation="1"
               to="/"
               block
             >

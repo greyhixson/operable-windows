@@ -101,6 +101,7 @@
                                     label="Name"
                                     :rules="spaceRule"
                                     type="text"
+                                    outlined
                                   />
 
                                   <v-text-field
@@ -108,6 +109,7 @@
                                     label="Maximum Humidity (%)"
                                     :rules="maxHumidityRules"
                                     type="number"
+                                    outlined
                                   />
 
                                   <v-text-field
@@ -115,6 +117,7 @@
                                     label="Minimum Temperature (F°)"
                                     :rules="minTempRules"
                                     type="number"
+                                    outlined
                                   />
 
                                   <v-text-field
@@ -122,6 +125,7 @@
                                     label="Maximum Temperature (F°)"
                                     :rules="maxTempRules"
                                     type="number"
+                                    outlined
                                   />
 
                                   <v-text-field
@@ -129,6 +133,7 @@
                                     label="Maximum Air Pollution"
                                     :rules="aqiRules"
                                     type="number"
+                                    outlined
                                   />
                                 </v-col>
                               </v-row>

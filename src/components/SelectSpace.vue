@@ -11,7 +11,6 @@
     </v-row>
     <v-row
       no-gutters
-      justify="center"
     >
       <v-autocomplete
         ref="selectOrg"
@@ -22,7 +21,11 @@
         :filter="onOrgFilter"
         label="Search for your organization"
         clearable
+        hint="The organization that you want to select a space from"
+        hide-no-data
         return-object
+        outlined
+        prepend-icon="mdi-magnify"
       >
         <template #selection="{ item }">
           <span v-text="item.name" />
@@ -38,7 +41,6 @@
     </v-row>
     <v-row
       no-gutters
-      justify="center"
     >
       <v-autocomplete
         ref="selectSpace"
@@ -51,6 +53,9 @@
         no-data-text="Please select an organization first"
         clearable
         return-object
+        hint="The space your operable window is in"
+        outlined
+        prepend-icon="mdi-home-search"
       >
         <template #selection="{ item }">
           <span v-text="item.name" />

@@ -22,7 +22,10 @@
           </v-col>
         </v-row>
         <v-container>
-          <v-row>
+          <v-row
+            no-gutters
+            class="mr-8 ml-8"
+          >
             <v-col>
               <h2>Personal</h2>
               <v-text-field
@@ -31,14 +34,14 @@
                 label="Phone Number"
                 type="number"
                 readonly
-                style="min-width: 200px;"
+                style="width: 200px"
               />
               <v-text-field
                 :value="email"
                 class="readonlyField"
                 label="Email Address"
                 readonly
-                style="min-width: 200px;"
+                style="width: 200px"
               />
             </v-col>
             <v-col>
@@ -51,7 +54,6 @@
                 label="Favorite Organization"
                 class="readonlyField"
                 readonly
-                style="min-width: 200px;"
                 @click:append-outer="clearFavoriteOrg"
               />
 
@@ -61,21 +63,21 @@
                 label="Favorite Space"
                 class="readonlyField"
                 readonly
-                style="min-width: 200px;"
                 @click:append-outer="clearFavoriteSpace"
               />
             </v-col>
           </v-row>
           <v-row
             justify="center"
-            class="mb-8"
+            class="ml-8 mb-8 mr-8"
+            no-gutters
           >
             <v-col>
               <h2 class="pb-2">
                 Account
               </h2>
-              <v-row>
-                <v-col>
+              <v-row dense>
+                <v-col cols="8">
                   <v-dialog
                     v-model="dialogManageOrg"
                     persistent
@@ -85,6 +87,7 @@
                       <v-btn
                         v-bind="attrs"
                         block
+                        width="225px"
                         v-on="on"
                         @click="checkRegistered"
                       >
@@ -133,10 +136,11 @@
               <v-row
                 dense
               >
-                <v-col>
+                <v-col cols="8">
                   <v-btn
                     color="primary"
                     block
+                    width="225px"
                     @click="resetPassword"
                   >
                     Reset Password
@@ -146,7 +150,7 @@
               <v-row
                 dense
               >
-                <v-col>
+                <v-col cols="8">
                   <v-dialog
                     v-model="phoneNumberDialog"
                     max-width="500px"
@@ -157,6 +161,7 @@
                         dark
                         v-bind="attrs"
                         block
+                        width="225px"
                         v-on="on"
                       >
                         Update Phone Number
@@ -200,7 +205,7 @@
               <v-row
                 dense
               >
-                <v-col>
+                <v-col cols="8">
                   <v-dialog
                     v-model="dialogDeleteAcct"
                     max-width="500px"
@@ -211,6 +216,7 @@
                         dark
                         v-bind="attrs"
                         block
+                        width="225px"
                         v-on="on"
                       >
                         Delete my account
@@ -254,8 +260,8 @@
               <h2 class="pb-2">
                 Notification
               </h2>
-              <v-row>
-                <v-col>
+              <v-row dense>
+                <v-col cols="8">
                   <v-dialog
                     v-model="dialogAddNotif"
                     max-width="500px"
@@ -265,6 +271,7 @@
                       <v-btn
                         v-bind="settings.phoneNumber ? attrs : null"
                         block
+                        width="225px"
                         v-on="settings.phoneNumber ? on : null"
                         @click="checkIfPhoneNumber"
                       >
@@ -290,8 +297,11 @@
                             :filter="onOrgFilter"
                             required
                             :rules="requiredRule"
-                            hint="The organization that you can select a space from"
+                            hint="The organization that you want to select a space from"
                             persistent-hint
+                            hide-no-data
+                            outlined
+                            prepend-inner-icon="mdi-domain"
                           >
                             <template #selection="{ item }">
                               <span>{{ item.name }}</span>
@@ -315,7 +325,10 @@
                             required
                             :rules="requiredRule"
                             hint="The space your operable window is in"
+                            no-data-text="Please select an organization first"
                             persistent-hint
+                            outlined
+                            prepend-inner-icon="mdi-home-search"
                           >
                             <template #selection="{ item }">
                               <span>{{ item.name }}</span>
@@ -331,9 +344,11 @@
                               <v-text-field
                                 v-model="notification.sendTime"
                                 type="time"
+                                prepend-inner-icon="mdi-clock-outline"
                                 hint="The time you'll be notified"
                                 persistent-hint
                                 :rules="requiredRule"
+                                outlined
                               />
                             </v-col>
                             <v-col>
@@ -342,9 +357,11 @@
                                 label="Repeats on"
                                 :items="days"
                                 multiple
+                                prepend-inner-icon="mdi-repeat"
                                 hint="Days the notification will be sent"
                                 persistent-hint
                                 :rules="requiredRule"
+                                outlined
                               >
                                 <template
                                   #selection="{ item, index }"
@@ -359,25 +376,24 @@
                               </v-select>
                             </v-col>
                             <v-row>
-                              <v-col>
+                              <v-col class="pl-6">
                                 <v-menu
                                   v-model="startDateMenu"
                                   :close-on-content-click="false"
                                   :nudge-right="40"
-                                  transition="scale-transition"
                                   offset-y
-                                  min-width="auto"
                                 >
                                   <template #activator="{ on, attrs }">
                                     <v-text-field
                                       v-model="notification.startDate"
                                       label="Start Date"
-                                      prepend-icon="mdi-calendar"
+                                      prepend-inner-icon="mdi-calendar"
                                       readonly
                                       v-bind="attrs"
                                       hint="The first day the notification will be sent"
                                       persistent-hint
                                       :rules="requiredRule"
+                                      outlined
                                       v-on="on"
                                     />
                                   </template>
@@ -390,25 +406,24 @@
                                   />
                                 </v-menu>
                               </v-col>
-                              <v-col>
+                              <v-col class="pr-6">
                                 <v-menu
                                   v-model="endDateMenu"
                                   :close-on-content-click="false"
                                   :nudge-left="100"
-                                  transition="scale-transition"
                                   offset-y
-                                  min-width="auto"
                                 >
                                   <template #activator="{ on, attrs }">
                                     <v-text-field
                                       v-model="notification.endDate"
                                       label="End Date"
-                                      prepend-icon="mdi-calendar"
+                                      prepend-inner-icon="mdi-calendar"
                                       readonly
                                       v-bind="attrs"
                                       hint="The last day the notification will be sent"
                                       persistent-hint
                                       :rules="requiredRule"
+                                      outlined
                                       v-on="on"
                                     />
                                   </template>
@@ -444,7 +459,7 @@
                 </v-col>
               </v-row>
               <v-row dense>
-                <v-col>
+                <v-col cols="8">
                   <v-dialog
                     v-model="dialogManageNotif"
                     max-width="900px"
@@ -453,6 +468,7 @@
                       <v-btn
                         v-bind="attrs"
                         block
+                        width="225px"
                         v-on="on"
                       >
                         Manage Notifications
@@ -637,6 +653,7 @@ export default {
         this.notification.orgName = name;
         this.spaces = await getAllSpaces(name);
       } else {
+        this.spaces = null;
         this.spaceSelect = null;
         this.notification.spaceName = null;
       }
@@ -852,6 +869,11 @@ export default {
 .readonlyField.v-text-field>.v-input__control>.v-input__slot:after {
   border-style: none;
 }
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  background: none;
+}
+
 .v-card__text, .v-card__title {
   word-break: normal !important;
 }

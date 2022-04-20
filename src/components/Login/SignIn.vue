@@ -22,6 +22,7 @@
         >
           <v-text-field
             v-model="email"
+            outlined
             type="email"
             placeholder="Email"
             label="Please enter your email"
@@ -32,6 +33,7 @@
           <v-text-field
             v-if="!passwordReset"
             v-model="password"
+            outlined
             type="password"
             placeholder="Password"
             label="Please enter your password"
@@ -39,7 +41,10 @@
             required
             style="display: block"
           />
-          <h5 v-if="!passwordReset">
+          <h5
+            v-if="!passwordReset"
+            class="mt-n2"
+          >
             Forgot your password? <a
               @keyup.enter="passwordReset = true; alert.msg = false;"
               @click.prevent="passwordReset = true; alert.msg = false;"
@@ -54,7 +59,8 @@
           <v-col>
             <v-btn
               class="mr-2"
-              min-height="50"
+              min-height="45"
+              elevation="1"
               block
               @click="accountBtn"
             >
@@ -64,7 +70,8 @@
           <v-col>
             <v-btn
               class="ml-2"
-              min-height="50"
+              min-height="45"
+              elevation="1"
               to="/"
               block
             >

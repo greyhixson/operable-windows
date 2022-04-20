@@ -1,6 +1,8 @@
 <template>
   <v-container class="text-center">
-    <v-row justify="center">
+    <v-row
+      justify="center"
+    >
       <v-col
         xs="12"
         sm="8"
@@ -8,7 +10,9 @@
         lg="5"
         xl="3"
       >
-        <v-row no-gutters>
+        <v-row
+          no-gutters
+        >
           <v-col>
             <select-space
               @submitWeather="getWeather"
@@ -21,6 +25,7 @@
         </v-row>
         <v-row
           no-gutters
+          class="pl-6 mt-n4 mb-2"
         >
           <v-col>
             <display-space
@@ -34,23 +39,33 @@
           </v-col>
         </v-row>
         <v-row
+          class="pl-6"
           no-gutters
+          justify="center"
         >
-          <v-col class="mr-2">
+          <v-col
+            class="mr-2"
+            cols="4"
+          >
             <v-btn
               block
               min-width="125"
-              min-height="50"
+              min-height="45"
+              elevation="1"
               @click="accountBtn"
             >
               {{ accountBtnText }}
             </v-btn>
           </v-col>
-          <v-col class="ml-2">
+          <v-col
+            class="ml-2"
+            cols="4"
+          >
             <v-btn
               block
               min-width="125"
-              min-height="50"
+              min-height="45"
+              elevation="1"
               @click="settings"
             >
               Settings

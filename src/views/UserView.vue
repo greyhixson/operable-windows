@@ -2,10 +2,10 @@
   <v-container class="text-center">
     <v-row justify="center">
       <v-col
-        xs="1"
-        sm="2"
-        md="3"
-        lg="3"
+        xs="12"
+        sm="8"
+        md="6"
+        lg="5"
         xl="3"
       >
         <v-row no-gutters>

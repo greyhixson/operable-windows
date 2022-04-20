@@ -31,12 +31,14 @@
                 label="Phone Number"
                 type="number"
                 readonly
+                style="min-width: 180px"
               />
               <v-text-field
                 :value="email"
                 class="readonlyField"
                 label="Email Address"
                 readonly
+                style="min-width: 180px"
               />
             </v-col>
             <v-col>
@@ -49,6 +51,7 @@
                 label="Favorite Organization"
                 class="readonlyField"
                 readonly
+                style="min-width: 180px"
                 @click:append-outer="clearFavoriteOrg"
               />
 
@@ -58,6 +61,7 @@
                 label="Favorite Space"
                 class="readonlyField"
                 readonly
+                style="min-width: 180px"
                 @click:append-outer="clearFavoriteSpace"
               />
             </v-col>

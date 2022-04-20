@@ -24,10 +24,10 @@
           </v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
-          <v-list-item-title class="text-h6">
+          <v-list-item-title class="text-h6 wrap-text">
             Temperature: {{ weather.main.temp.toFixed(0) }}F
           </v-list-item-title>
-          <v-list-item-subtitle>
+          <v-list-item-subtitle class="wrap-text">
             Temperature range: {{ space.minTemp }}F
             - {{ space.maxTemp }}F
           </v-list-item-subtitle>
@@ -45,11 +45,11 @@
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title
-            class="text-h6"
+            class="text-h6 wrap-text"
           >
             Humidity: {{ weather.main.humidity }}
           </v-list-item-title>
-          <v-list-item-subtitle>
+          <v-list-item-subtitle class="wrap-text">
             Max humidity: {{ space.maxHumidity }}
           </v-list-item-subtitle>
         </v-list-item-content>
@@ -66,23 +66,22 @@
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title
-            class="text-h6"
+            class="text-h6 wrap-text"
           >
             Air Quality Index: {{ airPollution.list[0].main.aqi }}
           </v-list-item-title>
-          <v-list-item-subtitle>
+          <v-list-item-subtitle class="wrap-text">
             Max AQI: {{ space.maxAqi }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
 
       <v-list-item
-        two-line
         :style="openable ? 'background-color:#68ad53;': 'background-color:#c42741;'"
       >
         <v-list-item-content>
           <v-list-item-title
-            class="text-h5 white--text"
+            class="text-h5 white--text wrap-text"
           >
             {{ windowMessage }}
           </v-list-item-title>
@@ -207,3 +206,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+  .wrap-text {
+    white-space: normal;
+  }
+</style>

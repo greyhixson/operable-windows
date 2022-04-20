@@ -3,10 +3,10 @@
     <v-row justify="center">
       <v-col
         xs="12"
-        sm="12"
-        md="8"
-        lg="6"
-        xl="4"
+        sm="10"
+        md="9"
+        lg="7"
+        xl="5"
       >
         <v-row
           justify="center"
@@ -31,14 +31,14 @@
                 label="Phone Number"
                 type="number"
                 readonly
-                style="min-width: 180px"
+                style="min-width: 200px;"
               />
               <v-text-field
                 :value="email"
                 class="readonlyField"
                 label="Email Address"
                 readonly
-                style="min-width: 180px"
+                style="min-width: 200px;"
               />
             </v-col>
             <v-col>
@@ -51,7 +51,7 @@
                 label="Favorite Organization"
                 class="readonlyField"
                 readonly
-                style="min-width: 180px"
+                style="min-width: 200px;"
                 @click:append-outer="clearFavoriteOrg"
               />
 
@@ -61,7 +61,7 @@
                 label="Favorite Space"
                 class="readonlyField"
                 readonly
-                style="min-width: 180px"
+                style="min-width: 200px;"
                 @click:append-outer="clearFavoriteSpace"
               />
             </v-col>
@@ -333,6 +333,7 @@
                                 type="time"
                                 hint="The time you'll be notified"
                                 persistent-hint
+                                :rules="requiredRule"
                               />
                             </v-col>
                             <v-col>
@@ -343,6 +344,7 @@
                                 multiple
                                 hint="Days the notification will be sent"
                                 persistent-hint
+                                :rules="requiredRule"
                               >
                                 <template
                                   #selection="{ item, index }"
@@ -375,6 +377,7 @@
                                       v-bind="attrs"
                                       hint="The first day the notification will be sent"
                                       persistent-hint
+                                      :rules="requiredRule"
                                       v-on="on"
                                     />
                                   </template>
@@ -382,6 +385,7 @@
                                     v-model="notification.startDate"
                                     show-current
                                     :min="new Date().toLocaleDateString('pt-br').split( '/' ).reverse( ).join( '-' )"
+                                    no-title
                                     @input="startDateMenu = false"
                                   />
                                 </v-menu>
@@ -390,7 +394,7 @@
                                 <v-menu
                                   v-model="endDateMenu"
                                   :close-on-content-click="false"
-                                  :nudge-right="40"
+                                  :nudge-left="100"
                                   transition="scale-transition"
                                   offset-y
                                   min-width="auto"
@@ -404,11 +408,13 @@
                                       v-bind="attrs"
                                       hint="The last day the notification will be sent"
                                       persistent-hint
+                                      :rules="requiredRule"
                                       v-on="on"
                                     />
                                   </template>
                                   <v-date-picker
                                     v-model="notification.endDate"
+                                    no-title
                                     @input="endDateMenu = false"
                                   />
                                 </v-menu>
@@ -441,7 +447,7 @@
                 <v-col>
                   <v-dialog
                     v-model="dialogManageNotif"
-                    max-width="500px"
+                    max-width="900px"
                   >
                     <template #activator="{ on, attrs }">
                       <v-btn

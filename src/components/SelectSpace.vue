@@ -14,8 +14,9 @@
       justify="center"
     >
       <v-autocomplete
+        ref="selectOrg"
         v-model="orgSelect"
-        class="search text-truncate"
+        class="search"
         :items="orgs"
         :search-input.sync="orgSearch"
         :filter="onOrgFilter"
@@ -40,6 +41,7 @@
       justify="center"
     >
       <v-autocomplete
+        ref="selectSpace"
         v-model="spaceSelect"
         class="search"
         :items="spaces"
@@ -102,6 +104,8 @@ export default {
     async orgSelect() {
       // Load all spaces associated with an org, and the user's favorite space if they have one
       if (this.orgSelect) {
+        // Vuetify bug fix
+        this.$refs.selectOrg.$el.querySelector('.v-select__selections input').style.padding = 0;
         const { name } = this.orgSelect;
         const { spaceName } = this.userFavorite;
         try {
@@ -210,9 +214,8 @@ export default {
 </script>
 
 <style scoped>
-
 .search {
-  min-width: 350px;
+  width: 350px;
   max-width: 350px;
 }
 </style>
@@ -222,5 +225,8 @@ export default {
 .v-select__selections input {
   width: 0 !important;
   min-width: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 auto !important;
 }
 </style>

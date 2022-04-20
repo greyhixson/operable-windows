@@ -523,7 +523,7 @@
               </v-row>
             </v-col>
           </v-row>
-          <v-divider class="pb-8 mt-n6" />
+          <v-divider class="pb-8 mt-n2" />
           <v-row
             justify="center"
           >

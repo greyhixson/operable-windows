@@ -47,6 +47,7 @@
           >
             Forgot your password? <a
               tabindex="0"
+              class="customLink"
               @keyup.enter="passwordReset = true; alert.msg = false;"
               @click.prevent="passwordReset = true; alert.msg = false;"
             >
@@ -87,7 +88,7 @@
           Need an account?
           <router-link
             :to="{ path: '/signup' }"
-            class="text-decoration-underline"
+            class="customLink"
           >
             Sign up now
           </router-link>
@@ -205,3 +206,15 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.customLink:hover {
+  text-decoration: underline;
+}
+.customLink:focus {
+  text-decoration: underline;
+}
+
+a { text-decoration: none; }
+
+</style>

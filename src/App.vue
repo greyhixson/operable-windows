@@ -22,7 +22,7 @@
           cols="12"
         >
           <h5>
-            To view more information on how air pollution is calculated, visit
+            To view more information on how the air quality index is calculated, visit
             <a href="https://openweathermap.org/api/air-pollution"> OpenWeather Map </a>
           </h5>
         </v-col>

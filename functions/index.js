@@ -31,12 +31,9 @@ async function deleteNotification(notifIndex, documentId) {
   const notificationDoc = await notificationRef.get();
   const notificationsObj = notificationDoc.data();
   if (notificationsObj.notifications) {
-    functions.logger.log('notifications', notificationsObj.notifications);
     const notifArray = notificationsObj.notifications;
-    functions.logger.log('notifArray', notifArray);
     notifArray.splice(notifIndex, 1);
-    functions.logger.log('new notifArray', notifArray);
-    const notifications = { notifications: notifArray };
+    const notifications = [notifArray];
     await notificationRef.set({
       notifications,
     });
@@ -150,9 +147,9 @@ exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
     const hoursAndMinutes = `${padTo2Digits(date.getHours())}:${padTo2Digits(date.getMinutes())}`;
     const query = db.collection('notifications');
     const notificationDocuments = await query.get();
-    notificationDocuments.forEach((document) => {
+    notificationDocuments?.forEach((document) => {
       if (document.data().notifications) {
-        document.data().notifications.forEach(async (notification, notifIndex) => {
+        document.data().notifications?.forEach(async (notification, notifIndex) => {
           const {
             enabled, startDate, endDate, repeatDays, sendTime, timezoneOffset, phoneNumber,
           } = notification;

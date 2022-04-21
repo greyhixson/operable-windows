@@ -26,6 +26,25 @@ async function getAllSpaces(orgName) {
   return spaces;
 }
 
+async function deleteNotification(notifIndex, documentId) {
+  const notificationRef = await db.collection('notifications').doc(documentId);
+  const notificationDoc = await notificationRef.get();
+  const notificationsObj = notificationDoc.data();
+  if (notificationsObj.notifications) {
+    functions.logger.log('notifications', notificationsObj.notifications);
+    const notifArray = notificationsObj.notifications;
+    functions.logger.log('notifArray', notifArray);
+    notifArray.splice(notifIndex, 1);
+    functions.logger.log('new notifArray', notifArray);
+    const notifications = { notifications: notifArray };
+    await notificationRef.set({
+      notifications,
+    });
+  }
+
+  return [];
+}
+
 async function getWeatherApiKey() {
   const apiRef = db.collection('keys').doc('openweathermap');
   const apiDoc = await apiRef.get();
@@ -133,18 +152,21 @@ exports.checkNotifications = functions.runWith({ memory: '2GB' }).pubsub
     const notificationDocuments = await query.get();
     notificationDocuments.forEach((document) => {
       if (document.data().notifications) {
-        document.data().notifications.forEach(async (notification) => {
+        document.data().notifications.forEach(async (notification, notifIndex) => {
           const {
             enabled, startDate, endDate, repeatDays, sendTime, timezoneOffset, phoneNumber,
           } = notification;
-          const UTCSendTime = sendTimeToUTC(sendTime, timezoneOffset);
-          const currentDay = getCurrentDay(sendTime, timezoneOffset, date);
-          const repeatsToday = repeatDays.some((day) => day === currentDay);
-          if (enabled && startDate && endDate && repeatsToday && phoneNumber && UTCSendTime === hoursAndMinutes) {
-            timestamp += timezoneOffset * 3600000;
-            const startTime = new Date(startDate).getTime();
-            const endTime = new Date(endDate).getTime();
-            if (startTime < timestamp && endTime > timestamp) {
+          // Check if the notification has expired, and if the notification send date has started.
+          const startTime = new Date(startDate).getTime();
+          const endTime = new Date(endDate).getTime();
+          timestamp += timezoneOffset * 3600000;
+          if (endTime < timestamp) {
+            await deleteNotification(notifIndex, document.id);
+          } else if (startTime < timestamp && endTime > timestamp) {
+            const UTCSendTime = sendTimeToUTC(sendTime, timezoneOffset);
+            const currentDay = getCurrentDay(sendTime, timezoneOffset, date);
+            const repeatsToday = repeatDays.some((day) => day === currentDay);
+            if (enabled && startDate && endDate && repeatsToday && phoneNumber && UTCSendTime === hoursAndMinutes) {
               await sendNotification(notification);
             }
           }

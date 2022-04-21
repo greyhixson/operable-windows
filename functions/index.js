@@ -33,9 +33,8 @@ async function deleteNotification(notifIndex, documentId) {
   if (notificationsObj.notifications) {
     const notifArray = notificationsObj.notifications;
     notifArray.splice(notifIndex, 1);
-    const notifications = [notifArray];
     await notificationRef.set({
-      notifications,
+      notifications: notifArray,
     });
   }
 

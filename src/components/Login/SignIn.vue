@@ -46,6 +46,7 @@
             class="mt-n2"
           >
             Forgot your password? <a
+              tabindex="0"
               @keyup.enter="passwordReset = true; alert.msg = false;"
               @click.prevent="passwordReset = true; alert.msg = false;"
             >

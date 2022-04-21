@@ -130,7 +130,7 @@
 
                                   <v-text-field
                                     v-model="editedItem.maxAqi"
-                                    label="Maximum Air Pollution"
+                                    label="Maximum Air Quality Index (1 - 5)"
                                     :rules="aqiRules"
                                     type="number"
                                     outlined
@@ -285,7 +285,7 @@ export default {
         { text: 'Maximum Humidity (%)', value: 'maxHumidity', align: 'center' },
         { text: 'Minimum Temperature (F°)', value: 'minTemp', align: 'center' },
         { text: 'Maximum Temperature (F°)', value: 'maxTemp', align: 'center' },
-        { text: 'Maximum Air Pollution', value: 'maxAqi', align: 'center' },
+        { text: 'Maximum Air Quality Index', value: 'maxAqi', align: 'center' },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
       spaces: [],

@@ -44,12 +44,11 @@
           justify="center"
         >
           <v-col
-            class="mr-2"
+            class="mr-4"
             cols="4"
           >
             <v-btn
               block
-              min-width="125"
               min-height="45"
               elevation="1"
               @click="accountBtn"
@@ -58,12 +57,11 @@
             </v-btn>
           </v-col>
           <v-col
-            class="ml-2"
+            class="ml-4"
             cols="4"
           >
             <v-btn
               block
-              min-width="125"
               min-height="45"
               elevation="1"
               @click="settings"

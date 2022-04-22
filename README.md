@@ -1,6 +1,6 @@
 # Operable Windows Notifier
-Project for my honors thesis at the University of Arkansas.
-The project entails working with the Department of Sustainability to create an application that allows for an admin to manage and register an organization that can setup spaces with various parameters. Users can then search for organizations and spaces and get notified whether or not their operable window should be opened or closed. 
+Project for my honor's thesis at the University of Arkansas.
+The project entails working with the Department of Sustainability to create an application that allows for an admin to manage and register an organization that can setup spaces with various parameters. Users can then search for organizations and spaces and get notified whether their operable window should be opened or closed. 
 
 ### Tech Stack
 Vue.js 2 \

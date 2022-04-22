@@ -44,7 +44,7 @@
           justify="center"
         >
           <v-col
-            class="mr-2"
+            class="mr-3"
             cols="4"
           >
             <v-btn
@@ -57,7 +57,7 @@
             </v-btn>
           </v-col>
           <v-col
-            class="ml-2"
+            class="ml-3"
             cols="4"
           >
             <v-btn

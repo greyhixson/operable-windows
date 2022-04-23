@@ -21,7 +21,7 @@
         :filter="onOrgFilter"
         label="Search for your organization"
         clearable
-        hint="The organization that you want to select a space from"
+        hint="The organization that you want to select a space from."
         hide-no-data
         return-object
         outlined
@@ -50,10 +50,10 @@
         :search-input.sync="spaceSearch"
         :filter="onSpaceFilter"
         label="Search for your space"
-        no-data-text="Please select an organization first"
+        no-data-text="Please select an organization first."
         clearable
         return-object
-        hint="The space your operable window is in"
+        hint="The space your operable window is in."
         outlined
         prepend-icon="mdi-home-search"
       >

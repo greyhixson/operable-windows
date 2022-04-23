@@ -177,7 +177,7 @@
                           v-model="phoneNumber"
                           label="Phone Number"
                           type="number"
-                          hint="This will be the phone number that will receive any saved text notifications"
+                          hint="This will be the phone number that will receive any saved text notifications."
                           persistent-hint
                         />
                       </v-card-text>
@@ -297,7 +297,7 @@
                             :filter="onOrgFilter"
                             required
                             :rules="requiredRule"
-                            hint="The organization that you want to select a space from"
+                            hint="The organization that you want to select a space from."
                             persistent-hint
                             hide-no-data
                             outlined
@@ -324,8 +324,8 @@
                             :filter="onSpaceFilter"
                             required
                             :rules="requiredRule"
-                            hint="The space your operable window is in"
-                            no-data-text="Please select an organization first"
+                            hint="The space your operable window is in."
+                            no-data-text="Please select an organization first."
                             persistent-hint
                             outlined
                             prepend-inner-icon="mdi-home-search"
@@ -345,7 +345,7 @@
                                 v-model="notification.sendTime"
                                 type="time"
                                 prepend-inner-icon="mdi-clock-outline"
-                                hint="The time you'll be notified"
+                                hint="The time you'll be notified."
                                 persistent-hint
                                 :rules="requiredRule"
                                 outlined
@@ -358,7 +358,7 @@
                                 :items="days"
                                 multiple
                                 prepend-inner-icon="mdi-repeat"
-                                hint="Days the notification will be sent"
+                                hint="Days the notification will be sent."
                                 persistent-hint
                                 :rules="requiredRule"
                                 outlined
@@ -390,7 +390,7 @@
                                       prepend-inner-icon="mdi-calendar"
                                       readonly
                                       v-bind="attrs"
-                                      hint="The first day the notification will be sent"
+                                      hint="The first day the notification will be sent."
                                       persistent-hint
                                       :rules="requiredRule"
                                       outlined
@@ -420,7 +420,7 @@
                                       prepend-inner-icon="mdi-calendar"
                                       readonly
                                       v-bind="attrs"
-                                      hint="The last day the notification will be sent"
+                                      hint="The last day the notification will be sent."
                                       persistent-hint
                                       :rules="requiredRule"
                                       outlined

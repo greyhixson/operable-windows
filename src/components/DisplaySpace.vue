@@ -1,9 +1,12 @@
 <template>
   <v-container>
-    <v-card class="mx-auto">
+    <v-card
+      class="mx-auto"
+      outlined
+    >
       <v-list-item>
         <v-list-item-content>
-          <v-list-item-title class="text-h4 black--text">
+          <v-list-item-title class="text-h5 black--text">
             {{ space.name }}
           </v-list-item-title>
         </v-list-item-content>
@@ -21,7 +24,7 @@
           </v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
-          <v-list-item-title class="text-h6 wrap-text">
+          <v-list-item-title class="wrap-text text-subtitle-1 font-weight-medium">
             Temperature: {{ weather.main.temp.toFixed(0) }}F
           </v-list-item-title>
           <v-list-item-subtitle class="wrap-text">
@@ -42,7 +45,7 @@
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title
-            class="text-h6 wrap-text"
+            class="wrap-text text-subtitle-1 font-weight-medium"
           >
             Humidity: {{ weather.main.humidity }}
           </v-list-item-title>
@@ -63,7 +66,7 @@
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title
-            class="text-h6 wrap-text"
+            class="wrap-text text-subtitle-1 font-weight-medium"
           >
             Air Quality Index: {{ airPollution.list[0].main.aqi }}
           </v-list-item-title>
@@ -74,22 +77,19 @@
       </v-list-item>
 
       <v-list-item
-        :style="openable ? 'background-color:#68ad53;': 'background-color:#c42741;'"
+        :style="openable ? 'background-color:#68ad53;'
+          : 'background-color:#c42741;'"
       >
         <v-list-item-content>
           <v-list-item-title
-            class="text-h5 white--text wrap-text"
+            class="text-subtitle-1 white--text wrap-text"
           >
             {{ windowMessage }}
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-
-      <v-divider />
-
-      <v-card-actions>
+      <v-card-actions v-if="auth.currentUser">
         <v-btn
-          v-if="auth.currentUser"
           text
           @click="saveSelection"
         >

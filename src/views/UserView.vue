@@ -1,5 +1,5 @@
 <template>
-  <v-container class="text-center">
+  <v-container>
     <v-row
       justify="center"
     >

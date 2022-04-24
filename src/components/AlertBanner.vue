@@ -1,13 +1,11 @@
 <template>
-  <v-container>
-    <v-alert
-      v-model="showAlert"
-      :type="alertType"
-      dismissible
-    >
-      {{ alertMsg }}
-    </v-alert>
-  </v-container>
+  <v-alert
+    v-model="showAlert"
+    :type="alertType"
+    dismissible
+  >
+    {{ alertMsg }}
+  </v-alert>
 </template>
 
 <script>

@@ -75,20 +75,9 @@
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
-
-      <v-list-item
-        :style="openable ? 'background-color:#68ad53;'
-          : 'background-color:#c42741;'"
+      <v-card-actions
+        v-if="auth.currentUser"
       >
-        <v-list-item-content>
-          <v-list-item-title
-            class="text-subtitle-1 white--text wrap-text"
-          >
-            {{ windowMessage }}
-          </v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-      <v-card-actions v-if="auth.currentUser">
         <v-btn
           text
           @click="saveSelection"
@@ -97,13 +86,18 @@
         </v-btn>
       </v-card-actions>
     </v-card>
-    <alert-banner
-      v-if="alert.msg && alert.type"
-      :alert-msg="alert.msg"
-      :alert-type="alert.type"
-      :show-alert-prop="alert.show"
-      @resetAlert="resetAlert"
-    />
+    <v-alert
+      v-if="windowAlert.msg && windowAlert.color"
+      class="text-center pt-4"
+      style="margin: 0;"
+      :color="windowAlert.color"
+      border="bottom"
+      dark
+    >
+      <div class="pb-1">
+        {{ windowAlert.msg }}
+      </div>
+    </v-alert>
   </v-container>
 </template>
 
@@ -111,13 +105,9 @@
 import { getAuth } from 'firebase/auth';
 import { db } from '@/store/store';
 import { doc, updateDoc } from 'firebase/firestore';
-import AlertBanner from '@/components/AlertBanner.vue';
 
 export default {
   name: 'DisplaySpace',
-  components: {
-    AlertBanner,
-  },
   props: {
     space: {
       type: Object,
@@ -138,10 +128,9 @@ export default {
   },
   data() {
     return {
-      alert: {
-        type: '',
+      windowAlert: {
+        color: '',
         msg: '',
-        show: false,
       },
     };
   },
@@ -167,12 +156,22 @@ export default {
     openable() {
       return this.tempOk && this.humidityOk && this.airPollutionOk;
     },
-    windowMessage() {
+  },
+  watch: {
+    openable() {
       if (this.openable) {
-        return 'You may open your window';
+        this.setWindowAlert('green lighten', 'You may open your window');
+      } else if (!this.openable) {
+        this.setWindowAlert('red lighten-1', 'Please keep your window closed');
       }
-      return 'Keep your window closed';
     },
+  },
+  mounted() {
+    if (this.openable) {
+      this.setWindowAlert('green lighten', 'You may open your window');
+    } else if (!this.openable) {
+      this.setWindowAlert('red lighten-1', 'Please keep your window closed');
+    }
   },
   methods: {
     async saveSelection() {
@@ -184,21 +183,15 @@ export default {
           await updateDoc(doc(db, 'users', uid), {
             favorite: updatedFavorite,
           });
-          this.setAlert('success', 'Preferences saved');
+          this.setWindowAlert('green lighten', 'Preferences saved');
         } catch {
-          this.setAlert('error', 'An error has occurred, please try again later');
+          this.setWindowAlert('red lighten-1', 'An error has occurred, please try again later');
         }
       }
     },
-    resetAlert() {
-      this.alert.show = false;
-      this.alert.msg = '';
-      this.alert.type = '';
-    },
-    setAlert(alertType, alertMsg) {
-      this.alert.show = true;
-      this.alert.msg = alertMsg;
-      this.alert.type = alertType;
+    setWindowAlert(alertColor, alertMsg) {
+      this.windowAlert.color = alertColor;
+      this.windowAlert.msg = alertMsg;
     },
   },
 };

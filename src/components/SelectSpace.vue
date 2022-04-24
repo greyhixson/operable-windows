@@ -41,6 +41,7 @@
     </v-row>
     <v-row
       no-gutters
+      class="mb-n6"
     >
       <v-autocomplete
         ref="selectSpace"

@@ -25,7 +25,7 @@
         hide-no-data
         return-object
         outlined
-        prepend-icon="mdi-magnify"
+        prepend-inner-icon="mdi-magnify"
       >
         <template #selection="{ item }">
           <span v-text="item.name" />
@@ -55,7 +55,7 @@
         return-object
         hint="The space your operable window is in."
         outlined
-        prepend-icon="mdi-home-search"
+        prepend-inner-icon="mdi-home-search"
       >
         <template #selection="{ item }">
           <span v-text="item.name" />

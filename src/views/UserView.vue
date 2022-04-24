@@ -12,6 +12,7 @@
       >
         <v-row
           no-gutters
+          justify="center"
         >
           <v-col>
             <select-space
@@ -25,7 +26,6 @@
         </v-row>
         <v-row
           no-gutters
-          class="pl-6 mt-n4 mb-2"
         >
           <v-col>
             <display-space
@@ -39,13 +39,16 @@
           </v-col>
         </v-row>
         <v-row
-          class="pl-6"
           no-gutters
           justify="center"
         >
           <v-col
             class="mr-3"
-            cols="4"
+            xs="5"
+            sm="4"
+            md="4"
+            lg="4"
+            xl="4"
           >
             <v-btn
               block
@@ -58,7 +61,11 @@
           </v-col>
           <v-col
             class="ml-3"
-            cols="4"
+            xs="5"
+            sm="4"
+            md="4"
+            lg="4"
+            xl="4"
           >
             <v-btn
               block

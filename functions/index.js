@@ -132,7 +132,6 @@ async function sendNotification(notification) {
   if (openable) {
     await db.collection('notificationMessages').add({
       message: 'Your window can be opened',
-      phoneNumber: notification.phoneNumber,
       notification,
     });
   }

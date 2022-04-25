@@ -127,9 +127,19 @@ function getCurrentDay(sendTime, timezoneOffset, date) {
   return days[currentDayIndex];
 }
 
+async function writeToRealtimeDB(notification) {
+  await admin.database()
+    .ref(`notificationMessages/${notification.phoneNumber}`)
+    .set({
+      message: 'Your window can be opened',
+      notification,
+    });
+}
+
 async function sendNotification(notification) {
   const openable = await checkIfOpenable(notification);
   if (openable) {
+    await writeToRealtimeDB(notification);
     await db.collection('notificationMessages').add({
       message: 'Your window can be opened',
       notification,

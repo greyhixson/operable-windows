@@ -1,6 +1,6 @@
 # Operable Windows Notifier
-* Completed project for my honors thesis at the University of Arkansas https://scholarworks.uark.edu/csceuht/100/.
-* Web application allows for an admin to create an organization and then add and update spaces for their organization. A user can then search for their organization and then for a specific space. The application will then display a visual card which conveys details surrounding the window for their space as set by the admin. 
+Completed project for my honors thesis at the University of Arkansas https://scholarworks.uark.edu/csceuht/100/.
+The web application allows for an admin to create an organization and then add and update spaces for their organization. A user can then search for their organization and then for a specific space. The application will then display a visual card which conveys details surrounding the window for their space as set by the admin. 
 
 
 ### Tech Stack

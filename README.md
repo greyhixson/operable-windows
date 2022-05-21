@@ -36,4 +36,4 @@ npm run lint
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## Note
-The project's Firebase app is disabled to prevent user abuse of resources. If you are interested in continuing development of the application feel free to fork it, and if instructions are needed on how to get it running please message me and I'll get back to you as soon as I can.
+The project's Firebase app is disabled to prevent user abuse of resources. If you are interested in continuing development of the application feel free to fork it, and if instructions are needed on how to get it running please email me and I'll get back to you as soon as I can.
